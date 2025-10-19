@@ -1,0 +1,72 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+
+# Environment Variables
+.env
+*.env
+!.env.example
+
+# MongoDB
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data files
+data/raw/*.json
+data/raw/*.csv
+data/processed/*
+data/images/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/images/.gitkeep
+
+# Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# Models (embeddings pueden ser pesados)
+models/
+*.pt
+*.pth
+*.h5
+*.pkl
+
+# Credentials
+credentials.json
+service-account.json
