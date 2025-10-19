@@ -3,9 +3,9 @@
 ## 1. Diagrama de Colecciones (Estructura de Datos)
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
+┌──────────────────────────────────────────────────────────────────────┐
 │                         COLECCIÓN: articles                          │
-├─────────────────────────────────────────────────────────────────────┤
+├──────────────────────────────────────────────────────────────────────┤
 │ PK  _id                    : ObjectId                                │
 │     titulo                 : String(5-200)                           │
 │     contenido              : String(min:100)                         │
@@ -14,10 +14,10 @@
 │                                                                      │
 │     metadata {                                                       │
 │         fecha_publicacion  : Date                                    │
-│         idioma            : Enum[es, en]                            │
-│         categoria         : Enum[ML, Backend, Frontend, ...]        │
-│         dificultad        : Enum[basico, intermedio, avanzado]      │
-│         tiempo_lectura_min: Integer(1-120)                          │
+│         idioma            : Enum[es, en]                             │
+│         categoria         : Enum[ML, Backend, Frontend, ...]         │
+│         dificultad        : Enum[basico, intermedio, avanzado]       │
+│         tiempo_lectura_min: Integer(1-120)                           │
 │         fuente            : String(URL)                              │
 │     }                                                                │
 │                                                                      │
@@ -40,9 +40,9 @@
                                                           │
                                                           │  1:N
                                                           │
-┌─────────────────────────────────────────────────────────▼────────────┐
+┌─────────────────────────────────────────────────────────▼─────────────┐
 │                         COLECCIÓN: images                             │
-├──────────────────────────────────────────────────────────────────────┤
+├───────────────────────────────────────────────────────────────────────┤
 │ PK  _id                    : ObjectId                                 │
 │     nombre                 : String(3-100)                            │
 │     descripcion            : String(max:500)                          │
@@ -50,8 +50,8 @@
 │     image_embedding        : Array[Float](512)                        │
 │                                                                       │
 │     metadata {                                                        │
-│         formato           : Enum[png, jpg, svg, gif, webp]           │
-│         tamaño_kb         : Integer(1-5120)                          │
+│         formato           : Enum[png, jpg, svg, gif, webp]            │
+│         tamaño_kb         : Integer(1-5120)                           │
 │         dimensiones {                                                 │
 │             ancho         : Integer                                   │
 │             alto          : Integer                                   │
@@ -61,19 +61,19 @@
 │                                                                       │
 │     tags                   : Array[String](max:15)                    │
 │     fecha_creacion         : Date                                     │
-└──────────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────────────┘
 
 
-┌──────────────────────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────────────────────┐
 │                    COLECCIÓN: query_history                           │
-├──────────────────────────────────────────────────────────────────────┤
+├───────────────────────────────────────────────────────────────────────┤
 │ PK  _id                    : ObjectId                                 │
 │     query_text             : String(3-500)                            │
 │     query_type             : Enum[semantic, hybrid, image, text]      │
 │     query_embedding        : Array[Float]                             │
 │                                                                       │
 │     filtros_aplicados {                                               │
-│         idioma            : Enum[es, en]                             │
+│         idioma            : Enum[es, en]                              │
 │         categoria         : String                                    │
 │         fecha_desde       : Date                                      │
 │         fecha_hasta       : Date                                      │
@@ -81,14 +81,14 @@
 │                                                                       │
 │     resultados {                                                      │
 │         count             : Integer(>=0)                              │
-│ FK      top_docs          : Array[ObjectId]                          │
-│         scores            : Array[Float](0.0-1.0)                    │
+│ FK      top_docs          : Array[ObjectId]                           │
+│         scores            : Array[Float](0.0-1.0)                     │
 │     }                                                                 │
 │                                                                       │
 │     metricas {                                                        │
-│         tiempo_busqueda_ms: Integer(>=0)                             │
-│         tiempo_llm_ms     : Integer(>=0)                             │
-│         tiempo_total_ms   : Integer(>=0)                             │
+│         tiempo_busqueda_ms: Integer(>=0)                              │
+│         tiempo_llm_ms     : Integer(>=0)                              │
+│         tiempo_total_ms   : Integer(>=0)                              │
 │     }                                                                 │
 │                                                                       │
 │     respuesta_generada     : String(max:5000)                         │
@@ -98,10 +98,10 @@
 │         util              : Boolean                                   │
 │         comentario        : String(max:500)                           │
 │     }                                                                 │
-└──────────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
----
+--
 
 ## 2. Diagrama de Relaciones
 
@@ -132,12 +132,12 @@
 
 
         ┌─────────────────────────────────────┐
-        │         query_history                │
+        │         query_history               │
         ├─────────────────────────────────────┤
-        │ - query_text                         │
-        │ - query_type                         │
-        │ - resultados.top_docs[] ────────┐   │
-        └─────────────────────────────────┘   │
+        │ - query_text                        │
+        │ - query_type                        │
+        │ - resultados.top_docs[]             │
+        └─────────────────────────────────────┘   
                                               │ N:N
                                               │ (Referencia débil)
                                               │
@@ -190,7 +190,7 @@
        │ 5. Prompt + Context
        ▼
 ┌─────────────────────┐
-│   LLM (Groq/Llama) │
+│   LLM (Groq/Llama)  │
 │  - Generar respuesta│
 └──────┬──────────────┘
        │
@@ -215,46 +215,46 @@
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
-│                        FRONTEND / API CLIENT                       │
+│                        FRONTEND / API CLIENT                      │
 └────────────────────────────────┬──────────────────────────────────┘
                                  │
                                  │ HTTP/REST
                                  ▼
 ┌───────────────────────────────────────────────────────────────────┐
-│                         FASTAPI BACKEND                            │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐            │
-│  │   /search    │  │    /rag      │  │   /stats     │            │
-│  │   endpoint   │  │   endpoint   │  │   endpoint   │            │
-│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘            │
-│         │                  │                  │                    │
-└─────────┼──────────────────┼──────────────────┼────────────────────┘
+│                         FASTAPI BACKEND                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │   /search    │  │    /rag      │  │   /stats     │             │
+│  │   endpoint   │  │   endpoint   │  │   endpoint   │             │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘             │ 
+│         │                  │                  │                   │
+└─────────┼──────────────────┼──────────────────┼───────────────────┘
           │                  │                  │
           │                  │                  │
 ┌─────────▼──────────────────▼──────────────────▼────────────────────┐
-│                      SERVICES LAYER                                 │
-│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐       │
-│  │  Embedding     │  │  Search        │  │  Analytics     │       │
-│  │  Service       │  │  Service       │  │  Service       │       │
-│  └────────┬───────┘  └────────┬───────┘  └────────┬───────┘       │
+│                      SERVICES LAYER                                │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐        │
+│  │  Embedding     │  │  Search        │  │  Analytics     │        │
+│  │  Service       │  │  Service       │  │  Service       │        │
+│  └────────┬───────┘  └────────┬───────┘  └────────┬───────┘        │
 │           │                   │                   │                │
 └───────────┼───────────────────┼───────────────────┼────────────────┘
             │                   │                   │
             │                   │                   │
 ┌───────────▼───────────────────▼───────────────────▼────────────────┐
-│                      DATA ACCESS LAYER                              │
-│  ┌────────────────────────────────────────────────────────┐         │
-│  │              PyMongo Client                             │         │
-│  └────────────────────┬───────────────────────────────────┘         │
-└───────────────────────┼─────────────────────────────────────────────┘
+│                      DATA ACCESS LAYER                             │
+│  ┌────────────────────────────────────────────────────────┐        │
+│  │              PyMongo Client                             │       │
+│  └────────────────────┬───────────────────────────────────┘        │
+└───────────────────────┼────────────────────────────────────────────┘
                         │
                         │ MongoDB Protocol
                         ▼
 ┌───────────────────────────────────────────────────────────────────┐
-│                      MONGODB ATLAS                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐            │
-│  │   articles   │  │    images    │  │query_history │            │
-│  └──────────────┘  └──────────────┘  └──────────────┘            │
-│                                                                    │
+│                      MONGODB ATLAS                                │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │   articles   │  │    images    │  │query_history │             │
+│  └──────────────┘  └──────────────┘  └──────────────┘             │
+│                                                                   │
 │  ┌──────────────────────────────────────────────────────┐         │
 │  │           Atlas Vector Search Engine                 │         │
 │  │  - kNN Search (cosine similarity)                    │         │
@@ -264,7 +264,7 @@
 
 
 ┌───────────────────────────────────────────────────────────────────┐
-│                    EXTERNAL SERVICES                               │
+│                    EXTERNAL SERVICES                              │
 │  ┌────────────────┐                  ┌────────────────┐           │
 │  │  Groq API      │                  │ HuggingFace    │           │
 │  │  (LLM)         │                  │ (Embeddings)   │           │
@@ -279,7 +279,7 @@
 ```
 Usuario    API      Embedder   MongoDB   VectorSearch   LLM      History
   │         │          │          │            │         │          │
-  │──Query──▶│          │          │            │         │          │
+  │──Query──▶│         │         │            │         │          │
   │         │          │          │            │         │          │
   │         │─Embed───▶│          │            │         │          │
   │         │          │          │            │         │          │
@@ -396,7 +396,7 @@ COLECCIÓN: articles
 │  │  - metadata.fecha_publicacion              │  │
 │  └────────────────────────────────────────────┘  │
 │                                                  │
-│  Uso: Búsqueda semántica + filtros híbridos     │
+│  Uso: Búsqueda semántica + filtros híbridos      │
 └──────────────────────────────────────────────────┘
 ```
 
@@ -406,63 +406,63 @@ COLECCIÓN: articles
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     ESTRATEGIA: EMBEDDED                         │
+│                     ESTRATEGIA: EMBEDDED                        │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  {                                                               │
-│    "_id": ObjectId("..."),                                       │
-│    "titulo": "Artículo",                                         │
+│                                                                 │
+│  {                                                              │
+│    "_id": ObjectId("..."),                                      │
+│    "titulo": "Artículo",                                        │
 │    "metadata": {              ◄── Embebido (Embedded)           │
-│      "fecha": Date,                                              │
-│      "idioma": "es",                                             │
-│      "categoria": "Backend"                                      │
-│    },                                                            │
+│      "fecha": Date,                                             │
+│      "idioma": "es",                                            │
+│      "categoria": "Backend"                                     │
+│    },                                                           │
 │    "autor": {                 ◄── Embebido (Embedded)           │
-│      "nombre": "Juan",                                           │
-│      "perfil": "url"                                             │
-│    }                                                             │
-│  }                                                               │
-│                                                                  │
-│  ✅ Ventajas:                                                    │
-│     - 1 sola query                                               │
-│     - Atomicidad garantizada                                     │
-│     - Mejor rendimiento en lecturas                              │
-│                                                                  │
-│  ❌ Desventajas:                                                 │
-│     - Duplicación si se comparte                                 │
-│     - Crece el documento                                         │
+│      "nombre": "Juan",                                          │
+│      "perfil": "url"                                            │
+│    }                                                            │
+│  }                                                              │
+│                                                                 │
+│   Ventajas:                                                     │
+│     - 1 sola query                                              │
+│     - Atomicidad garantizada                                    │
+│     - Mejor rendimiento en lecturas                             │
+│                                                                 │
+│   Desventajas:                                                  │
+│     - Duplicación si se comparte                                │
+│     - Crece el documento                                        │
 └─────────────────────────────────────────────────────────────────┘
 
 
 ┌─────────────────────────────────────────────────────────────────┐
-│                   ESTRATEGIA: REFERENCED                         │
+│                   ESTRATEGIA: REFERENCED                        │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  COLECCIÓN: articles                                             │
-│  {                                                               │
-│    "_id": ObjectId("doc1"),                                      │
-│    "titulo": "Artículo",                                         │
+│                                                                 │
+│  COLECCIÓN: articles                                            │
+│  {                                                              │
+│    "_id": ObjectId("doc1"),                                     │
+│    "titulo": "Artículo",                                        │
 │    "imagenes": [             ◄── Referencias (Referenced)       │
-│      ObjectId("img1"),                                           │
-│      ObjectId("img2")                                            │
-│    ]                                                             │
-│  }                                                               │
-│                                                                  │
-│  COLECCIÓN: images                                               │
-│  {                                                               │
+│      ObjectId("img1"),                                          │
+│      ObjectId("img2")                                           │
+│    ]                                                            │
+│  }                                                              │
+│                                                                 │
+│  COLECCIÓN: images                                              │
+│  {                                                              │
 │    "_id": ObjectId("img1"),  ◄── Documento separado             │
-│    "url": "https://...",                                         │
-│    "image_embedding": [...]                                      │
-│  }                                                               │
-│                                                                  │
-│  ✅ Ventajas:                                                    │
-│     - No hay duplicación                                         │
-│     - Reutilización (N:N)                                        │
-│     - Documentos más pequeños                                    │
-│                                                                  │
-│  ❌ Desventajas:                                                 │
-│     - Requiere múltiples queries o $lookup                       │
-│     - Mayor complejidad                                          │
+│    "url": "https://...",                                        │
+│    "image_embedding": [...]                                     │
+│  }                                                              │
+│                                                                 │
+│   Ventajas:                                                     │
+│     - No hay duplicación                                        │
+│     - Reutilización (N:N)                                       │
+│     - Documentos más pequeños                                   │
+│                                                                 │
+│   Desventajas:                                                  │
+│     - Requiere múltiples queries o $lookup                      │
+│     - Mayor complejidad                                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -474,45 +474,45 @@ COLECCIÓN: articles
 ┌─────────────────────────────────────────────────────────┐
 │  PIPELINE: Buscar artículos de ML en español con imgs   │
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
-│  db.articles.aggregate([                                 │
-│                                                          │
+│                                                         │
+│  db.articles.aggregate([                                │
+│                                                         │
 │    ┌────────────────────────────────────┐               │
-│    │ $match                              │               │
-│    │ {                                   │               │
-│    │   "metadata.categoria": "ML",       │               │
-│    │   "metadata.idioma": "es"           │               │
-│    │ }                                   │               │
+│    │ $match                             │               │
+│    │ {                                  │               │
+│    │   "metadata.categoria": "ML",      │               │
+│    │   "metadata.idioma": "es"          │               │
+│    │ }                                  │               │
 │    └────────────┬───────────────────────┘               │
-│                 │                                        │
-│                 ▼                                        │
+│                 │                                       │
+│                 ▼                                       │
 │    ┌────────────────────────────────────┐               │
-│    │ $lookup                             │               │
-│    │ {                                   │               │
-│    │   from: "images",                   │               │
-│    │   localField: "imagenes",           │               │
-│    │   foreignField: "_id",              │               │
-│    │   as: "imagenes_data"               │               │
-│    │ }                                   │               │
+│    │ $lookup                            │               │
+│    │ {                                  │               │
+│    │   from: "images",                  │               │
+│    │   localField: "imagenes",          │               │
+│    │   foreignField: "_id",             │               │
+│    │   as: "imagenes_data"              │               │
+│    │ }                                  │               │
 │    └────────────┬───────────────────────┘               │
-│                 │                                        │
-│                 ▼                                        │
+│                 │                                       │
+│                 ▼                                       │
 │    ┌────────────────────────────────────┐               │
-│    │ $project                            │               │
-│    │ {                                   │               │
-│    │   titulo: 1,                        │               │
-│    │   resumen: 1,                       │               │
-│    │   "imagenes_data.url": 1            │               │
-│    │ }                                   │               │
+│    │ $project                           │               │
+│    │ {                                  │               │
+│    │   titulo: 1,                       │               │
+│    │   resumen: 1,                      │               │
+│    │   "imagenes_data.url": 1           │               │
+│    │ }                                  │               │
 │    └────────────┬───────────────────────┘               │
-│                 │                                        │
-│                 ▼                                        │
+│                 │                                       │
+│                 ▼                                       │
 │    ┌────────────────────────────────────┐               │
-│    │ $limit                              │               │
-│    │ 10                                  │               │
-│    └─────────────────────────────────────┘              │
-│                                                          │
-│  ])                                                      │
+│    │ $limit                             │               │
+│    │ 10                                 │               │
+│    └────────────────────────────────────┘               │
+│                                                         │
+│  ])                                                     │
 └─────────────────────────────────────────────────────────┘
 ```
 
