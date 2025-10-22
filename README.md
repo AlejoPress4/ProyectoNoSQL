@@ -233,12 +233,6 @@ python scripts/05_test_connection.py
 - **Análisis Completo**: Ver `docs/Entregable1_Analisis_Diseño.md`
 - **Lineamientos**: Ver `LineamientoProyecto.md`
 
-## 👤 Autor
-
-**Alejandro**  
-Proyecto Final - Bases de Datos No Relacionales  
-Universidad - 2025
-
 ## 📝 Licencia
 
 Proyecto académico de uso educativo.
@@ -263,5 +257,3 @@ pip install pymongo
 
 ---
 
-**Estado del Proyecto**: ✅ Entregable 1 Completado  
-**Última Actualización**: Octubre 2025

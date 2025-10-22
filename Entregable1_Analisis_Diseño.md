@@ -1,10 +1,9 @@
 # Entregable 1: Diseño y Configuración
+
 # Sistema RAG de Tecnología e Innovación
 
 **Proyecto:** Sistema RAG NoSQL con MongoDB  
-**Dominio:** Tecnología, Innovación y Ciencia Computacional  
-**Fecha:** Octubre 2025  
-**Autor:** Alejandro
+**Dominio:** Tecnología, Innovación y Ciencia Computacional
 
 ---
 
@@ -46,58 +45,64 @@ El sistema debe ser capaz de:
 ### 1.3 Casos de Uso Principales
 
 #### CU-1: Búsqueda Semántica de Artículos
+
 **Actor:** Usuario técnico  
 **Descripción:** Buscar artículos relacionados con un concepto tecnológico específico  
-**Ejemplo:** *"¿Qué artículos hablan sobre arquitecturas de microservicios?"*
+**Ejemplo:** _"¿Qué artículos hablan sobre arquitecturas de microservicios?"_
 
 #### CU-2: Consultas Híbridas con Filtros
+
 **Actor:** Desarrollador/Investigador  
 **Descripción:** Buscar contenido específico con restricciones de metadatos  
-**Ejemplo:** *"Tutoriales en español sobre React publicados en 2024"*
+**Ejemplo:** _"Tutoriales en español sobre React publicados en 2024"_
 
 #### CU-3: Búsqueda de Imágenes Técnicas
+
 **Actor:** Estudiante/Profesional  
 **Descripción:** Encontrar diagramas, arquitecturas o visualizaciones similares  
-**Ejemplo:** *"Diagramas de arquitectura similar a este patrón MVC"*
+**Ejemplo:** _"Diagramas de arquitectura similar a este patrón MVC"_
 
 #### CU-4: Preguntas RAG Complejas
+
 **Actor:** Usuario final  
 **Descripción:** Obtener respuestas sintetizadas desde múltiples fuentes  
-**Ejemplo:** *"Compara las ventajas de usar PostgreSQL vs MongoDB para aplicaciones de e-commerce"*
+**Ejemplo:** _"Compara las ventajas de usar PostgreSQL vs MongoDB para aplicaciones de e-commerce"_
 
 #### CU-5: Análisis de Tendencias
+
 **Actor:** Analista técnico  
 **Descripción:** Identificar tendencias tecnológicas emergentes  
-**Ejemplo:** *"¿Cuáles son las tecnologías más mencionadas en artículos de 2024?"*
+**Ejemplo:** _"¿Cuáles son las tecnologías más mencionadas en artículos de 2024?"_
 
 ### 1.4 Requerimientos Funcionales
 
-| ID | Requerimiento | Prioridad |
-|----|--------------|-----------|
-| RF-01 | Almacenar mínimo 100 documentos de texto sobre tecnología | Alta |
-| RF-02 | Almacenar mínimo 50 imágenes técnicas (diagramas, arquitecturas) | Alta |
-| RF-03 | Generar embeddings de texto usando `all-MiniLM-L6-v2` | Alta |
-| RF-04 | Generar embeddings de imágenes usando `CLIP` | Alta |
-| RF-05 | Realizar búsqueda vectorial con $vectorSearch | Alta |
-| RF-06 | Aplicar filtros por fecha, idioma, categoría | Media |
-| RF-07 | Integrar LLM (Groq/Llama 3.1) para generación de respuestas | Alta |
-| RF-08 | Registrar historial de consultas para análisis | Media |
-| RF-09 | Soportar búsqueda multimodal (texto → imagen, imagen → texto) | Media |
-| RF-10 | Validar esquemas de documentos al insertar | Baja |
+| ID    | Requerimiento                                                    | Prioridad |
+| ----- | ---------------------------------------------------------------- | --------- |
+| RF-01 | Almacenar mínimo 100 documentos de texto sobre tecnología        | Alta      |
+| RF-02 | Almacenar mínimo 50 imágenes técnicas (diagramas, arquitecturas) | Alta      |
+| RF-03 | Generar embeddings de texto usando `all-MiniLM-L6-v2`            | Alta      |
+| RF-04 | Generar embeddings de imágenes usando `CLIP`                     | Alta      |
+| RF-05 | Realizar búsqueda vectorial con $vectorSearch                    | Alta      |
+| RF-06 | Aplicar filtros por fecha, idioma, categoría                     | Media     |
+| RF-07 | Integrar LLM (Groq/Llama 3.1) para generación de respuestas      | Alta      |
+| RF-08 | Registrar historial de consultas para análisis                   | Media     |
+| RF-09 | Soportar búsqueda multimodal (texto → imagen, imagen → texto)    | Media     |
+| RF-10 | Validar esquemas de documentos al insertar                       | Baja      |
 
 ### 1.5 Requerimientos No Funcionales
 
-| ID | Requerimiento | Métrica |
-|----|--------------|---------|
-| RNF-01 | Tiempo de respuesta de búsqueda vectorial | < 500ms |
-| RNF-02 | Tiempo de respuesta del pipeline RAG completo | < 3s |
-| RNF-03 | Precisión de recuperación (top-5) | > 80% |
-| RNF-04 | Disponibilidad del sistema | 99% |
-| RNF-05 | Escalabilidad | Soportar hasta 1000 documentos en M0 |
+| ID     | Requerimiento                                 | Métrica                              |
+| ------ | --------------------------------------------- | ------------------------------------ |
+| RNF-01 | Tiempo de respuesta de búsqueda vectorial     | < 500ms                              |
+| RNF-02 | Tiempo de respuesta del pipeline RAG completo | < 3s                                 |
+| RNF-03 | Precisión de recuperación (top-5)             | > 80%                                |
+| RNF-04 | Disponibilidad del sistema                    | 99%                                  |
+| RNF-05 | Escalabilidad                                 | Soportar hasta 1000 documentos en M0 |
 
 ### 1.6 Fuentes de Datos
 
 #### Texto (100+ documentos):
+
 - **DEV.to API**: Artículos sobre desarrollo de software
 - **Medium API**: Posts técnicos sobre tecnología
 - **GitHub README**: Documentación de proyectos populares
@@ -105,6 +110,7 @@ El sistema debe ser capaz de:
 - **Stack Overflow**: Preguntas/respuestas técnicas bien valoradas
 
 #### Imágenes (50+):
+
 - **Unsplash**: Fotos de tecnología, oficinas, hardware
 - **GitHub**: Diagramas de arquitectura de repositorios
 - **Wikipedia Commons**: Imágenes técnicas con licencia libre
@@ -119,21 +125,25 @@ El sistema debe ser capaz de:
 #### Ventajas de MongoDB en este contexto:
 
 1. **Esquema Flexible**
+
    - Los artículos técnicos tienen estructuras variables (algunos con código, otros con tablas, otros con listas)
    - No todos los documentos tienen los mismos campos (ej: algunos tienen autor, otros son anónimos)
    - Fácil evolución del esquema sin migraciones complejas
 
 2. **Atlas Vector Search Nativo**
+
    - Búsqueda vectorial integrada sin necesidad de herramientas externas (como Pinecone o Weaviate)
    - Combinación de filtros tradicionales con búsqueda semántica en una sola query
    - Índices kNN optimizados para embeddings
 
 3. **Aggregation Framework Potente**
+
    - Pipelines complejos para análisis de tendencias
    - Operador `$lookup` para joins entre documentos e imágenes
    - `$facet` para búsquedas multicriterio
 
 4. **Escalabilidad Horizontal**
+
    - Sharding nativo para crecer según necesidades
    - Replicación automática en Atlas
 
@@ -160,14 +170,14 @@ El sistema debe ser capaz de:
 
 ### 2.3 Estrategia de Modelado por Campo
 
-| Campo | Estrategia | Justificación |
-|-------|-----------|---------------|
-| `titulo`, `contenido` | **Embedded** | Pequeños, siempre se consultan juntos |
-| `texto_embedding` (384 dims) | **Embedded** | Necesario en cada query vectorial |
-| `metadata` (fecha, idioma, etc.) | **Embedded** | Usados en filtros híbridos |
-| `imagenes` (array de IDs) | **Referenced** | Imágenes pesadas, reutilizables |
-| `autor` | **Embedded** | Objeto pequeño, alta cohesión |
-| `tags` | **Embedded** | Array pequeño, búsqueda frecuente |
+| Campo                            | Estrategia     | Justificación                         |
+| -------------------------------- | -------------- | ------------------------------------- |
+| `titulo`, `contenido`            | **Embedded**   | Pequeños, siempre se consultan juntos |
+| `texto_embedding` (384 dims)     | **Embedded**   | Necesario en cada query vectorial     |
+| `metadata` (fecha, idioma, etc.) | **Embedded**   | Usados en filtros híbridos            |
+| `imagenes` (array de IDs)        | **Referenced** | Imágenes pesadas, reutilizables       |
+| `autor`                          | **Embedded**   | Objeto pequeño, alta cohesión         |
+| `tags`                           | **Embedded**   | Array pequeño, búsqueda frecuente     |
 
 ---
 
@@ -177,14 +187,14 @@ El sistema debe ser capaz de:
 
 #### 📋 Tabla Comparativa
 
-| Criterio | Embedding (Embebido) | Referencing (Referenciado) | Decisión en el Proyecto |
-|----------|---------------------|---------------------------|------------------------|
-| **Tamaño de datos** | < 1KB | > 10KB | Metadatos: Embedded / Imágenes: Referenced |
-| **Frecuencia de acceso** | Siempre juntos | Acceso independiente | Título+contenido: Embedded |
-| **Relación 1:1 vs 1:N** | 1:1 | 1:N o N:N | Metadatos (1:1): Embedded / Imágenes (N:N): Referenced |
-| **Actualización** | Todo el documento | Solo el referenciado | Metadatos estáticos: Embedded |
-| **Consistencia** | Automática | Requiere transacciones | - |
-| **Performance** | 1 query | 2+ queries (con $lookup) | Equilibrio según caso |
+| Criterio                 | Embedding (Embebido) | Referencing (Referenciado) | Decisión en el Proyecto                                |
+| ------------------------ | -------------------- | -------------------------- | ------------------------------------------------------ |
+| **Tamaño de datos**      | < 1KB                | > 10KB                     | Metadatos: Embedded / Imágenes: Referenced             |
+| **Frecuencia de acceso** | Siempre juntos       | Acceso independiente       | Título+contenido: Embedded                             |
+| **Relación 1:1 vs 1:N**  | 1:1                  | 1:N o N:N                  | Metadatos (1:1): Embedded / Imágenes (N:N): Referenced |
+| **Actualización**        | Todo el documento    | Solo el referenciado       | Metadatos estáticos: Embedded                          |
+| **Consistencia**         | Automática           | Requiere transacciones     | -                                                      |
+| **Performance**          | 1 query              | 2+ queries (con $lookup)   | Equilibrio según caso                                  |
 
 ### 3.2 Casos Específicos del Proyecto
 
@@ -204,7 +214,8 @@ El sistema debe ser capaz de:
 }
 ```
 
-**Razón:** 
+**Razón:**
+
 - Tamaño pequeño (~200 bytes)
 - Siempre se consultan juntos
 - No se comparten entre documentos
@@ -220,6 +231,7 @@ El sistema debe ser capaz de:
 ```
 
 **Razón:**
+
 - Crítico para búsqueda vectorial (debe estar en el mismo documento)
 - Tamaño fijo (~1.5KB)
 - No tiene sentido consultarlo por separado
@@ -247,6 +259,7 @@ El sistema debe ser capaz de:
 ```
 
 **Razón:**
+
 - Imágenes pesadas (50KB - 2MB)
 - Reutilizables en múltiples artículos
 - Relación N:N (un diagrama puede ilustrar varios conceptos)
@@ -265,6 +278,7 @@ El sistema debe ser capaz de:
 ```
 
 **Razón:**
+
 - Datos pequeños
 - No hay CRUD independiente del autor
 - Para este proyecto, no necesitamos una colección `authors`
@@ -274,12 +288,14 @@ El sistema debe ser capaz de:
 #### Embedding
 
 **✅ Ventajas:**
+
 - Una sola consulta para obtener todo
 - Atomicidad garantizada
 - Mejor rendimiento en lecturas
 - Simplicidad en el código
 
 **❌ Desventajas:**
+
 - Duplicación de datos si se comparten
 - Tamaño del documento crece
 - Difícil actualizar datos compartidos
@@ -287,12 +303,14 @@ El sistema debe ser capaz de:
 #### Referencing
 
 **✅ Ventajas:**
+
 - No hay duplicación
 - Documentos más pequeños
 - Escalabilidad para datos grandes
 - Actualizaciones centralizadas
 
 **❌ Desventajas:**
+
 - Requiere múltiples consultas o $lookup
 - Complejidad en el código
 - Posible inconsistencia
@@ -300,6 +318,7 @@ El sistema debe ser capaz de:
 ### 3.4 Conclusión
 
 Para el RAG de Tecnología:
+
 - **80% Embedding**: Metadatos, embeddings, autor, tags
 - **20% Referencing**: Imágenes grandes, documentos relacionados
 
@@ -534,29 +553,29 @@ Para el RAG de Tecnología:
 
 #### 🔍 Colección: `articles`
 
-| Índice | Tipo | Campos | Propósito | Prioridad |
-|--------|------|--------|-----------|-----------|
-| `idx_vector` | **Vector Search** | `texto_embedding` | Búsqueda semántica (kNN) | ⭐⭐⭐ |
-| `idx_fecha_idioma` | **Compuesto** | `{metadata.fecha_publicacion: -1, metadata.idioma: 1}` | Queries híbridas filtradas | ⭐⭐⭐ |
-| `idx_categoria` | **Simple** | `metadata.categoria` | Filtrado por categoría | ⭐⭐ |
-| `idx_tags` | **Multikey** | `tags` | Búsqueda por tags | ⭐⭐ |
-| `idx_texto` | **Text Search** | `{titulo: "text", contenido: "text"}` | Búsqueda de texto completo | ⭐⭐ |
-| `idx_fecha` | **Simple** | `metadata.fecha_publicacion: -1` | Ordenar por recientes | ⭐ |
+| Índice             | Tipo              | Campos                                                 | Propósito                  | Prioridad |
+| ------------------ | ----------------- | ------------------------------------------------------ | -------------------------- | --------- |
+| `idx_vector`       | **Vector Search** | `texto_embedding`                                      | Búsqueda semántica (kNN)   | ⭐⭐⭐    |
+| `idx_fecha_idioma` | **Compuesto**     | `{metadata.fecha_publicacion: -1, metadata.idioma: 1}` | Queries híbridas filtradas | ⭐⭐⭐    |
+| `idx_categoria`    | **Simple**        | `metadata.categoria`                                   | Filtrado por categoría     | ⭐⭐      |
+| `idx_tags`         | **Multikey**      | `tags`                                                 | Búsqueda por tags          | ⭐⭐      |
+| `idx_texto`        | **Text Search**   | `{titulo: "text", contenido: "text"}`                  | Búsqueda de texto completo | ⭐⭐      |
+| `idx_fecha`        | **Simple**        | `metadata.fecha_publicacion: -1`                       | Ordenar por recientes      | ⭐        |
 
 #### 🖼️ Colección: `images`
 
-| Índice | Tipo | Campos | Propósito | Prioridad |
-|--------|------|--------|-----------|-----------|
-| `idx_image_vector` | **Vector Search** | `image_embedding` | Búsqueda visual por similaridad | ⭐⭐⭐ |
-| `idx_tipo` | **Simple** | `metadata.tipo` | Filtrar por tipo de imagen | ⭐⭐ |
-| `idx_tags_img` | **Multikey** | `tags` | Búsqueda por tags | ⭐⭐ |
+| Índice             | Tipo              | Campos            | Propósito                       | Prioridad |
+| ------------------ | ----------------- | ----------------- | ------------------------------- | --------- |
+| `idx_image_vector` | **Vector Search** | `image_embedding` | Búsqueda visual por similaridad | ⭐⭐⭐    |
+| `idx_tipo`         | **Simple**        | `metadata.tipo`   | Filtrar por tipo de imagen      | ⭐⭐      |
+| `idx_tags_img`     | **Multikey**      | `tags`            | Búsqueda por tags               | ⭐⭐      |
 
 #### 📊 Colección: `query_history`
 
-| Índice | Tipo | Campos | Propósito | Prioridad |
-|--------|------|--------|-----------|-----------|
-| `idx_timestamp` | **Simple** | `timestamp: -1` | Análisis temporal | ⭐⭐ |
-| `idx_query_type` | **Simple** | `query_type` | Agrupar por tipo | ⭐ |
+| Índice           | Tipo       | Campos          | Propósito         | Prioridad |
+| ---------------- | ---------- | --------------- | ----------------- | --------- |
+| `idx_timestamp`  | **Simple** | `timestamp: -1` | Análisis temporal | ⭐⭐      |
+| `idx_query_type` | **Simple** | `query_type`    | Agrupar por tipo  | ⭐        |
 
 ### 5.2 Configuración de Índices Vectoriales (Atlas Search)
 
@@ -617,15 +636,18 @@ Para el RAG de Tecnología:
 ### 5.3 Justificación de Índices
 
 #### ¿Por qué Cosine Similarity?
+
 - Mide el ángulo entre vectores, no la magnitud
 - Ideal para embeddings normalizados
 - Mejor que Euclidean para espacios de alta dimensionalidad
 
 #### ¿Por qué índices compuestos?
-- `{fecha: -1, idioma: 1}` optimiza queries como: *"artículos recientes en español"*
+
+- `{fecha: -1, idioma: 1}` optimiza queries como: _"artículos recientes en español"_
 - MongoDB puede usar un índice compuesto para múltiples filtros
 
 #### ¿Por qué índice multikey en tags?
+
 - Los tags son un array
 - Permite búsquedas eficientes como: `{tags: "python"}`
 
@@ -640,32 +662,38 @@ db.createCollection("articles", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["titulo", "contenido", "texto_embedding", "metadata", "fecha_creacion"],
+      required: [
+        "titulo",
+        "contenido",
+        "texto_embedding",
+        "metadata",
+        "fecha_creacion",
+      ],
       properties: {
         titulo: {
           bsonType: "string",
           minLength: 5,
           maxLength: 200,
-          description: "Título del artículo (5-200 caracteres)"
+          description: "Título del artículo (5-200 caracteres)",
         },
         contenido: {
           bsonType: "string",
           minLength: 100,
-          description: "Contenido completo del artículo (min 100 caracteres)"
+          description: "Contenido completo del artículo (min 100 caracteres)",
         },
         resumen: {
           bsonType: "string",
           maxLength: 500,
-          description: "Resumen opcional del artículo"
+          description: "Resumen opcional del artículo",
         },
         texto_embedding: {
           bsonType: "array",
           minItems: 384,
           maxItems: 384,
           items: {
-            bsonType: "double"
+            bsonType: "double",
           },
-          description: "Vector de embeddings (384 dimensiones)"
+          description: "Vector de embeddings (384 dimensiones)",
         },
         metadata: {
           bsonType: "object",
@@ -673,35 +701,46 @@ db.createCollection("articles", {
           properties: {
             fecha_publicacion: {
               bsonType: "date",
-              description: "Fecha de publicación del artículo"
+              description: "Fecha de publicación del artículo",
             },
             idioma: {
               bsonType: "string",
               enum: ["es", "en"],
-              description: "Idioma del artículo (es o en)"
+              description: "Idioma del artículo (es o en)",
             },
             categoria: {
               bsonType: "string",
-              enum: ["Machine Learning", "Backend", "Frontend", "DevOps", "Ciberseguridad", "Mobile", "Data Science", "Cloud", "IoT", "Blockchain"],
-              description: "Categoría tecnológica del artículo"
+              enum: [
+                "Machine Learning",
+                "Backend",
+                "Frontend",
+                "DevOps",
+                "Ciberseguridad",
+                "Mobile",
+                "Data Science",
+                "Cloud",
+                "IoT",
+                "Blockchain",
+              ],
+              description: "Categoría tecnológica del artículo",
             },
             dificultad: {
               bsonType: "string",
               enum: ["basico", "intermedio", "avanzado"],
-              description: "Nivel de dificultad"
+              description: "Nivel de dificultad",
             },
             tiempo_lectura_min: {
               bsonType: "int",
               minimum: 1,
               maximum: 120,
-              description: "Tiempo estimado de lectura en minutos"
+              description: "Tiempo estimado de lectura en minutos",
             },
             fuente: {
               bsonType: "string",
               pattern: "^https?://",
-              description: "URL de la fuente original"
-            }
-          }
+              description: "URL de la fuente original",
+            },
+          },
         },
         autor: {
           bsonType: "object",
@@ -709,13 +748,13 @@ db.createCollection("articles", {
             nombre: {
               bsonType: "string",
               minLength: 2,
-              maxLength: 100
+              maxLength: 100,
             },
             perfil: {
               bsonType: "string",
-              pattern: "^https?://"
-            }
-          }
+              pattern: "^https?://",
+            },
+          },
         },
         tags: {
           bsonType: "array",
@@ -723,45 +762,45 @@ db.createCollection("articles", {
           items: {
             bsonType: "string",
             minLength: 2,
-            maxLength: 30
+            maxLength: 30,
           },
-          description: "Tags del artículo (máximo 10)"
+          description: "Tags del artículo (máximo 10)",
         },
         imagenes: {
           bsonType: "array",
           items: {
-            bsonType: "objectId"
+            bsonType: "objectId",
           },
-          description: "Referencias a imágenes asociadas"
+          description: "Referencias a imágenes asociadas",
         },
         estadisticas: {
           bsonType: "object",
           properties: {
             vistas: {
               bsonType: "int",
-              minimum: 0
+              minimum: 0,
             },
             valoracion: {
               bsonType: "double",
               minimum: 0.0,
-              maximum: 5.0
-            }
-          }
+              maximum: 5.0,
+            },
+          },
         },
         fecha_creacion: {
           bsonType: "date",
-          description: "Fecha de creación en el sistema"
+          description: "Fecha de creación en el sistema",
         },
         fecha_actualizacion: {
           bsonType: "date",
-          description: "Última actualización"
-        }
-      }
-    }
+          description: "Última actualización",
+        },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});
 ```
 
 ### 6.2 Validación para `images`
@@ -771,32 +810,38 @@ db.createCollection("images", {
   validator: {
     $jsonSchema: {
       bsonType: "object",
-      required: ["nombre", "url", "image_embedding", "metadata", "fecha_creacion"],
+      required: [
+        "nombre",
+        "url",
+        "image_embedding",
+        "metadata",
+        "fecha_creacion",
+      ],
       properties: {
         nombre: {
           bsonType: "string",
           minLength: 3,
           maxLength: 100,
-          description: "Nombre del archivo de imagen"
+          description: "Nombre del archivo de imagen",
         },
         descripcion: {
           bsonType: "string",
           maxLength: 500,
-          description: "Descripción de la imagen"
+          description: "Descripción de la imagen",
         },
         url: {
           bsonType: "string",
           pattern: "^https?://",
-          description: "URL de la imagen"
+          description: "URL de la imagen",
         },
         image_embedding: {
           bsonType: "array",
           minItems: 512,
           maxItems: 512,
           items: {
-            bsonType: "double"
+            bsonType: "double",
           },
-          description: "Vector de embeddings de imagen (512 dimensiones)"
+          description: "Vector de embeddings de imagen (512 dimensiones)",
         },
         metadata: {
           bsonType: "object",
@@ -805,33 +850,33 @@ db.createCollection("images", {
             formato: {
               bsonType: "string",
               enum: ["png", "jpg", "jpeg", "svg", "gif", "webp"],
-              description: "Formato de la imagen"
+              description: "Formato de la imagen",
             },
             tamaño_kb: {
               bsonType: "int",
               minimum: 1,
               maximum: 5120,
-              description: "Tamaño en KB (máx 5MB)"
+              description: "Tamaño en KB (máx 5MB)",
             },
             dimensiones: {
               bsonType: "object",
               properties: {
                 ancho: {
                   bsonType: "int",
-                  minimum: 1
+                  minimum: 1,
                 },
                 alto: {
                   bsonType: "int",
-                  minimum: 1
-                }
-              }
+                  minimum: 1,
+                },
+              },
             },
             tipo: {
               bsonType: "string",
               enum: ["diagrama", "screenshot", "grafico", "foto", "icono"],
-              description: "Tipo de imagen"
-            }
-          }
+              description: "Tipo de imagen",
+            },
+          },
         },
         tags: {
           bsonType: "array",
@@ -839,18 +884,18 @@ db.createCollection("images", {
           items: {
             bsonType: "string",
             minLength: 2,
-            maxLength: 30
-          }
+            maxLength: 30,
+          },
         },
         fecha_creacion: {
-          bsonType: "date"
-        }
-      }
-    }
+          bsonType: "date",
+        },
+      },
+    },
   },
   validationLevel: "strict",
-  validationAction: "error"
-})
+  validationAction: "error",
+});
 ```
 
 ### 6.3 Validación para `query_history`
@@ -866,103 +911,103 @@ db.createCollection("query_history", {
           bsonType: "string",
           minLength: 3,
           maxLength: 500,
-          description: "Texto de la consulta del usuario"
+          description: "Texto de la consulta del usuario",
         },
         query_type: {
           bsonType: "string",
           enum: ["semantic", "hybrid", "image", "text"],
-          description: "Tipo de búsqueda realizada"
+          description: "Tipo de búsqueda realizada",
         },
         query_embedding: {
           bsonType: "array",
           items: {
-            bsonType: "double"
-          }
+            bsonType: "double",
+          },
         },
         filtros_aplicados: {
           bsonType: "object",
           properties: {
             idioma: {
               bsonType: "string",
-              enum: ["es", "en"]
+              enum: ["es", "en"],
             },
             categoria: {
-              bsonType: "string"
+              bsonType: "string",
             },
             fecha_desde: {
-              bsonType: "date"
+              bsonType: "date",
             },
             fecha_hasta: {
-              bsonType: "date"
-            }
-          }
+              bsonType: "date",
+            },
+          },
         },
         resultados: {
           bsonType: "object",
           properties: {
             count: {
               bsonType: "int",
-              minimum: 0
+              minimum: 0,
             },
             top_docs: {
               bsonType: "array",
               items: {
-                bsonType: "objectId"
-              }
+                bsonType: "objectId",
+              },
             },
             scores: {
               bsonType: "array",
               items: {
                 bsonType: "double",
                 minimum: 0.0,
-                maximum: 1.0
-              }
-            }
-          }
+                maximum: 1.0,
+              },
+            },
+          },
         },
         metricas: {
           bsonType: "object",
           properties: {
             tiempo_busqueda_ms: {
               bsonType: "int",
-              minimum: 0
+              minimum: 0,
             },
             tiempo_llm_ms: {
               bsonType: "int",
-              minimum: 0
+              minimum: 0,
             },
             tiempo_total_ms: {
               bsonType: "int",
-              minimum: 0
-            }
-          }
+              minimum: 0,
+            },
+          },
         },
         respuesta_generada: {
           bsonType: "string",
-          maxLength: 5000
+          maxLength: 5000,
         },
         timestamp: {
           bsonType: "date",
-          description: "Momento de la consulta"
+          description: "Momento de la consulta",
         },
         user_feedback: {
           bsonType: "object",
           properties: {
             util: {
-              bsonType: "bool"
+              bsonType: "bool",
             },
             comentario: {
               bsonType: "string",
-              maxLength: 500
-            }
-          }
-        }
-      }
-    }
+              maxLength: 500,
+            },
+          },
+        },
+      },
+    },
   },
   validationLevel: "moderate",
-  validationAction: "warn"
-})
+  validationAction: "warn",
+});
 ```
 
 ---
@@ -984,11 +1029,13 @@ db.createCollection("query_history", {
 #### Paso 2: Configurar Seguridad
 
 **Network Access:**
+
 ```
 IP Whitelist: 0.0.0.0/0 (permitir desde cualquier IP para desarrollo)
 ```
 
 **Database User:**
+
 ```
 Username: tech_rag_admin
 Password: [Generar contraseña segura]
@@ -1085,26 +1132,13 @@ Voy a crear los scripts necesarios en archivos separados...
 
 ### 📈 Métricas Esperadas
 
-| Métrica | Valor Objetivo |
-|---------|---------------|
-| Documentos de texto | 100+ artículos |
-| Imágenes | 50+ diagramas/fotos |
-| Dimensiones embeddings texto | 384 (all-MiniLM-L6-v2) |
-| Dimensiones embeddings imagen | 512 (CLIP) |
-| Tiempo de búsqueda | < 500ms |
-| Tiempo RAG completo | < 3s |
+| Métrica                       | Valor Objetivo         |
+| ----------------------------- | ---------------------- |
+| Documentos de texto           | 100+ artículos         |
+| Imágenes                      | 50+ diagramas/fotos    |
+| Dimensiones embeddings texto  | 384 (all-MiniLM-L6-v2) |
+| Dimensiones embeddings imagen | 512 (CLIP)             |
+| Tiempo de búsqueda            | < 500ms                |
+| Tiempo RAG completo           | < 3s                   |
 
 ---
-
-**Próximos Pasos:**
-1. Crear scripts de inicialización (ver archivos adjuntos)
-2. Conseguir dataset de 100+ artículos técnicos
-3. Descargar 50+ imágenes relacionadas
-4. Ejecutar pipeline de carga de datos
-5. Verificar funcionamiento de índices vectoriales
-
----
-
-**Fecha de Entrega:** [Definir según calendario académico]  
-**Autor:** Alejandro  
-**Versión:** 1.0
