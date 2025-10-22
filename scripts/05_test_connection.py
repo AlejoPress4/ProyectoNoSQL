@@ -6,8 +6,10 @@ Script 5: Verificar conexión y estado de la base de datos
 - Insertar y consultar documento de prueba
 """
 
+import os
 import sys
-sys.path.append('..')
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(root_dir)
 
 from config.db_config import get_db_config, COLLECTIONS
 from datetime import datetime
@@ -24,10 +26,10 @@ def test_basic_connection():
     
     try:
         db = config.connect()
-        print("✅ Conexión establecida correctamente")
+        print(" Conexión establecida correctamente")
         return db, config
     except Exception as e:
-        print(f"❌ Fallo en la conexión: {e}")
+        print(f" Fallo en la conexión: {e}")
         return None, None
 
 
@@ -49,9 +51,9 @@ def test_collections_exist(db):
     for col in expected_collections:
         if col in existing_collections:
             count = db[col].estimated_document_count()
-            print(f"✅ '{col}' existe ({count} documentos)")
+            print(f" '{col}' existe ({count} documentos)")
         else:
-            print(f"❌ '{col}' NO existe")
+            print(f" '{col}' NO existe")
             all_exist = False
     
     return all_exist
@@ -67,7 +69,7 @@ def test_indexes(db):
         collection = db[collection_name]
         indexes = list(collection.list_indexes())
         
-        print(f"\n📚 {collection_name}:")
+        print(f"\n {collection_name}:")
         print(f"   Total de índices: {len(indexes)}")
         
         for idx in indexes:
@@ -115,22 +117,22 @@ def test_insert_sample_document(db):
     
     try:
         result = collection.insert_one(sample_doc)
-        print(f"✅ Documento insertado con ID: {result.inserted_id}")
+        print(f" Documento insertado con ID: {result.inserted_id}")
         
         # Consultar el documento insertado
         retrieved_doc = collection.find_one({"_id": result.inserted_id})
-        print(f"✅ Documento consultado exitosamente")
+        print(f" Documento consultado exitosamente")
         print(f"   Título: {retrieved_doc['titulo']}")
         print(f"   Categoría: {retrieved_doc['metadata']['categoria']}")
         
         # Eliminar documento de prueba
         collection.delete_one({"_id": result.inserted_id})
-        print(f"✅ Documento de prueba eliminado")
+        print(f" Documento de prueba eliminado")
         
         return True
         
     except Exception as e:
-        print(f"❌ Error al insertar documento: {e}")
+        print(f" Error al insertar documento: {e}")
         return False
 
 
@@ -150,11 +152,11 @@ def test_schema_validation(db):
     
     try:
         collection.insert_one(invalid_doc)
-        print("❌ Schema validation NO está funcionando (documento inválido fue insertado)")
+        print(" Schema validation NO está funcionando (documento inválido fue insertado)")
         collection.delete_one({"titulo": "Test"})
         return False
     except Exception as e:
-        print("✅ Schema validation está funcionando correctamente")
+        print(" Schema validation está funcionando correctamente")
         print(f"   Error esperado: {str(e)[:100]}...")
         return True
 
@@ -169,7 +171,7 @@ def test_text_search(db):
     count = collection.estimated_document_count()
     
     if count == 0:
-        print("⚠️  No hay documentos en la colección aún")
+        print("  No hay documentos en la colección aún")
         print("   Este test se ejecutará cuando haya datos cargados")
         return True
     
@@ -181,21 +183,21 @@ def test_text_search(db):
         ).sort([("score", {"$meta": "textScore"})]).limit(5)
         
         result_list = list(results)
-        print(f"✅ Búsqueda de texto ejecutada: {len(result_list)} resultados")
+        print(f" Búsqueda de texto ejecutada: {len(result_list)} resultados")
         
         for i, doc in enumerate(result_list, 1):
             print(f"   {i}. {doc['titulo']} (score: {doc.get('score', 0):.2f})")
         
         return True
     except Exception as e:
-        print(f"❌ Error en búsqueda de texto: {e}")
+        print(f" Error en búsqueda de texto: {e}")
         return False
 
 
 def run_all_tests():
     """Ejecutar todos los tests"""
     print("\n" + "=" * 80)
-    print(" " * 20 + "🧪 SUITE DE TESTS DE CONEXIÓN")
+    print(" " * 20 + " SUITE DE TESTS DE CONEXIÓN")
     print("=" * 80)
     
     results = {}
@@ -205,7 +207,7 @@ def run_all_tests():
     results['Conectividad'] = db is not None
     
     if db is None:
-        print("\n❌ No se puede continuar sin conexión a la base de datos")
+        print("\n No se puede continuar sin conexión a la base de datos")
         return
     
     try:
@@ -227,28 +229,28 @@ def run_all_tests():
         
         # Resumen final
         print("\n" + "=" * 80)
-        print(" " * 30 + "📊 RESUMEN DE TESTS")
+        print(" " * 30 + " RESUMEN DE TESTS")
         print("=" * 80)
         
         total_tests = len(results)
         passed_tests = sum(1 for v in results.values() if v)
         
         for test_name, passed in results.items():
-            status = "✅ PASS" if passed else "❌ FAIL"
+            status = " PASS" if passed else " FAIL"
             print(f"   {status} - {test_name}")
         
         print("\n" + "-" * 80)
         print(f"   Total: {passed_tests}/{total_tests} tests pasados")
         
         if passed_tests == total_tests:
-            print("\n   🎉 ¡TODOS LOS TESTS PASARON EXITOSAMENTE!")
+            print("\n    ¡TODOS LOS TESTS PASARON EXITOSAMENTE!")
         else:
-            print(f"\n   ⚠️  {total_tests - passed_tests} test(s) fallaron")
+            print(f"\n     {total_tests - passed_tests} test(s) fallaron")
         
         print("=" * 80)
         
     except Exception as e:
-        print(f"\n❌ Error durante los tests: {e}")
+        print(f"\n Error durante los tests: {e}")
     finally:
         if config:
             config.close()

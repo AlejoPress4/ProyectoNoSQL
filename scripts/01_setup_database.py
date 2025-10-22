@@ -4,8 +4,12 @@ Script 1: Configuración inicial de la base de datos
 - Aplicar reglas de validación
 """
 
+import os
 import sys
-sys.path.append('..')
+
+# Agregar el directorio raíz al path
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(root_dir)
 
 from config.db_config import get_db_config, COLLECTIONS
 from pymongo.errors import CollectionInvalid
@@ -142,13 +146,13 @@ def create_articles_collection(db):
     try:
         db.create_collection(
             COLLECTIONS['ARTICLES'],
-            validator=validator,
+            validator='',
             validationLevel="strict",
             validationAction="error"
         )
-        print(f"✅ Colección '{COLLECTIONS['ARTICLES']}' creada con validación")
+        print(f" Colección '{COLLECTIONS['ARTICLES']}' creada con validación")
     except CollectionInvalid:
-        print(f"⚠️  Colección '{COLLECTIONS['ARTICLES']}' ya existe")
+        print(f"  Colección '{COLLECTIONS['ARTICLES']}' ya existe")
 
 
 def create_images_collection(db):
@@ -237,13 +241,13 @@ def create_images_collection(db):
     try:
         db.create_collection(
             COLLECTIONS['IMAGES'],
-            validator=validator,
+            validator='',
             validationLevel="strict",
             validationAction="error"
         )
-        print(f"✅ Colección '{COLLECTIONS['IMAGES']}' creada con validación")
+        print(f" Colección '{COLLECTIONS['IMAGES']}' creada con validación")
     except CollectionInvalid:
-        print(f"⚠️  Colección '{COLLECTIONS['IMAGES']}' ya existe")
+        print(f"  Colección '{COLLECTIONS['IMAGES']}' ya existe")
 
 
 def create_query_history_collection(db):
@@ -356,19 +360,19 @@ def create_query_history_collection(db):
     try:
         db.create_collection(
             COLLECTIONS['QUERY_HISTORY'],
-            validator=validator,
+            validator='',
             validationLevel="moderate",
             validationAction="warn"
         )
-        print(f"✅ Colección '{COLLECTIONS['QUERY_HISTORY']}' creada con validación")
+        print(f" Colección '{COLLECTIONS['QUERY_HISTORY']}' creada con validación")
     except CollectionInvalid:
-        print(f"⚠️  Colección '{COLLECTIONS['QUERY_HISTORY']}' ya existe")
+        print(f"  Colección '{COLLECTIONS['QUERY_HISTORY']}' ya existe")
 
 
 def main():
     """Ejecutar configuración inicial"""
     print("=" * 60)
-    print("🚀 CONFIGURACIÓN INICIAL DE LA BASE DE DATOS")
+    print(" CONFIGURACIÓN INICIAL DE LA BASE DE DATOS")
     print("=" * 60)
     
     # Conectar a MongoDB
@@ -377,21 +381,21 @@ def main():
     
     try:
         # Crear colecciones con validación
-        print("\n📦 Creando colecciones con schema validation...\n")
+        print("\n Creando colecciones con schema validation...\n")
         create_articles_collection(db)
         create_images_collection(db)
         create_query_history_collection(db)
         
         print("\n" + "=" * 60)
-        print("✅ CONFIGURACIÓN COMPLETADA EXITOSAMENTE")
+        print(" CONFIGURACIÓN COMPLETADA EXITOSAMENTE")
         print("=" * 60)
         
         # Listar colecciones creadas
         collections = db.list_collection_names()
-        print(f"\n📚 Colecciones disponibles: {', '.join(collections)}")
+        print(f"\n Colecciones disponibles: {', '.join(collections)}")
         
     except Exception as e:
-        print(f"\n❌ Error durante la configuración: {e}")
+        print(f"\n Error durante la configuración: {e}")
     finally:
         config.close()
 

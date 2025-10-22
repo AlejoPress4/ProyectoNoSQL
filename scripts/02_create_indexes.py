@@ -6,8 +6,10 @@ Script 2: Crear índices en las colecciones
 - Preparación para índices vectoriales (se crean en Atlas UI)
 """
 
+import os
 import sys
-sys.path.append('..')
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(root_dir)
 
 from config.db_config import get_db_config, COLLECTIONS
 from pymongo import ASCENDING, DESCENDING, TEXT
@@ -18,7 +20,7 @@ def create_articles_indexes(db):
     
     collection = db[COLLECTIONS['ARTICLES']]
     
-    print(f"\n📊 Creando índices para '{COLLECTIONS['ARTICLES']}'...")
+    print(f"\n Creando índices para '{COLLECTIONS['ARTICLES']}'...")
     
     # Índice compuesto: fecha + idioma (para queries híbridas)
     collection.create_index(
@@ -28,21 +30,21 @@ def create_articles_indexes(db):
         ],
         name="idx_fecha_idioma"
     )
-    print("  ✓ Índice compuesto: metadata.fecha_publicacion + metadata.idioma")
+    print("   Índice compuesto: metadata.fecha_publicacion + metadata.idioma")
     
     # Índice simple: categoría
     collection.create_index(
         [("metadata.categoria", ASCENDING)],
         name="idx_categoria"
     )
-    print("  ✓ Índice simple: metadata.categoria")
+    print("   Índice simple: metadata.categoria")
     
     # Índice multikey: tags
     collection.create_index(
         [("tags", ASCENDING)],
         name="idx_tags"
     )
-    print("  ✓ Índice multikey: tags")
+    print("   Índice multikey: tags")
     
     # Índice de texto: título y contenido
     collection.create_index(
@@ -57,14 +59,14 @@ def create_articles_indexes(db):
             "contenido": 5
         }
     )
-    print("  ✓ Índice de texto: titulo + contenido")
+    print("   Índice de texto: titulo + contenido")
     
     # Índice simple: fecha de publicación (para ordenar)
     collection.create_index(
         [("metadata.fecha_publicacion", DESCENDING)],
         name="idx_fecha"
     )
-    print("  ✓ Índice simple: metadata.fecha_publicacion")
+    print("   Índice simple: metadata.fecha_publicacion")
     
     # Índice compuesto: categoría + dificultad
     collection.create_index(
@@ -74,7 +76,7 @@ def create_articles_indexes(db):
         ],
         name="idx_categoria_dificultad"
     )
-    print("  ✓ Índice compuesto: categoria + dificultad")
+    print("   Índice compuesto: categoria + dificultad")
 
 
 def create_images_indexes(db):
@@ -82,28 +84,28 @@ def create_images_indexes(db):
     
     collection = db[COLLECTIONS['IMAGES']]
     
-    print(f"\n📊 Creando índices para '{COLLECTIONS['IMAGES']}'...")
+    print(f"\n Creando índices para '{COLLECTIONS['IMAGES']}'...")
     
     # Índice simple: tipo de imagen
     collection.create_index(
         [("metadata.tipo", ASCENDING)],
         name="idx_tipo"
     )
-    print("  ✓ Índice simple: metadata.tipo")
+    print("   Índice simple: metadata.tipo")
     
     # Índice multikey: tags de imágenes
     collection.create_index(
         [("tags", ASCENDING)],
         name="idx_tags_img"
     )
-    print("  ✓ Índice multikey: tags")
+    print("   Índice multikey: tags")
     
     # Índice simple: fecha de creación
     collection.create_index(
         [("fecha_creacion", DESCENDING)],
         name="idx_fecha_creacion"
     )
-    print("  ✓ Índice simple: fecha_creacion")
+    print("   Índice simple: fecha_creacion")
 
 
 def create_query_history_indexes(db):
@@ -111,21 +113,21 @@ def create_query_history_indexes(db):
     
     collection = db[COLLECTIONS['QUERY_HISTORY']]
     
-    print(f"\n📊 Creando índices para '{COLLECTIONS['QUERY_HISTORY']}'...")
+    print(f"\n Creando índices para '{COLLECTIONS['QUERY_HISTORY']}'...")
     
     # Índice simple: timestamp (para análisis temporal)
     collection.create_index(
         [("timestamp", DESCENDING)],
         name="idx_timestamp"
     )
-    print("  ✓ Índice simple: timestamp")
+    print("   Índice simple: timestamp")
     
     # Índice simple: tipo de query
     collection.create_index(
         [("query_type", ASCENDING)],
         name="idx_query_type"
     )
-    print("  ✓ Índice simple: query_type")
+    print("   Índice simple: query_type")
     
     # Índice compuesto: timestamp + query_type
     collection.create_index(
@@ -135,21 +137,21 @@ def create_query_history_indexes(db):
         ],
         name="idx_timestamp_type"
     )
-    print("  ✓ Índice compuesto: timestamp + query_type")
+    print("   Índice compuesto: timestamp + query_type")
 
 
 def list_all_indexes(db):
     """Listar todos los índices creados"""
     
     print("\n" + "=" * 60)
-    print("📋 RESUMEN DE ÍNDICES CREADOS")
+    print(" RESUMEN DE ÍNDICES CREADOS")
     print("=" * 60)
     
     for collection_name in [COLLECTIONS['ARTICLES'], COLLECTIONS['IMAGES'], COLLECTIONS['QUERY_HISTORY']]:
         collection = db[collection_name]
         indexes = list(collection.list_indexes())
         
-        print(f"\n📚 Colección: {collection_name}")
+        print(f"\n Colección: {collection_name}")
         print(f"   Total de índices: {len(indexes)}")
         
         for idx in indexes:
@@ -162,11 +164,11 @@ def print_vector_index_instructions():
     """Mostrar instrucciones para crear índices vectoriales en Atlas"""
     
     print("\n" + "=" * 60)
-    print("🔍 ÍNDICES VECTORIALES (Crear manualmente en Atlas)")
+    print(" ÍNDICES VECTORIALES (Crear manualmente en Atlas)")
     print("=" * 60)
     
     print("""
-📌 IMPORTANTE: Los índices vectoriales deben crearse en la UI de MongoDB Atlas
+ IMPORTANTE: Los índices vectoriales deben crearse en la UI de MongoDB Atlas
 
 Pasos para crear el índice vectorial de 'articles':
 1. Ve a tu cluster en MongoDB Atlas
@@ -226,14 +228,14 @@ Repite el proceso anterior con esta configuración:
   }
 }
 
-⏱️  Los índices vectoriales pueden tardar unos minutos en construirse.
+  Los índices vectoriales pueden tardar unos minutos en construirse.
 """)
 
 
 def main():
     """Ejecutar creación de índices"""
     print("=" * 60)
-    print("🚀 CREACIÓN DE ÍNDICES")
+    print("CREACIÓN DE ÍNDICES")
     print("=" * 60)
     
     # Conectar a MongoDB
@@ -253,11 +255,11 @@ def main():
         print_vector_index_instructions()
         
         print("\n" + "=" * 60)
-        print("✅ ÍNDICES TRADICIONALES CREADOS EXITOSAMENTE")
+        print(" ÍNDICES TRADICIONALES CREADOS EXITOSAMENTE")
         print("=" * 60)
         
     except Exception as e:
-        print(f"\n❌ Error durante la creación de índices: {e}")
+        print(f"\n Error durante la creación de índices: {e}")
     finally:
         config.close()
 

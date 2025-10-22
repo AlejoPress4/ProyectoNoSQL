@@ -6,8 +6,10 @@ Script 4: Cargar imágenes técnicas con embeddings a MongoDB
 - Vincula con artículos existentes
 """
 
+import os
 import sys
-sys.path.append('..')
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(root_dir)
 
 from config.db_config import get_db_config, COLLECTIONS
 from datetime import datetime
@@ -240,7 +242,7 @@ def generar_imagenes_completas():
 def vincular_imagenes_con_articulos(db):
     """Vincular imágenes con artículos basándose en tags comunes"""
     
-    print("\n🔗 Vinculando imágenes con artículos...")
+    print("\n Vinculando imágenes con artículos...")
     
     collection_articles = db[COLLECTIONS['ARTICLES']]
     collection_images = db[COLLECTIONS['IMAGES']]
@@ -287,14 +289,14 @@ def vincular_imagenes_con_articulos(db):
             
             vinculaciones += num_imagenes
     
-    print(f"✅ {vinculaciones} vinculaciones creadas")
+    print(f" {vinculaciones} vinculaciones creadas")
 
 
 def cargar_imagenes():
     """Función principal para cargar imágenes a MongoDB"""
     
     print("=" * 80)
-    print(" " * 20 + "🖼️  CARGA DE IMÁGENES TÉCNICAS")
+    print(" " * 20 + "  CARGA DE IMÁGENES TÉCNICAS")
     print("=" * 80)
     
     # Conectar a MongoDB
@@ -306,38 +308,38 @@ def cargar_imagenes():
         # Verificar si ya hay imágenes
         count_existente = collection.count_documents({})
         if count_existente > 0:
-            print(f"\n⚠️  Ya existen {count_existente} imágenes en la base de datos.")
+            print(f"\n  Ya existen {count_existente} imágenes en la base de datos.")
             respuesta = input("¿Deseas eliminarlas y cargar nuevas? (s/n): ")
             if respuesta.lower() == 's':
                 collection.delete_many({})
-                print("✅ Imágenes anteriores eliminadas")
+                print(" Imágenes anteriores eliminadas")
             else:
-                print("❌ Carga cancelada")
+                print(" Carga cancelada")
                 return
         
         # Generar todas las imágenes
-        print("\n🎨 Generando imágenes técnicas...")
+        print("\n Generando imágenes técnicas...")
         imagenes = generar_imagenes_completas()
         
-        print(f"📝 Preparadas {len(imagenes)} imágenes para carga")
+        print(f" Preparadas {len(imagenes)} imágenes para carga")
         print("   (Embeddings de 512 dimensiones)")
         
         # Insertar todas las imágenes
-        print("\n💾 Insertando imágenes en MongoDB...")
+        print("\n Insertando imágenes en MongoDB...")
         resultado = collection.insert_many(imagenes)
         
-        print(f"\n✅ {len(resultado.inserted_ids)} imágenes insertadas exitosamente")
+        print(f"\n {len(resultado.inserted_ids)} imágenes insertadas exitosamente")
         
         # Vincular con artículos si existen
         count_articulos = db[COLLECTIONS['ARTICLES']].count_documents({})
         if count_articulos > 0:
             vincular_imagenes_con_articulos(db)
         else:
-            print("\n⚠️  No hay artículos en la BD. Ejecuta 03_load_articles.py primero para vincular.")
+            print("\n  No hay artículos en la BD. Ejecuta 03_load_articles.py primero para vincular.")
         
         # Mostrar estadísticas
         print("\n" + "=" * 80)
-        print(" " * 25 + "📊 ESTADÍSTICAS")
+        print(" " * 25 + " ESTADÍSTICAS")
         print("=" * 80)
         
         # Contar por tipo
@@ -347,7 +349,7 @@ def cargar_imagenes():
         ]
         
         tipos_stats = list(collection.aggregate(pipeline_tipos))
-        print("\n🎨 Imágenes por tipo:")
+        print("\n Imágenes por tipo:")
         for stat in tipos_stats:
             print(f"   - {stat['_id'].capitalize()}: {stat['count']} imágenes")
         
@@ -357,7 +359,7 @@ def cargar_imagenes():
         ]
         
         formatos_stats = list(collection.aggregate(pipeline_formatos))
-        print("\n📁 Imágenes por formato:")
+        print("\n Imágenes por formato:")
         for stat in formatos_stats:
             print(f"   - {stat['_id'].upper()}: {stat['count']} imágenes")
         
@@ -368,14 +370,14 @@ def cargar_imagenes():
         
         tamaño_stats = list(collection.aggregate(pipeline_tamaño))
         if tamaño_stats:
-            print(f"\n💾 Tamaño promedio: {tamaño_stats[0]['promedio_kb']:.0f} KB")
+            print(f"\n Tamaño promedio: {tamaño_stats[0]['promedio_kb']:.0f} KB")
         
         print("\n" + "=" * 80)
-        print("🎉 ¡CARGA COMPLETADA EXITOSAMENTE!")
+        print(" ¡CARGA COMPLETADA EXITOSAMENTE!")
         print("=" * 80)
         
         # Mostrar algunos ejemplos
-        print("\n🖼️  Ejemplos de imágenes cargadas:")
+        print("\n Ejemplos de imágenes cargadas:")
         ejemplos = collection.find().limit(5)
         for i, doc in enumerate(ejemplos, 1):
             print(f"\n   {i}. {doc['nombre']}")
@@ -386,7 +388,7 @@ def cargar_imagenes():
             print(f"      Artículos relacionados: {len(doc.get('articulos_relacionados', []))}")
         
     except Exception as e:
-        print(f"\n❌ Error durante la carga: {e}")
+        print(f"\n Error durante la carga: {e}")
         import traceback
         traceback.print_exc()
     finally:

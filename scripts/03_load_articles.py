@@ -5,8 +5,10 @@ Script 3: Cargar artículos tecnológicos con embeddings a MongoDB
 - Inserta en la colección 'articles'
 """
 
+import os
 import sys
-sys.path.append('..')
+root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(root_dir)       
 
 from config.db_config import get_db_config, COLLECTIONS
 from sentence_transformers import SentenceTransformer
@@ -31,7 +33,7 @@ CATEGORIAS = [
 DIFICULTADES = ["basico", "intermedio", "avanzado"]
 IDIOMAS = ["es", "en"]
 
-# Artículos de ejemplo (puedes expandir esta lista)
+# Artículos de ejemplo 
 ARTICULOS_EJEMPLO = [
     {
         "titulo": "Introducción a Redes Neuronales Convolucionales",
