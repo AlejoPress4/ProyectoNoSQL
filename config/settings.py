@@ -16,7 +16,7 @@ COLLECTIONS = {
     'CATEGORIAS': 'categorias',
     'USUARIOS': 'usuarios',
     'RESENAS': 'resenas',
-    'IMAGENES': 'imagenes_producto'
+    'IMAGENES': 'imagenesProducto'
 }
 
 # Rutas de archivos de datos
