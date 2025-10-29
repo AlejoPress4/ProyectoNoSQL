@@ -1,0 +1,83 @@
+# Variables de entorno - NO SUBIR NUNCA
+.env
+.env.local
+.env.production
+.env.development
+
+# Entorno virtual de Python
+venv/
+env/
+ENV/
+.venv/
+
+# Archivos de Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Modelos de IA y cachés (pueden ser muy grandes)
+.cache/
+models/
+*.pt
+*.pth
+*.onnx
+sentence-transformers/
+
+# Logs
+*.log
+logs/
+
+# Archivos temporales
+*.tmp
+*.bak
+*.temp
+temp/
+
+# Archivos de imágenes grandes (opcional)
+# Descomenta si tus imágenes son muy pesadas
+# data/images/files/*.jpg
+# data/images/files/*.png
+# data/images/files/*.jpeg
+
+# Archivos de base de datos locales
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Pytest
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
