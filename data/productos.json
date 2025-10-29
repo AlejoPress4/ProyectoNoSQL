@@ -1,0 +1,956 @@
+[
+  {
+    "codigo_producto": "PROD-001",
+    "nombre": "iPhone 15 Pro Max",
+    "descripcion": "El iPhone 15 Pro Max combina el potente chip A17 Pro con un sistema de cámara profesional de 48MP, pantalla Super Retina XDR de 6.7 pulgadas y construcción en titanio de grado aeroespacial. Ofrece hasta 29 horas de reproducción de video, carga USB-C, Dynamic Island interactiva y el ecosistema iOS más avanzado. Perfecto para fotografía profesional, gaming y productividad extrema.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "A17 Pro",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "6.7 inch OLED Super Retina XDR",
+      "bateria": "4422 mAh",
+      "sistema_operativo": "iOS 17"
+    },
+    "precio_usd": 1199.00,
+    "fecha_lanzamiento": "2023-09-22",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/iphone15promax.jpg"
+  },
+  {
+    "codigo_producto": "PROD-002",
+    "nombre": "Samsung Galaxy S24 Ultra",
+    "descripcion": "El Galaxy S24 Ultra presenta el revolucionario procesador Snapdragon 8 Gen 3, cámara de 200MP con zoom óptico 10x, pantalla AMOLED de 6.8 pulgadas y S Pen integrado. Diseñado para productividad y creatividad profesional con Galaxy AI, traducción en tiempo real y edición de fotos potenciada por IA. Construcción en titanio y resistencia al agua IP68.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 3",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "6.8 inch AMOLED 120Hz",
+      "bateria": "5000 mAh",
+      "sistema_operativo": "Android 14"
+    },
+    "precio_usd": 1299.00,
+    "fecha_lanzamiento": "2024-01-17",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/s24ultra.jpg"
+  },
+  {
+    "codigo_producto": "PROD-003",
+    "nombre": "Xiaomi 14 Pro",
+    "descripcion": "El Xiaomi 14 Pro ofrece tecnología flagship a precio accesible con procesador Snapdragon 8 Gen 3, sistema de cámaras Leica de 50MP, pantalla AMOLED de 6.73 pulgadas con 120Hz y carga rápida HyperCharge de 120W. Incluye tecnología de refrigeración líquida, altavoces estéreo Harman Kardon y conectividad 5G avanzada. Excelente relación calidad-precio.",
+    "marca_nombre": "Xiaomi",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 3",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["256GB", "512GB"],
+      "pantalla": "6.73 inch AMOLED 120Hz",
+      "bateria": "4880 mAh",
+      "sistema_operativo": "Android 14 (MIUI 15)"
+    },
+    "precio_usd": 899.00,
+    "fecha_lanzamiento": "2023-10-27",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xiaomi14pro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-004",
+    "nombre": "Google Pixel 8 Pro",
+    "descripcion": "El Pixel 8 Pro define la fotografía computacional con el chip Tensor G3 personalizado de Google, cámara de 50MP con IA avanzada, Magic Eraser mejorado y Audio Magic Eraser. Pantalla LTPO OLED de 6.7 pulgadas, 7 años de actualizaciones garantizadas y las últimas funciones de Google AI. El Android más puro y optimizado del mercado.",
+    "marca_nombre": "Google",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Google Tensor G3",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["128GB", "256GB", "512GB"],
+      "pantalla": "6.7 inch LTPO OLED 120Hz",
+      "bateria": "5050 mAh",
+      "sistema_operativo": "Android 14"
+    },
+    "precio_usd": 999.00,
+    "fecha_lanzamiento": "2023-10-12",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/pixel8pro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-005",
+    "nombre": "Samsung Galaxy Z Fold 5",
+    "descripcion": "Smartphone plegable premium que se transforma en tablet con pantalla principal de 7.6 pulgadas Dynamic AMOLED 2X. Procesador Snapdragon 8 Gen 2, multitarea avanzada con hasta 3 apps simultáneas, S Pen compatible y bisagra Flex mejorada. Perfecto para profesionales que necesitan productividad móvil extrema y experiencia de tablet en un dispositivo compacto.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 2",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "7.6 inch plegable + 6.2 inch externa",
+      "bateria": "4400 mAh",
+      "sistema_operativo": "Android 13"
+    },
+    "precio_usd": 1799.00,
+    "fecha_lanzamiento": "2023-08-11",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/zfold5.jpg"
+  },
+  {
+    "codigo_producto": "PROD-006",
+    "nombre": "iPhone 14 Pro",
+    "descripcion": "El iPhone 14 Pro introduce Dynamic Island, cámara principal de 48MP con Photonic Engine y chip A16 Bionic. Pantalla Always-On, detección de choques, SOS emergencia vía satélite y construcción en acero inoxidable quirúrgico. Sistema de cámaras profesional con modo Action y video ProRAW. Ideal para creadores de contenido y fotógrafos móviles.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "A16 Bionic",
+      "memoria_ram": "6GB",
+      "almacenamiento": ["128GB", "256GB", "512GB", "1TB"],
+      "pantalla": "6.1 inch OLED ProMotion",
+      "bateria": "3200 mAh",
+      "sistema_operativo": "iOS 16"
+    },
+    "precio_usd": 999.00,
+    "fecha_lanzamiento": "2022-09-16",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/iphone14pro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-007",
+    "nombre": "MacBook Pro 16 M3 Max",
+    "descripcion": "La laptop profesional definitiva con chip Apple M3 Max de hasta 16 núcleos CPU y 40 núcleos GPU. Pantalla Liquid Retina XDR de 16.2 pulgadas con ProMotion 120Hz, hasta 128GB de RAM unificada y hasta 8TB de almacenamiento SSD. Batería de hasta 22 horas, 6 puertos Thunderbolt 4, HDMI 2.1 y lector de tarjetas SD. Perfecta para edición de video 8K, desarrollo y diseño 3D.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Apple M3 Max (16-core CPU, 40-core GPU)",
+      "memoria_ram": "64GB Unified",
+      "almacenamiento": ["1TB", "2TB", "4TB", "8TB"],
+      "pantalla": "16.2 inch Liquid Retina XDR",
+      "bateria": "100Wh (hasta 22 horas)",
+      "sistema_operativo": "macOS Sonoma"
+    },
+    "precio_usd": 3499.00,
+    "fecha_lanzamiento": "2023-11-07",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/macbookpro16.jpg"
+  },
+  {
+    "codigo_producto": "PROD-008",
+    "nombre": "Dell XPS 15 9530",
+    "descripcion": "Laptop premium para profesionales con procesador Intel Core i9-13900H de 13ª generación, GPU NVIDIA RTX 4070 y pantalla OLED 3.5K táctil de 15.6 pulgadas. Construcción en aluminio mecanizado y fibra de carbono, teclado retroiluminado premium y hasta 64GB de RAM DDR5. Ideal para creadores de contenido, ingenieros y diseñadores que necesitan rendimiento móvil extremo.",
+    "marca_nombre": "Dell",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i9-13900H (14-core)",
+      "memoria_ram": "32GB DDR5",
+      "almacenamiento": ["512GB", "1TB", "2TB"],
+      "pantalla": "15.6 inch OLED 3.5K Táctil",
+      "bateria": "86Wh (hasta 13 horas)",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 2599.00,
+    "fecha_lanzamiento": "2023-05-15",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xps15.jpg"
+  },
+  {
+    "codigo_producto": "PROD-009",
+    "nombre": "Lenovo ThinkPad X1 Carbon Gen 11",
+    "descripcion": "La laptop empresarial por excelencia con certificación militar MIL-STD-810H, procesador Intel Core i7-1365U vPro, pantalla 2.8K OLED de 14 pulgadas y peso de solo 1.12kg. Incluye lector de huellas, webcam IR con obturador físico, teclado legendario ThinkPad y batería de hasta 19 horas. Perfecta para ejecutivos y profesionales móviles que necesitan durabilidad y seguridad.",
+    "marca_nombre": "Lenovo",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1365U vPro (10-core)",
+      "memoria_ram": "32GB LPDDR5",
+      "almacenamiento": ["512GB", "1TB", "2TB"],
+      "pantalla": "14 inch OLED 2.8K",
+      "bateria": "57Wh (hasta 19 horas)",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 1899.00,
+    "fecha_lanzamiento": "2023-03-20",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/thinkpadx1.jpg"
+  },
+  {
+    "codigo_producto": "PROD-010",
+    "nombre": "HP Spectre x360 14",
+    "descripcion": "Convertible 2-en-1 premium con pantalla OLED táctil de 13.5 pulgadas 3K2K, procesador Intel Core i7-1355U y diseño gem-cut elegante. Incluye HP Tilt Pen con recarga en el chasis, webcam 5MP con Windows Hello, audio Bang & Olufsen y hasta 17 horas de batería. Bisagras a 360 grados para modo laptop, tablet, tent y stand. Perfecta para creativos y profesionales versátiles.",
+    "marca_nombre": "HP",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1355U (10-core)",
+      "memoria_ram": "16GB LPDDR4X",
+      "almacenamiento": ["512GB", "1TB", "2TB"],
+      "pantalla": "13.5 inch OLED 3K2K Táctil",
+      "bateria": "66Wh (hasta 17 horas)",
+      "sistema_operativo": "Windows 11 Home"
+    },
+    "precio_usd": 1599.00,
+    "fecha_lanzamiento": "2023-04-10",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/spectrex360.jpg"
+  },
+  {
+    "codigo_producto": "PROD-011",
+    "nombre": "OnePlus 12",
+    "descripcion": "El OnePlus 12 marca el regreso a la excelencia con Snapdragon 8 Gen 3, pantalla AMOLED 120Hz de 6.82 pulgadas con brillo de 4500 nits, cámara Hasselblad de 50MP y carga ultra rápida de 100W. Batería de 5400mAh, construcción premium con cristal curvo y OxygenOS 14 fluido. Combina rendimiento flagship con precio competitivo.",
+    "marca_nombre": "Xiaomi",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 3",
+      "memoria_ram": "16GB",
+      "almacenamiento": ["256GB", "512GB"],
+      "pantalla": "6.82 inch AMOLED 120Hz",
+      "bateria": "5400 mAh",
+      "sistema_operativo": "Android 14 (OxygenOS 14)"
+    },
+    "precio_usd": 799.00,
+    "fecha_lanzamiento": "2024-01-23",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/oneplus12.jpg"
+  },
+  {
+    "codigo_producto": "PROD-012",
+    "nombre": "iPhone 14",
+    "descripcion": "iPhone 14 con chip A15 Bionic mejorado, cámara principal de 12MP con Photonic Engine, detección de choques y SOS emergencia vía satélite. Pantalla Super Retina XDR de 6.1 pulgadas, batería de todo el día y construcción resistente con Ceramic Shield. Perfecto equilibrio entre características y precio en el ecosistema Apple.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "A15 Bionic (5-core GPU)",
+      "memoria_ram": "6GB",
+      "almacenamiento": ["128GB", "256GB", "512GB"],
+      "pantalla": "6.1 inch OLED",
+      "bateria": "3279 mAh",
+      "sistema_operativo": "iOS 17"
+    },
+    "precio_usd": 799.00,
+    "fecha_lanzamiento": "2022-09-16",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/iphone14.jpg"
+  },
+  {
+    "codigo_producto": "PROD-013",
+    "nombre": "Samsung Galaxy S23",
+    "descripcion": "Galaxy S23 compacto y potente con Snapdragon 8 Gen 2 optimizado, pantalla AMOLED de 6.1 pulgadas 120Hz, triple cámara de 50MP y batería eficiente de 3900mAh. Diseño premium con aluminio Armor y Gorilla Glass Victus 2. Ideal para quienes buscan un flagship compacto sin compromisos en rendimiento.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 2 (Galaxy)",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "6.1 inch AMOLED 120Hz",
+      "bateria": "3900 mAh",
+      "sistema_operativo": "Android 13 (One UI 5.1)"
+    },
+    "precio_usd": 799.00,
+    "fecha_lanzamiento": "2023-02-17",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/galaxys23.jpg"
+  },
+  {
+    "codigo_producto": "PROD-014",
+    "nombre": "iPad Pro 12.9 M2",
+    "descripcion": "iPad Pro con chip M2 de escritorio, pantalla Liquid Retina XDR mini-LED de 12.9 pulgadas con ProMotion 120Hz, cámaras avanzadas con LiDAR y compatibilidad con Apple Pencil 2 y Magic Keyboard. Thunderbolt 4, 5G opcional y hasta 16GB de RAM. La tablet más potente del mercado, perfecta para profesionales creativos y productividad extrema.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Apple M2 (8-core CPU, 10-core GPU)",
+      "memoria_ram": "16GB",
+      "almacenamiento": ["128GB", "256GB", "512GB", "1TB", "2TB"],
+      "pantalla": "12.9 inch Liquid Retina XDR",
+      "bateria": "10758 mAh (hasta 10 horas)",
+      "sistema_operativo": "iPadOS 17"
+    },
+    "precio_usd": 1099.00,
+    "fecha_lanzamiento": "2022-10-18",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/ipadpro129.jpg"
+  },
+  {
+    "codigo_producto": "PROD-015",
+    "nombre": "Samsung Galaxy Tab S9 Ultra",
+    "descripcion": "La tablet Android definitiva con pantalla AMOLED de 14.6 pulgadas 120Hz, Snapdragon 8 Gen 2, S Pen incluido y resistencia IP68. Ideal para multitarea con Samsung DeX, edición de fotos/video y consumo multimedia. Altavoces cuádruples AKG, hasta 16GB RAM y batería de 11200mAh. Perfecta para profesionales móviles.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 2",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "14.6 inch AMOLED 120Hz",
+      "bateria": "11200 mAh",
+      "sistema_operativo": "Android 13 (One UI 5.1)"
+    },
+    "precio_usd": 1199.00,
+    "fecha_lanzamiento": "2023-08-11",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/tabs9ultra.jpg"
+  },
+  {
+    "codigo_producto": "PROD-016",
+    "nombre": "iPad Air M2",
+    "descripcion": "iPad Air con chip M2, pantalla Liquid Retina de 11 pulgadas, cámara frontal horizontal de 12MP y compatibilidad con Magic Keyboard. Equilibrio perfecto entre rendimiento y precio con Touch ID, USB-C y soporte para Apple Pencil 2. Ideal para estudiantes, creativos y uso diario avanzado.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Apple M2",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB", "512GB"],
+      "pantalla": "11 inch Liquid Retina",
+      "bateria": "7606 mAh (hasta 10 horas)",
+      "sistema_operativo": "iPadOS 17"
+    },
+    "precio_usd": 599.00,
+    "fecha_lanzamiento": "2024-05-07",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/ipadair.jpg"
+  },
+  {
+    "codigo_producto": "PROD-017",
+    "nombre": "Microsoft Surface Pro 9",
+    "descripcion": "Surface Pro 9 convertible 2-en-1 con procesadores Intel Core i7 de 12ª generación, pantalla PixelSense de 13 pulgadas táctil, Surface Pen compatible y hasta 32GB RAM. Incluye Windows 11 Pro, Thunderbolt 4 y diseño versátil con kickstand integrado. Laptop y tablet en un solo dispositivo premium.",
+    "marca_nombre": "Microsoft",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1255U",
+      "memoria_ram": "16GB",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "13 inch PixelSense Táctil",
+      "bateria": "47.7Wh (hasta 15.5 horas)",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 1299.00,
+    "fecha_lanzamiento": "2022-10-25",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/surfacepro9.jpg"
+  },
+  {
+    "codigo_producto": "PROD-018",
+    "nombre": "Lenovo Tab P12",
+    "descripcion": "Tablet premium Android con pantalla OLED de 12.7 pulgadas 120Hz, procesador Dimensity 7050, cuatro altavoces JBL y Lenovo Tab Pen Plus incluido. Perfecta para entretenimiento y productividad con hasta 10 horas de batería. Construcción premium en aluminio y soporte para teclado accesorio.",
+    "marca_nombre": "Lenovo",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "MediaTek Dimensity 7050",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "12.7 inch OLED 120Hz",
+      "bateria": "10200 mAh",
+      "sistema_operativo": "Android 13"
+    },
+    "precio_usd": 699.00,
+    "fecha_lanzamiento": "2023-09-01",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/tabp12.jpg"
+  },
+  {
+    "codigo_producto": "PROD-019",
+    "nombre": "Sony WH-1000XM5",
+    "descripcion": "Auriculares premium con la mejor cancelación de ruido del mercado, procesador V1 de Sony, 8 micrófonos para llamadas cristalinas y hasta 30 horas de batería. Diseño renovado más ligero, audio de alta resolución LDAC, multipoint Bluetooth y controles táctiles intuitivos. Perfectos para viajeros frecuentes y audiófilos.",
+    "marca_nombre": "Sony",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "Over-ear cerrados",
+      "conectividad": "Bluetooth 5.2, cable 3.5mm",
+      "bateria": "30 horas con ANC",
+      "drivers": "30mm",
+      "caracteristicas": "ANC adaptativo, LDAC, multipoint"
+    },
+    "precio_usd": 399.00,
+    "fecha_lanzamiento": "2022-05-12",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/wh1000xm5.jpg"
+  },
+  {
+    "codigo_producto": "PROD-020",
+    "nombre": "Bose QuietComfort Ultra",
+    "descripcion": "Auriculares insignia de Bose con audio espacial inmersivo, ANC de clase mundial y modo CustomTune que se adapta a tu oído. Hasta 24 horas de batería, Bluetooth multipoint, controles táctiles y micrófono con reducción de ruido de viento. Comodidad suprema para uso prolongado.",
+    "marca_nombre": "Bose",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "Over-ear cerrados",
+      "conectividad": "Bluetooth 5.3, multipoint",
+      "bateria": "24 horas con ANC",
+      "caracteristicas": "Audio espacial, ANC, CustomTune"
+    },
+    "precio_usd": 429.00,
+    "fecha_lanzamiento": "2023-09-14",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/qc_ultra.jpg"
+  },
+  {
+    "codigo_producto": "PROD-021",
+    "nombre": "Apple AirPods Pro 2",
+    "descripcion": "AirPods Pro de segunda generación con chip H2, ANC hasta 2x mejor, audio espacial personalizado y hasta 6 horas de batería. Incluyen estuche MagSafe con speaker de localización, resistencia al agua IPX4 y control de volumen táctil en los stems. Integración perfecta con el ecosistema Apple.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "In-ear inalámbricos",
+      "conectividad": "Bluetooth 5.3, H2 chip",
+      "bateria": "6 horas + 30 con estuche",
+      "caracteristicas": "ANC, audio espacial, MagSafe"
+    },
+    "precio_usd": 249.00,
+    "fecha_lanzamiento": "2022-09-23",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/airpodspro2.jpg"
+  },
+  {
+    "codigo_producto": "PROD-022",
+    "nombre": "Sony WF-1000XM5",
+    "descripcion": "Auriculares true wireless insignia de Sony con ANC líder en la industria, procesador V2, tres micrófonos por oído y hasta 8 horas de batería. Audio LDAC de alta resolución, resistencia IPX4 y estuche compacto. Calidad de sonido audiófila en formato inalámbrico compacto.",
+    "marca_nombre": "Sony",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "True wireless in-ear",
+      "conectividad": "Bluetooth 5.3, LDAC",
+      "bateria": "8 horas + 16 con estuche",
+      "caracteristicas": "ANC, LDAC, IPX4"
+    },
+    "precio_usd": 299.00,
+    "fecha_lanzamiento": "2023-07-24",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/wf1000xm5.jpg"
+  },
+  {
+    "codigo_producto": "PROD-023",
+    "nombre": "Bose QuietComfort Earbuds II",
+    "descripcion": "Earbuds premium con tecnología CustomTune que calibra ANC y audio a la forma única de tu oído. Hasta 6 horas de batería, tres tamaños de almohadillas, resistencia IPX4 y controles táctiles. El mejor ANC en formato true wireless para eliminar el ruido del mundo.",
+    "marca_nombre": "Bose",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "True wireless in-ear",
+      "conectividad": "Bluetooth 5.3",
+      "bateria": "6 horas + 18 con estuche",
+      "caracteristicas": "CustomTune ANC, IPX4"
+    },
+    "precio_usd": 299.00,
+    "fecha_lanzamiento": "2022-09-15",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/qc_earbuds2.jpg"
+  },
+  {
+    "codigo_producto": "PROD-024",
+    "nombre": "Apple Watch Series 9",
+    "descripcion": "Apple Watch con chip S9 SiP, pantalla Retina Always-On hasta 2000 nits, doble tap gesture y Siri on-device. Monitoreo avanzado de salud con ECG, oxígeno en sangre, detección de caídas y seguimiento de sueño. Resistencia al agua 50m, GPS preciso y integración perfecta con iPhone.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "wearables",
+    "especificaciones": {
+      "pantalla": "1.9 inch OLED Always-On",
+      "procesador": "Apple S9 SiP",
+      "bateria": "Hasta 18 horas",
+      "sensores": "ECG, SpO2, giroscopio, GPS",
+      "resistencia": "Agua 50m, IP6X polvo"
+    },
+    "precio_usd": 399.00,
+    "fecha_lanzamiento": "2023-09-22",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/applewatch9.jpg"
+  },
+  {
+    "codigo_producto": "PROD-025",
+    "nombre": "Samsung Galaxy Watch 6 Classic",
+    "descripcion": "Smartwatch premium con bisel giratorio físico, pantalla AMOLED de 1.5 pulgadas, Wear OS 4 y One UI Watch 5. Monitoreo avanzado de salud con BioActive Sensor, seguimiento de sueño detallado y hasta 40 horas de batería. Construcción en acero inoxidable con resistencia al agua 5ATM.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "wearables",
+    "especificaciones": {
+      "pantalla": "1.5 inch AMOLED",
+      "procesador": "Exynos W930",
+      "bateria": "425 mAh (40 horas)",
+      "sensores": "BioActive, GPS, barómetro",
+      "resistencia": "Agua 5ATM, IP68, MIL-STD-810H"
+    },
+    "precio_usd": 399.00,
+    "fecha_lanzamiento": "2023-08-11",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/galaxywatch6.jpg"
+  },
+  {
+    "codigo_producto": "PROD-026",
+    "nombre": "Google Pixel Watch 2",
+    "descripcion": "Smartwatch de Google con Wear OS 4, integración profunda con servicios Google y Fitbit Premium incluido 6 meses. Monitoreo continuo de frecuencia cardíaca con sensores mejorados, seguimiento automático de ejercicios y hasta 24 horas de batería. Diseño circular elegante con corona háptica.",
+    "marca_nombre": "Google",
+    "categoria_slug": "wearables",
+    "especificaciones": {
+      "pantalla": "1.2 inch AMOLED",
+      "procesador": "Snapdragon W5 Gen 1",
+      "bateria": "306 mAh (24 horas)",
+      "sensores": "Frecuencia cardíaca continua, ECG, GPS",
+      "resistencia": "Agua 5ATM"
+    },
+    "precio_usd": 349.00,
+    "fecha_lanzamiento": "2023-10-12",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/pixelwatch2.jpg"
+  },
+  {
+    "codigo_producto": "PROD-027",
+    "nombre": "OXVA XLIM Pro",
+    "descripcion": "Pod system premium con batería de 1000mAh, pantalla OLED, potencia ajustable 5-30W y resistencias de malla 0.6Ω-1.2Ω. Diseño compacto y ergonómico con acabado metálico, flujo de aire ajustable y activación por botón o inhalación. Perfecto para MTL y RDL con excelente sabor.",
+    "marca_nombre": "Oxva",
+    "categoria_slug": "vaping",
+    "especificaciones": {
+      "bateria": "1000 mAh",
+      "potencia": "5-30W ajustable",
+      "capacidad_pod": "2ml",
+      "resistencias": "0.6Ω, 0.8Ω, 1.2Ω",
+      "carga": "USB-C"
+    },
+    "precio_usd": 34.99,
+    "fecha_lanzamiento": "2023-06-15",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xlimpro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-028",
+    "nombre": "OXVA Origin X",
+    "descripcion": "Mod pod versátil con batería de 3200mAh, pantalla TFT a color, potencia 5-60W y compatibilidad con pods Unicoil. Construcción robusta en aleación de zinc, ajuste de flujo de aire infinito y carga rápida USB-C 2A. Ideal para vapeadores que buscan versatilidad y potencia.",
+    "marca_nombre": "Oxva",
+    "categoria_slug": "vaping",
+    "especificaciones": {
+      "bateria": "3200 mAh",
+      "potencia": "5-60W ajustable",
+      "capacidad_pod": "5ml",
+      "resistencias": "Unicoil 0.3Ω-1.0Ω",
+      "carga": "USB-C 2A"
+    },
+    "precio_usd": 49.99,
+    "fecha_lanzamiento": "2023-03-20",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/originx.jpg"
+  },
+  {
+    "codigo_producto": "PROD-029",
+    "nombre": "OXVA XLIM SQ Pro",
+    "descripcion": "Pod mod cuadrado con batería 1200mAh, potencia 5-30W, pantalla a color y diseño único. Sistema Top-Fill fácil, resistencias de malla para MTL/RDL y protecciones múltiples de seguridad. Construcción premium con acabados metálicos y grip ergonómico.",
+    "marca_nombre": "Oxva",
+    "categoria_slug": "vaping",
+    "especificaciones": {
+      "bateria": "1200 mAh",
+      "potencia": "5-30W ajustable",
+      "capacidad_pod": "2ml",
+      "resistencias": "0.6Ω, 0.8Ω",
+      "carga": "USB-C"
+    },
+    "precio_usd": 36.99,
+    "fecha_lanzamiento": "2023-08-10",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xlimsqpro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-030",
+    "nombre": "Asus ROG Zephyrus G14",
+    "descripcion": "Laptop gaming compacta de 14 pulgadas con AMD Ryzen 9 7940HS, NVIDIA RTX 4060, pantalla QHD+ 165Hz y batería de hasta 10 horas. Diseño premium con panel AniMe Matrix LED opcional, teclado RGB por tecla y construcción en aleación de magnesio. Potencia gaming en formato ultraportátil.",
+    "marca_nombre": "Asus",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "AMD Ryzen 9 7940HS",
+      "memoria_ram": "16GB DDR5",
+      "almacenamiento": ["512GB", "1TB"],
+      "pantalla": "14 inch QHD+ 165Hz",
+      "bateria": "76Wh (hasta 10 horas)",
+      "sistema_operativo": "Windows 11 Home",
+      "gpu": "NVIDIA RTX 4060 8GB"
+    },
+    "precio_usd": 1699.00,
+    "fecha_lanzamiento": "2023-03-28",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/zephyrusg14.jpg"
+  },
+  {
+    "codigo_producto": "PROD-031",
+    "nombre": "MacBook Air 15 M3",
+    "descripcion": "MacBook Air de 15 pulgadas con chip M3, pantalla Liquid Retina de 15.3 pulgadas, hasta 18 horas de batería y diseño sin ventiladores ultra silencioso. Incluye MagSafe, dos puertos Thunderbolt y audio espacial con soporte para Dolby Atmos. La laptop grande más delgada del mundo, perfecta para trabajo y multimedia.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Apple M3 (8-core CPU, 10-core GPU)",
+      "memoria_ram": "8GB Unified",
+      "almacenamiento": ["256GB", "512GB", "1TB", "2TB"],
+      "pantalla": "15.3 inch Liquid Retina",
+      "bateria": "66.5Wh (hasta 18 horas)",
+      "sistema_operativo": "macOS Sonoma"
+    },
+    "precio_usd": 1299.00,
+    "fecha_lanzamiento": "2024-03-04",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/macbookair15.jpg"
+  },
+  {
+    "codigo_producto": "PROD-032",
+    "nombre": "Xiaomi 13T Pro",
+    "descripcion": "Flagship killer con MediaTek Dimensity 9200+, pantalla AMOLED de 6.67 pulgadas 144Hz, cámara Leica de 50MP y carga ultrarrápida de 120W. Construcción premium con cristal curvo, altavoces estéreo y hasta 12GB RAM. Rendimiento y características premium a precio agresivo.",
+    "marca_nombre": "Xiaomi",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "MediaTek Dimensity 9200+",
+      "memoria_ram": "12GB",
+      "almacenamiento": ["256GB", "512GB"],
+      "pantalla": "6.67 inch AMOLED 144Hz",
+      "bateria": "5000 mAh",
+      "sistema_operativo": "Android 13 (MIUI 14)"
+    },
+    "precio_usd": 649.00,
+    "fecha_lanzamiento": "2023-09-26",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xiaomi13tpro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-033",
+    "nombre": "Google Pixel 7a",
+    "descripcion": "Pixel económico con chip Tensor G2, cámara de 64MP con todas las funciones de IA de Google, pantalla OLED de 6.1 pulgadas 90Hz y carga inalámbrica. Incluye Magic Eraser, Photo Unblur y 5 años de actualizaciones de seguridad. Mejor calidad-precio en fotografía computacional.",
+    "marca_nombre": "Google",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Google Tensor G2",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB"],
+      "pantalla": "6.1 inch OLED 90Hz",
+      "bateria": "4385 mAh",
+      "sistema_operativo": "Android 13"
+    },
+    "precio_usd": 499.00,
+    "fecha_lanzamiento": "2023-05-10",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/pixel7a.jpg"
+  },
+  {
+    "codigo_producto": "PROD-034",
+    "nombre": "Samsung Galaxy A54",
+    "descripcion": "Gama media premium con Exynos 1380, pantalla Super AMOLED de 6.4 pulgadas 120Hz, cámara triple de 50MP y batería de 5000mAh. Construcción premium con Gorilla Glass 5 y resistencia IP67. Actualizaciones garantizadas por 4 años. Excelente opción calidad-precio en el ecosistema Samsung.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Exynos 1380",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "6.4 inch Super AMOLED 120Hz",
+      "bateria": "5000 mAh",
+      "sistema_operativo": "Android 13 (One UI 5.1)"
+    },
+    "precio_usd": 449.00,
+    "fecha_lanzamiento": "2023-03-16",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/galaxya54.jpg"
+  },
+  {
+    "codigo_producto": "PROD-035",
+    "nombre": "iPhone SE 3rd Gen",
+    "descripcion": "iPhone compacto con chip A15 Bionic, Touch ID, cámara de 12MP con Deep Fusion y construcción resistente. Pantalla Retina HD de 4.7 pulgadas, 5G y compatibilidad con accesorios iPhone. Perfecto para quienes prefieren diseño clásico con especificaciones modernas a precio accesible.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "A15 Bionic",
+      "memoria_ram": "4GB",
+      "almacenamiento": ["64GB", "128GB", "256GB"],
+      "pantalla": "4.7 inch Retina HD",
+      "bateria": "2018 mAh",
+      "sistema_operativo": "iOS 17"
+    },
+    "precio_usd": 429.00,
+    "fecha_lanzamiento": "2022-03-18",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/iphonese3.jpg"
+  },
+  {
+    "codigo_producto": "PROD-036",
+    "nombre": "Xiaomi Redmi Note 13 Pro",
+    "descripcion": "Gama media con Snapdragon 7s Gen 2, pantalla AMOLED de 6.67 pulgadas 120Hz, cámara de 200MP y carga rápida de 67W. Batería de 5100mAh, altavoces estéreo y construcción premium con acabado mate. Mejor relación calidad-precio en cámaras de alta resolución.",
+    "marca_nombre": "Xiaomi",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 7s Gen 2",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["256GB", "512GB"],
+      "pantalla": "6.67 inch AMOLED 120Hz",
+      "bateria": "5100 mAh",
+      "sistema_operativo": "Android 13 (MIUI 14)"
+    },
+    "precio_usd": 349.00,
+    "fecha_lanzamiento": "2024-01-04",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/redminote13pro.jpg"
+  },
+  {
+    "codigo_producto": "PROD-037",
+    "nombre": "Samsung Galaxy Z Flip 5",
+    "descripcion": "Smartphone plegable tipo concha con pantalla externa de 3.4 pulgadas totalmente funcional, Snapdragon 8 Gen 2, cámara dual de 12MP y diseño ultra compacto al plegarse. Pantalla interna AMOLED de 6.7 pulgadas 120Hz, bisagra mejorada sin gap y resistencia IPX8. Perfecto para estilo y portabilidad.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "smartphones",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 2",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["256GB", "512GB"],
+      "pantalla": "6.7 inch plegable + 3.4 inch externa",
+      "bateria": "3700 mAh",
+      "sistema_operativo": "Android 13 (One UI 5.1)"
+    },
+    "precio_usd": 999.00,
+    "fecha_lanzamiento": "2023-08-11",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/zflip5.jpg"
+  },
+  {
+    "codigo_producto": "PROD-038",
+    "nombre": "Asus ROG Strix Scar 18",
+    "descripcion": "Laptop gaming extrema de 18 pulgadas con Intel Core i9-14900HX, NVIDIA RTX 4090, pantalla QHD+ 240Hz y hasta 64GB DDR5. Sistema de refrigeración Tri-Fan, teclado óptico-mecánico ROG y RGB personalizable. La máquina gaming más potente para competición y streaming profesional.",
+    "marca_nombre": "Asus",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i9-14900HX (24-core)",
+      "memoria_ram": "32GB DDR5",
+      "almacenamiento": ["1TB", "2TB"],
+      "pantalla": "18 inch QHD+ 240Hz",
+      "bateria": "90Wh",
+      "sistema_operativo": "Windows 11 Pro",
+      "gpu": "NVIDIA RTX 4090 16GB"
+    },
+    "precio_usd": 3999.00,
+    "fecha_lanzamiento": "2024-01-10",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/scar18.jpg"
+  },
+  {
+    "codigo_producto": "PROD-039",
+    "nombre": "Dell XPS 13 Plus",
+    "descripcion": "Ultrabook premium minimalista con Intel Core i7-1360P, pantalla OLED 3.5K táctil de 13.4 pulgadas y diseño sin bordes. Teclado capacitivo edge-to-edge, touchpad háptico invisible y hasta 12 horas de batería. Construcción en aluminio CNC con acabado premium. Ideal para ejecutivos y minimalistas.",
+    "marca_nombre": "Dell",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1360P (12-core)",
+      "memoria_ram": "16GB LPDDR5",
+      "almacenamiento": ["512GB", "1TB"],
+      "pantalla": "13.4 inch OLED 3.5K Táctil",
+      "bateria": "55Wh (hasta 12 horas)",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 1799.00,
+    "fecha_lanzamiento": "2023-05-20",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/xps13plus.jpg"
+  },
+  {
+    "codigo_producto": "PROD-040",
+    "nombre": "HP Omen 16",
+    "descripcion": "Laptop gaming con Intel Core i7-13700HX, NVIDIA RTX 4070, pantalla QHD 165Hz de 16.1 pulgadas y sistema de refrigeración OMEN Tempest. Teclado RGB de 4 zonas, audio Bang & Olufsen y hasta 32GB RAM DDR5. Equilibrio perfecto entre rendimiento gaming y precio competitivo.",
+    "marca_nombre": "HP",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-13700HX (16-core)",
+      "memoria_ram": "16GB DDR5",
+      "almacenamiento": ["512GB", "1TB"],
+      "pantalla": "16.1 inch QHD 165Hz",
+      "bateria": "83Wh",
+      "sistema_operativo": "Windows 11 Home",
+      "gpu": "NVIDIA RTX 4070 8GB"
+    },
+    "precio_usd": 1699.00,
+    "fecha_lanzamiento": "2023-06-15",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/omen16.jpg"
+  },
+  {
+    "codigo_producto": "PROD-041",
+    "nombre": "Lenovo Yoga 9i Gen 8",
+    "descripcion": "Convertible premium 2-en-1 con Intel Core i7-1360P, pantalla OLED táctil de 14 pulgadas 4K y barra de sonido giratoria integrada. Incluye Lenovo Pen Plus, hasta 15 horas de batería y construcción premium en aluminio. Perfect para creativos que necesitan versatilidad laptop y tablet.",
+    "marca_nombre": "Lenovo",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1360P (12-core)",
+      "memoria_ram": "16GB LPDDR5",
+      "almacenamiento": ["512GB", "1TB"],
+      "pantalla": "14 inch OLED 4K Táctil",
+      "bateria": "75Wh (hasta 15 horas)",
+      "sistema_operativo": "Windows 11 Home"
+    },
+    "precio_usd": 1599.00,
+    "fecha_lanzamiento": "2023-04-25",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/yoga9i.jpg"
+  },
+  {
+    "codigo_producto": "PROD-042",
+    "nombre": "Microsoft Surface Laptop 5",
+    "descripcion": "Laptop elegante con Intel Core i7-1255U de 12ª generación, pantalla PixelSense táctil de 13.5 pulgadas, teclado Alcantara premium y hasta 18 horas de batería. Diseño icónico Surface con construcción premium, Thunderbolt 4 y Windows 11. Perfecta para profesionales que valoran diseño y portabilidad.",
+    "marca_nombre": "Microsoft",
+    "categoria_slug": "laptops",
+    "especificaciones": {
+      "procesador": "Intel Core i7-1255U (10-core)",
+      "memoria_ram": "16GB LPDDR5",
+      "almacenamiento": ["256GB", "512GB", "1TB"],
+      "pantalla": "13.5 inch PixelSense Táctil",
+      "bateria": "hasta 18 horas",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 1299.00,
+    "fecha_lanzamiento": "2022-10-25",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/surfacelaptop5.jpg"
+  },
+  {
+    "codigo_producto": "PROD-043",
+    "nombre": "Samsung Galaxy Tab S9",
+    "descripcion": "Tablet Android premium con pantalla AMOLED de 11 pulgadas 120Hz, Snapdragon 8 Gen 2, S Pen incluido y resistencia IP68. Perfecta para productividad con Samsung DeX, altavoces cuádruples AKG y hasta 8000mAh de batería. Diseño ultra-delgado en aluminio.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Snapdragon 8 Gen 2",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "11 inch AMOLED 120Hz",
+      "bateria": "8000 mAh",
+      "sistema_operativo": "Android 13 (One UI 5.1)"
+    },
+    "precio_usd": 799.00,
+    "fecha_lanzamiento": "2023-08-11",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/tabs9.jpg"
+  },
+  {
+    "codigo_producto": "PROD-044",
+    "nombre": "iPad 10th Gen",
+    "descripcion": "iPad versátil con chip A14 Bionic, pantalla Liquid Retina de 10.9 pulgadas, cámara frontal horizontal de 12MP y USB-C. Compatibilidad con Apple Pencil de 1ª generación y Magic Keyboard Folio. Perfecto para estudiantes, familias y uso diario a precio accesible.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Apple A14 Bionic",
+      "memoria_ram": "4GB",
+      "almacenamiento": ["64GB", "256GB"],
+      "pantalla": "10.9 inch Liquid Retina",
+      "bateria": "7606 mAh (hasta 10 horas)",
+      "sistema_operativo": "iPadOS 17"
+    },
+    "precio_usd": 449.00,
+    "fecha_lanzamiento": "2022-10-18",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/ipad10.jpg"
+  },
+  {
+    "codigo_producto": "PROD-045",
+    "nombre": "Lenovo Tab P11 Pro Gen 2",
+    "descripcion": "Tablet OLED de 11.2 pulgadas con resolución 2.5K, MediaTek Kompanio 1300T, cuatro altavoces JBL y Lenovo Pen Plus incluido. Construcción premium en aluminio, batería de 8200mAh y soporte para teclado opcional. Excelente opción Android para multimedia y productividad.",
+    "marca_nombre": "Lenovo",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "MediaTek Kompanio 1300T",
+      "memoria_ram": "6GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "11.2 inch OLED 2.5K",
+      "bateria": "8200 mAh",
+      "sistema_operativo": "Android 12"
+    },
+    "precio_usd": 499.00,
+    "fecha_lanzamiento": "2022-09-01",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/tabp11pro2.jpg"
+  },
+  {
+    "codigo_producto": "PROD-046",
+    "nombre": "Microsoft Surface Go 3",
+    "descripcion": "Tablet compacta 2-en-1 de 10.5 pulgadas con Intel Pentium Gold o Core i3, Windows 11 completo y Type Cover opcional. Kickstand versátil, Surface Pen compatible y puertos USB-C y Surface Connect. Perfecta para movilidad extrema con experiencia Windows completa.",
+    "marca_nombre": "Microsoft",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Intel Core i3-10100Y",
+      "memoria_ram": "8GB",
+      "almacenamiento": ["128GB", "256GB"],
+      "pantalla": "10.5 inch PixelSense Táctil",
+      "bateria": "hasta 11 horas",
+      "sistema_operativo": "Windows 11 Pro"
+    },
+    "precio_usd": 629.00,
+    "fecha_lanzamiento": "2021-09-22",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/surfacego3.jpg"
+  },
+  {
+    "codigo_producto": "PROD-047",
+    "nombre": "iPad mini 6th Gen",
+    "descripcion": "iPad compacto de 8.3 pulgadas con chip A15 Bionic, pantalla Liquid Retina full-screen, Touch ID en el botón superior y USB-C. Compatibilidad con Apple Pencil 2 y cámaras de 12MP. Perfecto para lectura, juegos y productividad móvil en formato ultraportátil.",
+    "marca_nombre": "Apple",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Apple A15 Bionic",
+      "memoria_ram": "4GB",
+      "almacenamiento": ["64GB", "256GB"],
+      "pantalla": "8.3 inch Liquid Retina",
+      "bateria": "5124 mAh (hasta 10 horas)",
+      "sistema_operativo": "iPadOS 17"
+    },
+    "precio_usd": 499.00,
+    "fecha_lanzamiento": "2021-09-24",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/ipadmini6.jpg"
+  },
+  {
+    "codigo_producto": "PROD-048",
+    "nombre": "Samsung Galaxy Tab A9+",
+    "descripcion": "Tablet económica con pantalla de 11 pulgadas 90Hz, Snapdragon 695, altavoces cuádruples y batería de 7040mAh. Diseño metálico premium, expandible vía microSD hasta 1TB y actualizaciones garantizadas. Perfecta para entretenimiento familiar y uso diario a precio accesible.",
+    "marca_nombre": "Samsung",
+    "categoria_slug": "tablets",
+    "especificaciones": {
+      "procesador": "Snapdragon 695",
+      "memoria_ram": "4GB",
+      "almacenamiento": ["64GB", "128GB"],
+      "pantalla": "11 inch LCD 90Hz",
+      "bateria": "7040 mAh",
+      "sistema_operativo": "Android 13 (One UI 5)"
+    },
+    "precio_usd": 249.00,
+    "fecha_lanzamiento": "2023-10-18",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/taba9plus.jpg"
+  },
+  {
+    "codigo_producto": "PROD-049",
+    "nombre": "Bose SoundLink Flex",
+    "descripcion": "Altavoz Bluetooth portátil resistente con sonido envolvente PositionIQ, resistencia al agua IP67 y hasta 12 horas de batería. Diseño compacto con mosquetón integrado, micrófono para llamadas y construcción ultra-duradera. Perfecto para aventuras outdoor y uso diario.",
+    "marca_nombre": "Bose",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "Altavoz Bluetooth portátil",
+      "conectividad": "Bluetooth 5.2",
+      "bateria": "12 horas",
+      "resistencia": "IP67 (agua/polvo)",
+      "caracteristicas": "PositionIQ, micrófono"
+    },
+    "precio_usd": 149.00,
+    "fecha_lanzamiento": "2022-05-12",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/soundlinkflex.jpg"
+  },
+  {
+    "codigo_producto": "PROD-050",
+    "nombre": "Sony LinkBuds S",
+    "descripcion": "Earbuds ultra compactos y ligeros con ANC, audio Hi-Res LDAC, hasta 6 horas de batería y diseño ergonómico perfecto. Procesador V1, Speak-to-Chat automático, IPX4 y controles táctiles intuitivos. Los true wireless más cómodos para uso prolongado con sonido premium Sony.",
+    "marca_nombre": "Sony",
+    "categoria_slug": "audio",
+    "especificaciones": {
+      "tipo": "True wireless in-ear",
+      "conectividad": "Bluetooth 5.2, LDAC",
+      "bateria": "6 horas + 14 con estuche",
+      "caracteristicas": "ANC, LDAC, Speak-to-Chat, IPX4"
+    },
+    "precio_usd": 199.00,
+    "fecha_lanzamiento": "2022-05-19",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/linkbudss.jpg"
+  },
+  {
+    "codigo_producto": "PROD-051",
+    "nombre": "OXVA XLIM GO",
+    "descripcion": "Pod system compacto y elegante con bobinas de 0.6Ω y 0.8Ω, batería de 1000mAh, cartucho de 2ml y activación por inhalación. Diseño premium en aluminio, flujo de aire ajustable y carga rápida Type-C. Perfecto para vapeo MTL (mouth-to-lung) discreto y satisfactorio. Incluye múltiples protecciones de seguridad y construcción duradera.",
+    "marca_nombre": "Oxva",
+    "categoria_slug": "vaping",
+    "especificaciones": {
+      "tipo": "Pod System MTL",
+      "bateria": "1000mAh",
+      "capacidad": "2ml",
+      "resistencia": "0.6Ω / 0.8Ω",
+      "potencia": "5-25W",
+      "carga": "Type-C"
+    },
+    "precio_usd": 24.99,
+    "fecha_lanzamiento": "2023-06-15",
+    "disponibilidad": "en_stock",
+    "imagen_principal": "/images/oxva_xlim_go.jpg"
+  }
+]

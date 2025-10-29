@@ -1,0 +1,74 @@
+[
+  {
+    "nombre": "Apple",
+    "pais": "USA",
+    "sitio_web": "https://www.apple.com",
+    "descripcion": "Fabricante líder de electrónica de consumo, software y servicios en línea. Conocida por iPhone, Mac, iPad y servicios innovadores."
+  },
+  {
+    "nombre": "Samsung",
+    "pais": "South Korea",
+    "sitio_web": "https://www.samsung.com",
+    "descripcion": "Conglomerado multinacional que lidera el mercado de smartphones, televisores y semiconductores a nivel mundial."
+  },
+  {
+    "nombre": "Xiaomi",
+    "pais": "China",
+    "sitio_web": "https://www.mi.com",
+    "descripcion": "Empresa de electrónica especializada en smartphones, productos IoT y electrodomésticos inteligentes con excelente relación calidad-precio."
+  },
+  {
+    "nombre": "Sony",
+    "pais": "Japan",
+    "sitio_web": "https://www.sony.com",
+    "descripcion": "Líder en entretenimiento, audio profesional y gaming. Creadores de PlayStation y productos de audio premium."
+  },
+  {
+    "nombre": "Dell",
+    "pais": "USA",
+    "sitio_web": "https://www.dell.com",
+    "descripcion": "Fabricante de computadoras personales, servidores y soluciones tecnológicas empresariales reconocido mundialmente."
+  },
+  {
+    "nombre": "Lenovo",
+    "pais": "China",
+    "sitio_web": "https://www.lenovo.com",
+    "descripcion": "Mayor fabricante de computadoras personales del mundo, especializado en laptops ThinkPad y soluciones corporativas."
+  },
+  {
+    "nombre": "HP",
+    "pais": "USA",
+    "sitio_web": "https://www.hp.com",
+    "descripcion": "Empresa de tecnología que ofrece computadoras personales, impresoras y soluciones de TI para consumidores y empresas."
+  },
+  {
+    "nombre": "Asus",
+    "pais": "Taiwan",
+    "sitio_web": "https://www.asus.com",
+    "descripcion": "Fabricante de placas madre, laptops gaming ROG y componentes de PC de alta calidad para entusiastas y profesionales."
+  },
+  {
+    "nombre": "Bose",
+    "pais": "USA",
+    "sitio_web": "https://www.bose.com",
+    "descripcion": "Marca premium de audio reconocida por sus sistemas de cancelación de ruido y calidad de sonido superior."
+  },
+  {
+    "nombre": "Oxva",
+    "pais": "China",
+    "sitio_web": "https://www.oxvatech.com",
+    "descripcion": "Fabricante innovador de dispositivos de vaping enfocado en seguridad, calidad y experiencia de usuario."
+  },
+  {
+    "nombre": "Google",
+    "pais": "USA",
+    "sitio_web": "https://www.google.com",
+    "descripcion": "Gigante tecnológico creador de Android, servicios en la nube y la línea de productos Pixel."
+  },
+  {
+    "nombre": "Microsoft",
+    "pais": "USA",
+    "sitio_web": "https://www.microsoft.com",
+    "descripcion": "Líder en software, servicios en la nube y dispositivos Surface. Creadores de Windows y Office."
+  }
+]

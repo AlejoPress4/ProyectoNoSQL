@@ -1,0 +1,257 @@
+[
+  {
+    "codigo_producto": "PROD-001",
+    "url_imagen": "/images/iphone15promax_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 450
+    },
+    "texto_alternativo": "iPhone 15 Pro Max vista frontal con Dynamic Island",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-001",
+    "url_imagen": "/images/iphone15promax_back.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "posterior",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 420
+    },
+    "texto_alternativo": "iPhone 15 Pro Max vista posterior con cámaras triple",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-002",
+    "url_imagen": "/images/s24ultra_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 480
+    },
+    "texto_alternativo": "Samsung Galaxy S24 Ultra vista frontal pantalla completa",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-002",
+    "url_imagen": "/images/s24ultra_spen.jpg",
+    "tipo_imagen": "detalle",
+    "angulo_vista": "lateral",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 390
+    },
+    "texto_alternativo": "Samsung Galaxy S24 Ultra con S Pen",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-003",
+    "url_imagen": "/images/xiaomi14pro_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 465
+    },
+    "texto_alternativo": "Xiaomi 14 Pro vista frontal pantalla AMOLED",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-004",
+    "url_imagen": "/images/pixel8pro_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 440
+    },
+    "texto_alternativo": "Google Pixel 8 Pro vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-004",
+    "url_imagen": "/images/pixel8pro_camera.jpg",
+    "tipo_imagen": "detalle",
+    "angulo_vista": "posterior",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 410
+    },
+    "texto_alternativo": "Google Pixel 8 Pro sistema de cámaras triple",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-005",
+    "url_imagen": "/images/zfold5_closed.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 495
+    },
+    "texto_alternativo": "Samsung Galaxy Z Fold 5 cerrado",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-005",
+    "url_imagen": "/images/zfold5_open.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 520
+    },
+    "texto_alternativo": "Samsung Galaxy Z Fold 5 desplegado mostrando pantalla completa",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-006",
+    "url_imagen": "/images/iphone14pro_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 435
+    },
+    "texto_alternativo": "iPhone 14 Pro vista frontal con Dynamic Island",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-007",
+    "url_imagen": "/images/macbookpro16_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 680
+    },
+    "texto_alternativo": "MacBook Pro 16 M3 Max vista frontal pantalla Liquid Retina XDR",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-007",
+    "url_imagen": "/images/macbookpro16_side.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "lateral",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 590
+    },
+    "texto_alternativo": "MacBook Pro 16 M3 Max vista lateral mostrando puertos",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-007",
+    "url_imagen": "/images/macbookpro16_use.jpg",
+    "tipo_imagen": "lifestyle",
+    "angulo_vista": "uso",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 720
+    },
+    "texto_alternativo": "MacBook Pro 16 M3 Max en uso para edición de video",
+    "es_principal": false,
+    "orden_visualizacion": 3
+  },
+  {
+    "codigo_producto": "PROD-008",
+    "url_imagen": "/images/xps15_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 650
+    },
+    "texto_alternativo": "Dell XPS 15 9530 vista frontal pantalla OLED",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-009",
+    "url_imagen": "/images/thinkpadx1_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 620
+    },
+    "texto_alternativo": "Lenovo ThinkPad X1 Carbon Gen 11 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-010",
+    "url_imagen": "/images/spectrex360_front.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 640
+    },
+    "texto_alternativo": "HP Spectre x360 14 vista frontal modo laptop",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-010",
+    "url_imagen": "/images/spectrex360_tent.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "superior",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 1440,
+      "formato": "jpg",
+      "tamano_kb": 580
+    },
+    "texto_alternativo": "HP Spectre x360 14 en modo tent",
+    "es_principal": false,
+    "orden_visualizacion": 2
+  }
+]

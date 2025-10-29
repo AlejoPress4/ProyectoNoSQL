@@ -1,0 +1,44 @@
+[
+  {
+    "nombre": "Smartphones",
+    "slug": "smartphones",
+    "descripcion": "Teléfonos inteligentes de última generación con sistemas operativos iOS y Android",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Laptops",
+    "slug": "laptops",
+    "descripcion": "Computadoras portátiles para trabajo, gaming y uso personal",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Tablets",
+    "slug": "tablets",
+    "descripcion": "Dispositivos táctiles portátiles para entretenimiento y productividad",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Audio",
+    "slug": "audio",
+    "descripcion": "Auriculares, audífonos y sistemas de audio de alta calidad",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Wearables",
+    "slug": "wearables",
+    "descripcion": "Dispositivos inteligentes vestibles: smartwatches y fitness trackers",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Vaping",
+    "slug": "vaping",
+    "descripcion": "Dispositivos de vaping y cigarrillos electrónicos de última tecnología",
+    "id_categoria_padre": null
+  },
+  {
+    "nombre": "Componentes",
+    "slug": "componentes",
+    "descripcion": "Componentes y periféricos para computadoras",
+    "id_categoria_padre": null
+  }
+]
