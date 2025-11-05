@@ -9,13 +9,11 @@ IMAGE_EMBEDDING_DIM = 512  # Dimensiones para embeddings de imágenes (CLIP)
 # Modelo de embeddings de texto
 EMBEDDING_MODEL_NAME = 'sentence-transformers/all-MiniLM-L6-v2'
 
-# Nombres de colecciones
+# Nombres de colecciones (ahora marcas embebidas en productos, reseñas embebidas en usuarios)
 COLLECTIONS = {
     'PRODUCTOS': 'productos',
-    'MARCAS': 'marcas',
     'CATEGORIAS': 'categorias',
     'USUARIOS': 'usuarios',
-    'RESENAS': 'resenas',
     'IMAGENES': 'imagenesProducto'
 }
 

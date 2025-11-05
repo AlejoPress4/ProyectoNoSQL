@@ -1,7 +1,7 @@
 [
   {
     "codigo_producto": "PROD-001",
-    "url_imagen": "/images/iphone15promax_front.jpg",
+        "url_imagen": "/images/iphone15promax.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -14,24 +14,10 @@
     "es_principal": true,
     "orden_visualizacion": 1
   },
-  {
-    "codigo_producto": "PROD-001",
-    "url_imagen": "/images/iphone15promax_back.jpg",
-    "tipo_imagen": "foto_producto",
-    "angulo_vista": "posterior",
-    "metadata": {
-      "ancho": 1920,
-      "alto": 1080,
-      "formato": "jpg",
-      "tamano_kb": 420
-    },
-    "texto_alternativo": "iPhone 15 Pro Max vista posterior con cámaras triple",
-    "es_principal": false,
-    "orden_visualizacion": 2
-  },
+
   {
     "codigo_producto": "PROD-002",
-    "url_imagen": "/images/s24ultra_front.jpg",
+    "url_imagen": "/images/s24ultra.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -46,7 +32,7 @@
   },
   {
     "codigo_producto": "PROD-002",
-    "url_imagen": "/images/s24ultra_spen.jpg",
+    "url_imagen": "/images/s24ultra.jpg",
     "tipo_imagen": "detalle",
     "angulo_vista": "lateral",
     "metadata": {
@@ -61,7 +47,7 @@
   },
   {
     "codigo_producto": "PROD-003",
-    "url_imagen": "/images/xiaomi14pro_front.jpg",
+    "url_imagen": "/images/xiaomi14pro.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -76,7 +62,7 @@
   },
   {
     "codigo_producto": "PROD-004",
-    "url_imagen": "/images/pixel8pro_front.jpg",
+    "url_imagen": "/images/pixel8pro.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -91,7 +77,7 @@
   },
   {
     "codigo_producto": "PROD-004",
-    "url_imagen": "/images/pixel8pro_camera.jpg",
+    "url_imagen": "/images/pixel8pro.jpg",
     "tipo_imagen": "detalle",
     "angulo_vista": "posterior",
     "metadata": {
@@ -106,7 +92,7 @@
   },
   {
     "codigo_producto": "PROD-005",
-    "url_imagen": "/images/zfold5_closed.jpg",
+    "url_imagen": "/images/zfold5.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -121,7 +107,7 @@
   },
   {
     "codigo_producto": "PROD-005",
-    "url_imagen": "/images/zfold5_open.jpg",
+    "url_imagen": "/images/zfold5.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -136,7 +122,7 @@
   },
   {
     "codigo_producto": "PROD-006",
-    "url_imagen": "/images/iphone14pro_front.jpg",
+    "url_imagen": "/images/iphone14pro.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -151,7 +137,7 @@
   },
   {
     "codigo_producto": "PROD-007",
-    "url_imagen": "/images/macbookpro16_front.jpg",
+    "url_imagen": "/images/macbookpro16.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -166,7 +152,7 @@
   },
   {
     "codigo_producto": "PROD-007",
-    "url_imagen": "/images/macbookpro16_side.jpg",
+    "url_imagen": "/images/macbookpro16.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "lateral",
     "metadata": {
@@ -181,7 +167,7 @@
   },
   {
     "codigo_producto": "PROD-007",
-    "url_imagen": "/images/macbookpro16_use.jpg",
+    "url_imagen": "/images/macbookpro16.jpg",
     "tipo_imagen": "lifestyle",
     "angulo_vista": "uso",
     "metadata": {
@@ -196,7 +182,7 @@
   },
   {
     "codigo_producto": "PROD-008",
-    "url_imagen": "/images/xps15_front.jpg",
+    "url_imagen": "/images/xps15.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -211,7 +197,7 @@
   },
   {
     "codigo_producto": "PROD-009",
-    "url_imagen": "/images/thinkpadx1_front.jpg",
+    "url_imagen": "/images/thinkpadx1.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -226,7 +212,7 @@
   },
   {
     "codigo_producto": "PROD-010",
-    "url_imagen": "/images/spectrex360_front.jpg",
+    "url_imagen": "/images/spectrex360.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -241,7 +227,7 @@
   },
   {
     "codigo_producto": "PROD-010",
-    "url_imagen": "/images/spectrex360_tent.jpg",
+    "url_imagen": "/images/spectrex360.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "superior",
     "metadata": {

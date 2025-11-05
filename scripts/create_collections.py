@@ -11,7 +11,7 @@ def create_productos_collection(db):
     validator = {
         "$jsonSchema": {
             "bsonType": "object",
-            "required": ["codigo_producto", "nombre", "descripcion", "marca", "categoria", "metadata"],
+            "required": ["codigo_producto", "nombre", "descripcion", "marca", "idCategoria", "metadata"],
             "properties": {
                 "codigo_producto": {
                     "bsonType": "string",
@@ -31,20 +31,17 @@ def create_productos_collection(db):
                 },
                 "marca": {
                     "bsonType": "object",
-                    "required": ["id", "nombre"],
+                    "required": ["nombre", "pais"],
                     "properties": {
-                        "id": {"bsonType": "objectId"},
-                        "nombre": {"bsonType": "string"}
+                        "nombre": {"bsonType": "string"},
+                        "pais": {"bsonType": "string"},
+                        "sitioWeb": {"bsonType": "string"},
+                        "descripcion": {"bsonType": "string"}
                     }
                 },
-                "categoria": {
-                    "bsonType": "object",
-                    "required": ["id", "nombre", "slug"],
-                    "properties": {
-                        "id": {"bsonType": "objectId"},
-                        "nombre": {"bsonType": "string"},
-                        "slug": {"bsonType": "string"}
-                    }
+                "idCategoria": {
+                    "bsonType": "objectId",
+                    "description": "ID de la categoría (referencia a _id de categorias)"
                 },
                 "especificaciones": {
                     "bsonType": "object",
@@ -100,46 +97,6 @@ def create_productos_collection(db):
         print(f"✓ Colección '{COLLECTIONS['PRODUCTOS']}' creada con validación")
     except CollectionInvalid:
         print(f"⚠ La colección '{COLLECTIONS['PRODUCTOS']}' ya existe")
-
-
-def create_marcas_collection(db):
-    """Crea la colección de marcas con validación de esquema."""
-    validator = {
-        "$jsonSchema": {
-            "bsonType": "object",
-            "required": ["nombre", "pais"],
-            "properties": {
-                "nombre": {
-                    "bsonType": "string",
-                    "minLength": 2,
-                    "maxLength": 100,
-                    "description": "Nombre de la marca"
-                },
-                "pais": {
-                    "bsonType": "string",
-                    "description": "País de origen de la marca"
-                },
-                "sitio_web": {
-                    "bsonType": "string",
-                    "pattern": "^https?://",
-                    "description": "Sitio web oficial de la marca"
-                },
-                "descripcion": {
-                    "bsonType": "string",
-                    "description": "Descripción de la marca"
-                },
-                "fecha_creacion": {
-                    "bsonType": "date"
-                }
-            }
-        }
-    }
-    
-    try:
-        db.create_collection(COLLECTIONS['MARCAS'], validator=validator)
-        print(f"✓ Colección '{COLLECTIONS['MARCAS']}' creada con validación")
-    except CollectionInvalid:
-        print(f"⚠ La colección '{COLLECTIONS['MARCAS']}' ya existe")
 
 
 def create_categorias_collection(db):
@@ -207,6 +164,41 @@ def create_usuarios_collection(db):
                     "bsonType": "bool",
                     "description": "Indica si el usuario ha realizado compras verificadas"
                 },
+                "resenas": {
+                    "bsonType": "array",
+                    "description": "Array de reseñas embebidas del usuario",
+                    "items": {
+                        "bsonType": "object",
+                        "required": ["idProducto", "calificacion", "titulo", "contenido"],
+                        "properties": {
+                            "idProducto": {"bsonType": "objectId"},
+                            "calificacion": {
+                                "bsonType": "int",
+                                "minimum": 1,
+                                "maximum": 5
+                            },
+                            "titulo": {"bsonType": "string"},
+                            "contenido": {"bsonType": "string"},
+                            "ventajas": {
+                                "bsonType": "array",
+                                "items": {"bsonType": "string"}
+                            },
+                            "desventajas": {
+                                "bsonType": "array",
+                                "items": {"bsonType": "string"}
+                            },
+                            "idioma": {"bsonType": "string"},
+                            "votosUtiles": {"bsonType": "int"},
+                            "compraVerificada": {"bsonType": "bool"},
+                            "fechaCreacion": {"bsonType": "date"},
+                            "fechaActualizacion": {"bsonType": "date"}
+                        }
+                    }
+                },
+                "idResena": {
+                    "bsonType": "int",
+                    "description": "Contador de reseñas del usuario"
+                },
                 "fecha_creacion": {
                     "bsonType": "date"
                 },
@@ -222,86 +214,6 @@ def create_usuarios_collection(db):
         print(f"✓ Colección '{COLLECTIONS['USUARIOS']}' creada con validación")
     except CollectionInvalid:
         print(f"⚠ La colección '{COLLECTIONS['USUARIOS']}' ya existe")
-
-
-def create_resenas_collection(db):
-    """Crea la colección de reseñas con validación de esquema."""
-    validator = {
-        "$jsonSchema": {
-            "bsonType": "object",
-            "required": ["id_producto", "id_usuario", "calificacion", "titulo", "contenido"],
-            "properties": {
-                "id_producto": {
-                    "bsonType": "objectId",
-                    "description": "ID del producto reseñado"
-                },
-                "id_usuario": {
-                    "bsonType": "objectId",
-                    "description": "ID del usuario que escribe la reseña"
-                },
-                "usuario": {
-                    "bsonType": "object",
-                    "required": ["nombre_usuario"],
-                    "properties": {
-                        "nombre_usuario": {"bsonType": "string"},
-                        "comprador_verificado": {"bsonType": "bool"}
-                    }
-                },
-                "calificacion": {
-                    "bsonType": "int",
-                    "minimum": 1,
-                    "maximum": 5,
-                    "description": "Calificación de 1 a 5 estrellas"
-                },
-                "titulo": {
-                    "bsonType": "string",
-                    "minLength": 5,
-                    "maxLength": 150,
-                    "description": "Título de la reseña"
-                },
-                "contenido": {
-                    "bsonType": "string",
-                    "minLength": 20,
-                    "description": "Contenido detallado de la reseña"
-                },
-                "ventajas": {
-                    "bsonType": "array",
-                    "items": {"bsonType": "string"}
-                },
-                "desventajas": {
-                    "bsonType": "array",
-                    "items": {"bsonType": "string"}
-                },
-                "idioma": {
-                    "enum": IDIOMAS_ENUM,
-                    "description": "Idioma de la reseña"
-                },
-                "votos_utiles": {
-                    "bsonType": "int",
-                    "minimum": 0
-                },
-                "compra_verificada": {
-                    "bsonType": "bool"
-                },
-                "contenido_embedding": {
-                    "bsonType": "array",
-                    "description": "Vector de embedding del contenido (384 dimensiones)"
-                },
-                "fecha_creacion": {
-                    "bsonType": "date"
-                },
-                "fecha_actualizacion": {
-                    "bsonType": "date"
-                }
-            }
-        }
-    }
-    
-    try:
-        db.create_collection(COLLECTIONS['RESENAS'], validator=validator)
-        print(f"✓ Colección '{COLLECTIONS['RESENAS']}' creada con validación")
-    except CollectionInvalid:
-        print(f"⚠ La colección '{COLLECTIONS['RESENAS']}' ya existe")
 
 
 def create_imagenes_collection(db):
@@ -378,12 +290,10 @@ def create_all_collections():
         
         db = get_database()
         
-        # Crear cada colección
-        create_marcas_collection(db)
+        # Crear cada colección (marcas y reseñas ahora embebidas)
         create_categorias_collection(db)
         create_usuarios_collection(db)
         create_productos_collection(db)
-        create_resenas_collection(db)
         create_imagenes_collection(db)
         
         print("\n" + "="*60)
