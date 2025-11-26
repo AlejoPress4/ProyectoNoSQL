@@ -72,7 +72,7 @@ def load_categorias(db):
         db: Objeto de base de datos de MongoDB
         
     Returns:
-        dict: Diccionario {slug_categoria: ObjectId}
+        dict: Diccionario {slug_categoria: idCategoria}
     """
     print("\n📦 Cargando categorías...")
     
@@ -84,28 +84,27 @@ def load_categorias(db):
     # Cargar datos del JSON
     categorias_data = load_json_file(DATA_FILES['CATEGORIAS'])
     
-    # Preparar documentos para inserción
+    # Preparar documentos para inserción con IDs secuenciales
     documentos = []
-    for categoria in categorias_data:
+    categoria_map = {}
+    
+    for idx, categoria in enumerate(categorias_data, start=1):
         doc = {
+            "idCategoria": idx,
             "nombre": categoria["nombre"],
             "slug": categoria["slug"],
             "descripcion": categoria.get("descripcion", ""),
-            "id_categoria_padre": categoria.get("id_categoria_padre"),
-            "fecha_creacion": datetime.now()
+            "idCategoriaPadre": categoria.get("id_categoria_padre"),
+            "fechaCreacion": datetime.now()
         }
         documentos.append(doc)
+        categoria_map[categoria["slug"]] = idx
     
     # Insertar documentos
     result = collection.insert_many(documentos)
+    print(f"  ✓ {len(result.inserted_ids)} categorías insertadas")
     
-    # Crear diccionario de mapeo
-    categorias_map = {}
-    for categoria in collection.find():
-        categorias_map[categoria["slug"]] = categoria["_id"]
-    
-    print(f"✓ {len(result.inserted_ids)} categorías cargadas")
-    return categorias_map
+    return categoria_map
 
 
 def load_productos(db, categorias_map):
@@ -114,10 +113,10 @@ def load_productos(db, categorias_map):
     
     Args:
         db: Objeto de base de datos de MongoDB
-        categorias_map (dict): Mapeo de slugs de categorías a ObjectIds
+        categorias_map (dict): Mapeo de slugs de categorías a idCategoria (int)
         
     Returns:
-        dict: Diccionario {codigo_producto: _id (ObjectId)}
+        dict: Diccionario {codigo_producto: idProducto (int)}
     """
     print("\n📦 Cargando productos con embeddings y marcas embebidas...")
     print("⏳ Este proceso puede tomar varios minutos...")
@@ -131,16 +130,18 @@ def load_productos(db, categorias_map):
     productos_data = load_json_file(DATA_FILES['PRODUCTOS'])
     marcas_data = load_json_file(DATA_FILES['MARCAS'])
     
-    # Crear mapa de marcas {nombre: datos_completos}
+    # Crear mapa de marcas {nombre: datos_completos} y {nombre: idMarca}
     marcas_dict = {marca["nombre"]: marca for marca in marcas_data}
+    marcas_id_map = {marca["nombre"]: idx for idx, marca in enumerate(marcas_data, start=1)}
     
     # Cargar modelo de embeddings
     get_embedding_model()
     
     # Preparar documentos para inserción
     documentos = []
+    productos_map = {}
     
-    for producto in tqdm(productos_data, desc="Generando embeddings de productos"):
+    for idx, producto in enumerate(tqdm(productos_data, desc="Generando embeddings de productos"), start=1):
         # Obtener datos de marca
         marca_nombre = producto.get("marca_nombre")
         if marca_nombre not in marcas_dict:
@@ -148,6 +149,7 @@ def load_productos(db, categorias_map):
             continue
         
         marca_info = marcas_dict[marca_nombre]
+        id_marca = marcas_id_map[marca_nombre]
         
         # Validar que la categoría existe
         categoria_slug = producto.get("categoria_slug")
@@ -167,32 +169,44 @@ def load_productos(db, categorias_map):
         if isinstance(fecha_lanzamiento, str):
             fecha_lanzamiento = datetime.fromisoformat(fecha_lanzamiento)
         
-        # Construir documento completo con marca embebida
+        # Construir documento completo con estructura plana (camelCase)
         doc = {
-            "codigo_producto": producto["codigo_producto"],
+            "idProducto": idx,
+            "codigoProducto": producto["codigo_producto"],
             "nombre": producto["nombre"],
+            "idMarca": id_marca,  # ID secuencial para referencia
+            "idCategoria": categoria_id,  # REFERENCIA a categorias
             "descripcion": descripcion,
-            "marca": {  # Marca embebida (no referencia)
+            "precioUsd": float(producto["precio_usd"]),
+            "fechaLanzamiento": fecha_lanzamiento,
+            "disponibilidad": producto.get("disponibilidad", "en_stock"),
+            "calificacionPromedio": float(producto.get("calificacion_promedio", 0.0)),
+            "cantidadResenas": int(producto.get("cantidad_resenas", 0)),
+            "fechaCreacion": datetime.now(),
+            "fechaActualizacion": datetime.now(),
+            "marca": {  # EMBEBIDO: Datos completos de la marca (desnormalización)
                 "nombre": marca_info["nombre"],
                 "pais": marca_info["pais"],
                 "sitioWeb": marca_info.get("sitio_web", ""),
                 "descripcion": marca_info.get("descripcion", "")
             },
-            "idCategoria": categoria_id,  # Referencia simple (ObjectId)
-            "especificaciones": producto.get("especificaciones", {}),
-            "metadata": {
-                "precio_usd": float(producto["precio_usd"]),
-                "fecha_lanzamiento": fecha_lanzamiento,
-                "disponibilidad": producto.get("disponibilidad", "en_stock"),
-                "calificacion_promedio": producto.get("calificacion_promedio", 0.0),
-                "cantidad_resenas": producto.get("cantidad_resenas", 0)
-            },
-            "descripcion_embedding": descripcion_embedding,
-            "imagen_principal": producto.get("imagen_principal", ""),
-            "fecha_creacion": datetime.now(),
-            "fecha_actualizacion": datetime.now()
+            "descripcionEmbedding": descripcion_embedding
         }
+        
+        # Añadir campos de especificaciones PLANAS (no anidadas)
+        if "especificaciones" in producto and isinstance(producto["especificaciones"], dict):
+            specs = producto["especificaciones"]
+            if specs:
+                doc["idEspecificaciones"] = idx
+                doc["procesador"] = specs.get("procesador", "")
+                doc["memoriaRam"] = specs.get("memoria_ram", "")
+                doc["almacenamiento"] = specs.get("almacenamiento", "")
+                doc["pantalla"] = specs.get("pantalla", "")
+                doc["bateria"] = specs.get("bateria", "")
+                doc["sistemaOperativo"] = specs.get("sistema_operativo", "")
+        
         documentos.append(doc)
+        productos_map[producto["codigo_producto"]] = idx
     
     # Insertar documentos
     if documentos:
@@ -201,11 +215,6 @@ def load_productos(db, categorias_map):
     else:
         print("⚠ No se cargaron productos")
         return {}
-    
-    # Crear diccionario de mapeo {codigo_producto: _id}
-    productos_map = {}
-    for producto in collection.find():
-        productos_map[producto["codigo_producto"]] = producto["_id"]
     
     return productos_map
 
@@ -216,10 +225,10 @@ def load_usuarios_con_resenas(db, productos_map):
     
     Args:
         db: Objeto de base de datos de MongoDB
-        productos_map (dict): Mapeo de códigos de productos a ObjectIds
+        productos_map (dict): Mapeo de códigos de productos a idProducto (int)
         
     Returns:
-        dict: Diccionario {nombre_usuario: ObjectId}
+        dict: Diccionario {nombreUsuario: idUsuario}
     """
     print("\n📦 Cargando usuarios con reseñas embebidas...")
     print("⏳ Este proceso puede tomar varios minutos...")
@@ -246,8 +255,9 @@ def load_usuarios_con_resenas(db, productos_map):
     
     # Preparar documentos para inserción
     documentos = []
+    usuarios_map = {}
     
-    for usuario in tqdm(usuarios_data, desc="Cargando usuarios con reseñas"):
+    for idx, usuario in enumerate(tqdm(usuarios_data, desc="Cargando usuarios con reseñas"), start=1):
         # Parsear fecha si está en formato string
         fecha_creacion = usuario.get("fecha_creacion")
         if isinstance(fecha_creacion, str):
@@ -261,7 +271,7 @@ def load_usuarios_con_resenas(db, productos_map):
         resenas_usuario = resenas_por_usuario.get(nombre_usuario, [])
         resenas_embebidas = []
         
-        for idx, resena in enumerate(resenas_usuario, 1):
+        for id_resena, resena in enumerate(resenas_usuario, 1):
             # Validar que el producto existe
             codigo_producto = resena.get("codigo_producto")
             if codigo_producto not in productos_map:
@@ -279,8 +289,9 @@ def load_usuarios_con_resenas(db, productos_map):
             else:
                 fecha_resena = datetime.now()
             
-            # Crear reseña embebida
+            # Crear reseña embebida con camelCase
             resena_doc = {
+                "idResena": id_resena,
                 "idProducto": productos_map[codigo_producto],
                 "calificacion": int(resena["calificacion"]),
                 "titulo": resena["titulo"],
@@ -290,24 +301,25 @@ def load_usuarios_con_resenas(db, productos_map):
                 "idioma": resena.get("idioma", "es"),
                 "votosUtiles": resena.get("votos_utiles", 0),
                 "compraVerificada": resena.get("compra_verificada", False),
-                "contenido_embedding": contenido_embedding,
+                "contenidoEmbedding": contenido_embedding,
                 "fechaCreacion": fecha_resena,
                 "fechaActualizacion": datetime.now()
             }
             resenas_embebidas.append(resena_doc)
         
-        # Construir documento de usuario con reseñas embebidas
+        # Construir documento de usuario con reseñas embebidas (camelCase)
         doc = {
-            "nombre_usuario": usuario["nombre_usuario"],
+            "idUsuario": idx,
+            "nombreUsuario": usuario["nombre_usuario"],
             "correo": usuario["correo"],
-            "nombre_completo": usuario.get("nombre_completo", ""),
-            "comprador_verificado": usuario.get("comprador_verificado", False),
+            "nombreCompleto": usuario.get("nombre_completo", ""),
+            "compradorVerificado": usuario.get("comprador_verificado", False),
             "resenas": resenas_embebidas,  # Array de reseñas embebidas
-            "idResena": len(resenas_embebidas),  # Contador
-            "fecha_creacion": fecha_creacion,
-            "ultimo_acceso": datetime.now()
+            "fechaCreacion": fecha_creacion,
+            "ultimoAcceso": datetime.now()
         }
         documentos.append(doc)
+        usuarios_map[nombre_usuario] = idx
     
     # Insertar documentos
     if documentos:
@@ -319,11 +331,6 @@ def load_usuarios_con_resenas(db, productos_map):
         print("⚠ No se cargaron usuarios")
         return {}
     
-    # Crear diccionario de mapeo
-    usuarios_map = {}
-    for usuario in collection.find():
-        usuarios_map[usuario["nombre_usuario"]] = usuario["_id"]
-    
     return usuarios_map
 
 
@@ -333,7 +340,7 @@ def load_imagenes(db, productos_map):
     
     Args:
         db: Objeto de base de datos de MongoDB
-        productos_map (dict): Mapeo de códigos de productos a ObjectIds
+        productos_map (dict): Mapeo de códigos de productos a idProducto (int)
         
     Returns:
         int: Número de imágenes cargadas
@@ -356,29 +363,35 @@ def load_imagenes(db, productos_map):
     # Preparar documentos para inserción
     documentos = []
     
-    for imagen in imagenes_data:
+    for idx, imagen in enumerate(imagenes_data, start=1):
         # Validar que el producto existe
         codigo_producto = imagen.get("codigo_producto")
         if codigo_producto not in productos_map:
             print(f"⚠ Advertencia: Producto '{codigo_producto}' no encontrado. Omitiendo imagen.")
             continue
         
-        # Construir documento completo
+        # Obtener metadata si existe
+        metadata = imagen.get("metadata", {})
+        
+        # Construir documento completo con camelCase
         doc = {
-            "id_producto": productos_map[codigo_producto],
-            "url_imagen": imagen["url_imagen"],
-            "tipo_imagen": imagen.get("tipo_imagen", "foto_producto"),
-            "angulo_vista": imagen.get("angulo_vista", "frontal"),
-            "metadata": imagen.get("metadata", {}),
-            "texto_alternativo": imagen.get("texto_alternativo", ""),
-            "es_principal": imagen.get("es_principal", False),
-            "orden_visualizacion": imagen.get("orden_visualizacion", 1),
-            "fecha_subida": datetime.now()
+            "idImagen": idx,
+            "idProducto": productos_map[codigo_producto],
+            "urlImagen": imagen["url_imagen"],
+            "tipoImagen": imagen.get("tipo_imagen", "foto_producto"),
+            "anguloVista": imagen.get("angulo_vista", "frontal"),
+            "ancho": metadata.get("ancho", 800),
+            "alto": metadata.get("alto", 600),
+            "formato": metadata.get("formato", "jpg"),
+            "tamanoKb": metadata.get("tamano_kb", 100),
+            "textoAlternativo": imagen.get("texto_alternativo", ""),
+            "esPrincipal": imagen.get("es_principal", False),
+            "ordenVisualizacion": imagen.get("orden_visualizacion", 1),
+            "fechaSubida": datetime.now()
         }
         
         # Nota: Los embeddings de imágenes se generarían con CLIP
         # pero requeriría procesamiento de imágenes reales
-        # imagen_embedding se agregaría aquí si se tuvieran las imágenes
         
         documentos.append(doc)
     
@@ -410,28 +423,28 @@ def update_productos_stats(db):
     
     actualizados = 0
     for producto in productos:
-        # Buscar todas las reseñas del producto en los usuarios
+        # Buscar todas las reseñas del producto en los usuarios (ahora usa idProducto integer)
         usuarios_con_resenas = usuarios_collection.find({
-            "resenas.idProducto": producto["_id"]
+            "resenas.idProducto": producto["idProducto"]
         })
         
         calificaciones = []
         for usuario in usuarios_con_resenas:
             for resena in usuario.get("resenas", []):
-                if resena["idProducto"] == producto["_id"]:
+                if resena["idProducto"] == producto["idProducto"]:
                     calificaciones.append(resena["calificacion"])
         
         if calificaciones:
             # Calcular promedio de calificaciones
             promedio = sum(calificaciones) / len(calificaciones)
             
-            # Actualizar producto
+            # Actualizar producto con campos planos (camelCase)
             productos_collection.update_one(
                 {"_id": producto["_id"]},
                 {
                     "$set": {
-                        "metadata.calificacion_promedio": round(promedio, 2),
-                        "metadata.cantidad_resenas": len(calificaciones)
+                        "calificacionPromedio": round(promedio, 2),
+                        "cantidadResenas": len(calificaciones)
                     }
                 }
             )
@@ -443,7 +456,8 @@ def update_productos_stats(db):
 def load_all_data():
     """
     Ejecuta la carga completa de datos en el orden correcto.
-    Modelo actualizado: marcas embebidas en productos, reseñas embebidas en usuarios.
+    Modelo: marcas EMBEBIDAS en productos (sin colección independiente),
+    reseñas embebidas en usuarios.
     
     Returns:
         bool: True si la carga fue exitosa
@@ -457,14 +471,19 @@ def load_all_data():
         db = get_database()
         
         # Cargar datos en orden (respetando dependencias)
-        # Ya no se cargan marcas (embebidas en productos)
-        # Ya no se cargan reseñas (embebidas en usuarios)
+        # 1. Categorías (colección independiente)
         categorias_map = load_categorias(db)
+        
+        # 2. Productos (referencia categorías, embebe marca completa)
         productos_map = load_productos(db, categorias_map)
+        
+        # 3. Usuarios con reseñas embebidas (reseñas referencian productos)
         usuarios_map = load_usuarios_con_resenas(db, productos_map)
+        
+        # 4. Imágenes (referencian productos)
         load_imagenes(db, productos_map)
         
-        # Actualizar estadísticas de productos
+        # 5. Actualizar estadísticas de productos
         update_productos_stats(db)
         
         print("\n" + "="*60)

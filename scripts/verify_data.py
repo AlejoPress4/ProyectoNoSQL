@@ -31,7 +31,7 @@ def verify_embeddings(db):
     productos_col = db[COLLECTIONS['PRODUCTOS']]
     total_productos = productos_col.count_documents({})
     productos_con_embedding = productos_col.count_documents({
-        "descripcion_embedding": {"$exists": True, "$ne": None}
+        "descripcionEmbedding": {"$exists": True, "$ne": None}
     })
     
     print(f"  Productos totales: {total_productos}")
@@ -39,9 +39,9 @@ def verify_embeddings(db):
     
     if productos_con_embedding > 0:
         # Verificar dimensión del embedding
-        producto_sample = productos_col.find_one({"descripcion_embedding": {"$exists": True}})
-        if producto_sample and "descripcion_embedding" in producto_sample:
-            dim = len(producto_sample["descripcion_embedding"])
+        producto_sample = productos_col.find_one({"descripcionEmbedding": {"$exists": True}})
+        if producto_sample and "descripcionEmbedding" in producto_sample:
+            dim = len(producto_sample["descripcionEmbedding"])
             print(f"  Dimensión de embeddings: {dim}")
             print(f"  ✓ Embeddings de productos OK")
         else:
@@ -51,23 +51,44 @@ def verify_embeddings(db):
     
     print()
     
-    # Verificar embeddings de reseñas
-    resenas_col = db[COLLECTIONS['RESENAS']]
-    total_resenas = resenas_col.count_documents({})
-    resenas_con_embedding = resenas_col.count_documents({
-        "contenido_embedding": {"$exists": True, "$ne": None}
+    # Verificar embeddings de reseñas (ahora embebidas en usuarios)
+    usuarios_col = db[COLLECTIONS['USUARIOS']]
+    total_usuarios = usuarios_col.count_documents({})
+    usuarios_con_resenas = usuarios_col.count_documents({
+        "resenas": {"$exists": True, "$ne": []}
     })
     
-    print(f"  Reseñas totales: {total_resenas}")
-    print(f"  Reseñas con embedding: {resenas_con_embedding}")
+    # Contar total de reseñas embebidas
+    pipeline = [
+        {"$match": {"resenas": {"$exists": True}}},
+        {"$project": {"num_resenas": {"$size": {"$ifNull": ["$resenas", []]}}}},
+        {"$group": {"_id": None, "total": {"$sum": "$num_resenas"}}}
+    ]
+    result = list(usuarios_col.aggregate(pipeline))
+    total_resenas = result[0]["total"] if result else 0
     
-    if resenas_con_embedding > 0:
-        # Verificar dimensión del embedding
-        resena_sample = resenas_col.find_one({"contenido_embedding": {"$exists": True}})
-        if resena_sample and "contenido_embedding" in resena_sample:
-            dim = len(resena_sample["contenido_embedding"])
-            print(f"  Dimensión de embeddings: {dim}")
-            print(f"  ✓ Embeddings de reseñas OK")
+    # Contar reseñas con embeddings
+    usuarios_con_embeddings = usuarios_col.count_documents({
+        "resenas.contenidoEmbedding": {"$exists": True}
+    })
+    
+    print(f"  Usuarios totales: {total_usuarios}")
+    print(f"  Usuarios con reseñas: {usuarios_con_resenas}")
+    print(f"  Total de reseñas embebidas: {total_resenas}")
+    print(f"  Usuarios con reseñas con embedding: {usuarios_con_embeddings}")
+    
+    if usuarios_con_embeddings > 0:
+        # Verificar dimensión del embedding de una reseña
+        usuario_sample = usuarios_col.find_one({
+            "resenas.contenidoEmbedding": {"$exists": True}
+        })
+        if usuario_sample and "resenas" in usuario_sample and len(usuario_sample["resenas"]) > 0:
+            if "contenidoEmbedding" in usuario_sample["resenas"][0]:
+                dim = len(usuario_sample["resenas"][0]["contenidoEmbedding"])
+                print(f"  Dimensión de embeddings: {dim}")
+                print(f"  ✓ Embeddings de reseñas OK")
+            else:
+                print(f"  ⚠ No se pudo verificar la dimensión")
         else:
             print(f"  ⚠ No se pudo verificar la dimensión")
     else:
@@ -109,22 +130,28 @@ def show_statistics(db):
     # Productos por categoría
     print("\n  Productos por categoría:")
     productos_col = db[COLLECTIONS['PRODUCTOS']]
+    categorias_col = db[COLLECTIONS['CATEGORIAS']]
+    
+    # Obtener nombres de categorías
+    categorias_map = {cat['idCategoria']: cat['nombre'] for cat in categorias_col.find()}
+    
     pipeline = [
         {"$group": {
-            "_id": "$categoria.nombre",
+            "_id": "$idCategoria",
             "cantidad": {"$sum": 1},
-            "precio_promedio": {"$avg": "$metadata.precio_usd"}
+            "precio_promedio": {"$avg": "$precioUsd"}
         }},
         {"$sort": {"cantidad": -1}}
     ]
     
     for result in productos_col.aggregate(pipeline):
-        categoria = result['_id']
+        categoria_id = result['_id']
+        categoria_nombre = categorias_map.get(categoria_id, f"ID {categoria_id}")
         cantidad = result['cantidad']
-        precio_prom = result['precio_promedio']
-        print(f"    {categoria:20s}: {cantidad:3d} productos (Precio prom: ${precio_prom:.2f})")
+        precio_prom = result.get('precio_promedio', 0)
+        print(f"    {categoria_nombre:20s}: {cantidad:3d} productos (Precio prom: ${precio_prom:.2f})")
     
-    # Productos por marca
+    # Productos por marca (embebida)
     print("\n  Top 5 marcas con más productos:")
     pipeline = [
         {"$group": {
@@ -140,31 +167,49 @@ def show_statistics(db):
         cantidad = result['cantidad']
         print(f"    {marca:20s}: {cantidad:3d} productos")
     
-    # Estadísticas de reseñas
-    print("\n  Estadísticas de reseñas:")
-    resenas_col = db[COLLECTIONS['RESENAS']]
+    # Estadísticas de reseñas (EMBEBIDAS en usuarios)
+    print("\n  Estadísticas de reseñas embebidas:")
+    usuarios_col = db[COLLECTIONS['USUARIOS']]
     
-    total_resenas = resenas_col.count_documents({})
+    # Contar total de reseñas
+    pipeline = [
+        {"$match": {"resenas": {"$exists": True}}},
+        {"$project": {"num_resenas": {"$size": {"$ifNull": ["$resenas", []]}}}},
+        {"$group": {"_id": None, "total": {"$sum": "$num_resenas"}}}
+    ]
+    result = list(usuarios_col.aggregate(pipeline))
+    total_resenas = result[0]["total"] if result else 0
+    
     print(f"    Total de reseñas: {total_resenas}")
     
-    # Promedio de reseñas por producto
-    productos_con_resenas = resenas_col.distinct("id_producto")
-    if productos_con_resenas:
-        promedio = total_resenas / len(productos_con_resenas)
-        print(f"    Productos con reseñas: {len(productos_con_resenas)}")
+    # Productos con reseñas
+    if total_resenas > 0:
+        productos_con_resenas_pipeline = [
+            {"$match": {"resenas": {"$exists": True, "$ne": []}}},
+            {"$unwind": "$resenas"},
+            {"$group": {"_id": "$resenas.idProducto"}},
+            {"$count": "total"}
+        ]
+        result = list(usuarios_col.aggregate(productos_con_resenas_pipeline))
+        productos_con_resenas = result[0]["total"] if result else 0
+        
+        promedio = total_resenas / productos_con_resenas if productos_con_resenas > 0 else 0
+        print(f"    Productos con reseñas: {productos_con_resenas}")
         print(f"    Promedio de reseñas por producto: {promedio:.2f}")
     
     # Distribución de calificaciones
     print("\n  Distribución de calificaciones:")
     pipeline = [
+        {"$match": {"resenas": {"$exists": True, "$ne": []}}},
+        {"$unwind": "$resenas"},
         {"$group": {
-            "_id": "$calificacion",
+            "_id": "$resenas.calificacion",
             "cantidad": {"$sum": 1}
         }},
         {"$sort": {"_id": 1}}
     ]
     
-    for result in resenas_col.aggregate(pipeline):
+    for result in usuarios_col.aggregate(pipeline):
         estrellas = result['_id']
         cantidad = result['cantidad']
         porcentaje = (cantidad / total_resenas * 100) if total_resenas > 0 else 0
@@ -174,21 +219,30 @@ def show_statistics(db):
     # Reseñas por idioma
     print("\n  Reseñas por idioma:")
     pipeline = [
+        {"$match": {"resenas": {"$exists": True, "$ne": []}}},
+        {"$unwind": "$resenas"},
         {"$group": {
-            "_id": "$idioma",
+            "_id": "$resenas.idioma",
             "cantidad": {"$sum": 1}
         }},
         {"$sort": {"cantidad": -1}}
     ]
     
-    for result in resenas_col.aggregate(pipeline):
+    for result in usuarios_col.aggregate(pipeline):
         idioma = result['_id']
         cantidad = result['cantidad']
         porcentaje = (cantidad / total_resenas * 100) if total_resenas > 0 else 0
         print(f"    {idioma:5s}: {cantidad:4d} ({porcentaje:5.1f}%)")
     
     # Compras verificadas
-    compras_verificadas = resenas_col.count_documents({"compra_verificada": True})
+    pipeline = [
+        {"$match": {"resenas": {"$exists": True, "$ne": []}}},
+        {"$unwind": "$resenas"},
+        {"$match": {"resenas.compraVerificada": True}},
+        {"$count": "total"}
+    ]
+    result = list(usuarios_col.aggregate(pipeline))
+    compras_verificadas = result[0]["total"] if result else 0
     porcentaje_verificado = (compras_verificadas / total_resenas * 100) if total_resenas > 0 else 0
     print(f"\n  Compras verificadas: {compras_verificadas} ({porcentaje_verificado:.1f}%)")
     
@@ -200,16 +254,22 @@ def show_statistics(db):
     print(f"    Total de imágenes: {total_imagenes}")
     
     if total_imagenes > 0:
-        productos_con_imagenes = imagenes_col.distinct("id_producto")
-        promedio_imgs = total_imagenes / len(productos_con_imagenes) if productos_con_imagenes else 0
-        print(f"    Productos con imágenes: {len(productos_con_imagenes)}")
+        productos_con_imagenes_pipeline = [
+            {"$group": {"_id": "$idProducto"}},
+            {"$count": "total"}
+        ]
+        result = list(imagenes_col.aggregate(productos_con_imagenes_pipeline))
+        productos_con_imagenes = result[0]["total"] if result else 0
+        
+        promedio_imgs = total_imagenes / productos_con_imagenes if productos_con_imagenes > 0 else 0
+        print(f"    Productos con imágenes: {productos_con_imagenes}")
         print(f"    Promedio de imágenes por producto: {promedio_imgs:.2f}")
         
         # Imágenes por tipo
         print("\n    Imágenes por tipo:")
         pipeline = [
             {"$group": {
-                "_id": "$tipo_imagen",
+                "_id": "$tipoImagen",
                 "cantidad": {"$sum": 1}
             }},
             {"$sort": {"cantidad": -1}}
@@ -232,23 +292,32 @@ def show_sample_data(db):
     print("\n  Ejemplo de Producto:")
     producto = db[COLLECTIONS['PRODUCTOS']].find_one()
     if producto:
-        print(f"    Código: {producto.get('codigo_producto')}")
+        print(f"    Código: {producto.get('codigoProducto')}")
         print(f"    Nombre: {producto.get('nombre')}")
         print(f"    Marca: {producto.get('marca', {}).get('nombre')}")
-        print(f"    Categoría: {producto.get('categoria', {}).get('nombre')}")
-        print(f"    Precio: ${producto.get('metadata', {}).get('precio_usd')}")
-        print(f"    Embedding: {'✓ Presente' if producto.get('descripcion_embedding') else '✗ Ausente'}")
+        print(f"    ID Categoría: {producto.get('idCategoria')}")
+        print(f"    Precio: ${producto.get('precioUsd')}")
+        print(f"    Embedding: {'✓ Presente' if producto.get('descripcionEmbedding') else '✗ Ausente'}")
+        if producto.get('procesador'):
+            print(f"    Especificaciones: procesador={producto.get('procesador')}, RAM={producto.get('memoriaRam')}")
     
-    # Mostrar una reseña de ejemplo
-    print("\n  Ejemplo de Reseña:")
-    resena = db[COLLECTIONS['RESENAS']].find_one()
-    if resena:
-        print(f"    Usuario: {resena.get('usuario', {}).get('nombre_usuario')}")
-        print(f"    Calificación: {resena.get('calificacion')} ⭐")
-        print(f"    Título: {resena.get('titulo')}")
-        print(f"    Idioma: {resena.get('idioma')}")
-        print(f"    Compra verificada: {'Sí' if resena.get('compra_verificada') else 'No'}")
-        print(f"    Embedding: {'✓ Presente' if resena.get('contenido_embedding') else '✗ Ausente'}")
+    # Mostrar un usuario con reseñas de ejemplo
+    print("\n  Ejemplo de Usuario con Reseñas:")
+    usuario = db[COLLECTIONS['USUARIOS']].find_one({"resenas": {"$exists": True, "$ne": []}})
+    if usuario:
+        print(f"    Nombre de usuario: {usuario.get('nombreUsuario')}")
+        print(f"    Correo: {usuario.get('correo')}")
+        print(f"    Comprador verificado: {'Sí' if usuario.get('compradorVerificado') else 'No'}")
+        resenas = usuario.get('resenas', [])
+        if resenas:
+            print(f"    Número de reseñas: {len(resenas)}")
+            print(f"\n    Primera reseña:")
+            resena = resenas[0]
+            print(f"      Calificación: {resena.get('calificacion')} ⭐")
+            print(f"      Título: {resena.get('titulo')}")
+            print(f"      Idioma: {resena.get('idioma')}")
+            print(f"      Compra verificada: {'Sí' if resena.get('compraVerificada') else 'No'}")
+            print(f"      Embedding: {'✓ Presente' if resena.get('contenidoEmbedding') else '✗ Ausente'}")
     
     print()
 

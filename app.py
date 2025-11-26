@@ -33,7 +33,7 @@ def print_menu():
     print("-"*70)
     print("  [1] Crear colecciones con validación de esquema")
     print("  [2] Crear índices")
-    print("  [3] Cargar datos completos (marcas → categorías → usuarios → productos → reseñas → imágenes)")
+    print("  [3] Cargar datos completos (categorías → productos → usuarios → imágenes)")
     print("  [4] Verificar datos cargados")
     print("  [5] Ejecutar setup completo (1 → 2 → 3)")
     print("  [6] Verificar conexión a MongoDB")

@@ -12,13 +12,13 @@ def create_productos_indexes(db):
     collection = db[COLLECTIONS['PRODUCTOS']]
     
     try:
-        # Índice único para codigo_producto
+        # Índice único para codigoProducto
         collection.create_index(
-            [("codigo_producto", ASCENDING)],
+            [("codigoProducto", ASCENDING)],
             unique=True,
-            name="idx_codigo_producto_unique"
+            name="idx_codigoProducto_unique"
         )
-        print(f"  ✓ Índice único: codigo_producto")
+        print(f"  ✓ Índice único: codigoProducto")
         
         # Índice de texto para búsquedas en nombre y descripción
         collection.create_index(
@@ -31,95 +31,37 @@ def create_productos_indexes(db):
         # Índice compuesto para filtros por categoría, precio y calificación
         collection.create_index(
             [
-                ("categoria.id", ASCENDING),
-                ("metadata.precio_usd", ASCENDING),
-                ("metadata.calificacion_promedio", DESCENDING)
+                ("idCategoria", ASCENDING),
+                ("precioUsd", ASCENDING),
+                ("calificacionPromedio", DESCENDING)
             ],
             name="idx_categoria_precio_calificacion"
         )
-        print(f"  ✓ Índice compuesto: categoria.id + precio + calificacion")
+        print(f"  ✓ Índice compuesto: idCategoria + precioUsd + calificacionPromedio")
         
-        # Índice simple para marca
+        # Índice simple para marca (nombre de marca embebida)
         collection.create_index(
-            [("marca.id", ASCENDING)],
-            name="idx_marca_id"
+            [("marca.nombre", ASCENDING)],
+            name="idx_marca_nombre"
         )
-        print(f"  ✓ Índice simple: marca.id")
+        print(f"  ✓ Índice simple: marca.nombre")
         
         # Índice para disponibilidad
         collection.create_index(
-            [("metadata.disponibilidad", ASCENDING)],
+            [("disponibilidad", ASCENDING)],
             name="idx_disponibilidad"
         )
         print(f"  ✓ Índice simple: disponibilidad")
         
         # Índice para búsqueda por calificación
         collection.create_index(
-            [("metadata.calificacion_promedio", DESCENDING)],
-            name="idx_calificacion_promedio"
+            [("calificacionPromedio", DESCENDING)],
+            name="idx_calificacionPromedio"
         )
-        print(f"  ✓ Índice simple: calificacion_promedio")
+        print(f"  ✓ Índice simple: calificacionPromedio")
         
     except OperationFailure as e:
         print(f"  ⚠ Error al crear índices de productos: {str(e)}")
-
-
-def create_resenas_indexes(db):
-    """Crea los índices para la colección de reseñas."""
-    collection = db[COLLECTIONS['RESENAS']]
-    
-    try:
-        # Índice compuesto para obtener reseñas de un producto ordenadas por fecha
-        collection.create_index(
-            [
-                ("id_producto", ASCENDING),
-                ("fecha_creacion", DESCENDING)
-            ],
-            name="idx_producto_fecha"
-        )
-        print(f"  ✓ Índice compuesto: id_producto + fecha_creacion")
-        
-        # Índice para búsquedas por usuario
-        collection.create_index(
-            [("id_usuario", ASCENDING)],
-            name="idx_usuario"
-        )
-        print(f"  ✓ Índice simple: id_usuario")
-        
-        # Índice compuesto para filtros por idioma y calificación
-        collection.create_index(
-            [
-                ("idioma", ASCENDING),
-                ("calificacion", DESCENDING)
-            ],
-            name="idx_idioma_calificacion"
-        )
-        print(f"  ✓ Índice compuesto: idioma + calificacion")
-        
-        # Índice de texto para búsquedas en contenido y título
-        collection.create_index(
-            [("contenido", TEXT), ("titulo", TEXT)],
-            default_language="spanish",
-            name="idx_text_contenido_titulo"
-        )
-        print(f"  ✓ Índice de texto: contenido + titulo (español)")
-        
-        # Índice para reseñas con compra verificada
-        collection.create_index(
-            [("compra_verificada", ASCENDING)],
-            name="idx_compra_verificada"
-        )
-        print(f"  ✓ Índice simple: compra_verificada")
-        
-        # Índice para ordenar por votos útiles
-        collection.create_index(
-            [("votos_utiles", DESCENDING)],
-            name="idx_votos_utiles"
-        )
-        print(f"  ✓ Índice simple: votos_utiles")
-        
-    except OperationFailure as e:
-        print(f"  ⚠ Error al crear índices de reseñas: {str(e)}")
 
 
 def create_imagenes_indexes(db):
@@ -130,56 +72,32 @@ def create_imagenes_indexes(db):
         # Índice compuesto para obtener imágenes de un producto ordenadas
         collection.create_index(
             [
-                ("id_producto", ASCENDING),
-                ("orden_visualizacion", ASCENDING)
+                ("idProducto", ASCENDING),
+                ("ordenVisualizacion", ASCENDING)
             ],
             name="idx_producto_orden"
         )
-        print(f"  ✓ Índice compuesto: id_producto + orden_visualizacion")
+        print(f"  ✓ Índice compuesto: idProducto + ordenVisualizacion")
         
         # Índice para imagen principal por producto
         collection.create_index(
             [
-                ("id_producto", ASCENDING),
-                ("es_principal", ASCENDING)
+                ("idProducto", ASCENDING),
+                ("esPrincipal", ASCENDING)
             ],
             name="idx_producto_principal"
         )
-        print(f"  ✓ Índice compuesto: id_producto + es_principal")
+        print(f"  ✓ Índice compuesto: idProducto + esPrincipal")
         
         # Índice por tipo de imagen
         collection.create_index(
-            [("tipo_imagen", ASCENDING)],
-            name="idx_tipo_imagen"
+            [("tipoImagen", ASCENDING)],
+            name="idx_tipoImagen"
         )
-        print(f"  ✓ Índice simple: tipo_imagen")
+        print(f"  ✓ Índice simple: tipoImagen")
         
     except OperationFailure as e:
         print(f"  ⚠ Error al crear índices de imágenes: {str(e)}")
-
-
-def create_marcas_indexes(db):
-    """Crea los índices para la colección de marcas."""
-    collection = db[COLLECTIONS['MARCAS']]
-    
-    try:
-        # Índice único para nombre de marca
-        collection.create_index(
-            [("nombre", ASCENDING)],
-            unique=True,
-            name="idx_nombre_marca_unique"
-        )
-        print(f"  ✓ Índice único: nombre")
-        
-        # Índice de texto para búsqueda por nombre y descripción
-        collection.create_index(
-            [("nombre", TEXT), ("descripcion", TEXT)],
-            name="idx_text_marca"
-        )
-        print(f"  ✓ Índice de texto: nombre + descripcion")
-        
-    except OperationFailure as e:
-        print(f"  ⚠ Error al crear índices de marcas: {str(e)}")
 
 
 def create_categorias_indexes(db):
@@ -197,10 +115,10 @@ def create_categorias_indexes(db):
         
         # Índice para jerarquía de categorías
         collection.create_index(
-            [("id_categoria_padre", ASCENDING)],
-            name="idx_categoria_padre"
+            [("idCategoriaPadre", ASCENDING)],
+            name="idx_categoriaPadre"
         )
-        print(f"  ✓ Índice simple: id_categoria_padre")
+        print(f"  ✓ Índice simple: idCategoriaPadre")
         
     except OperationFailure as e:
         print(f"  ⚠ Error al crear índices de categorías: {str(e)}")
@@ -211,13 +129,13 @@ def create_usuarios_indexes(db):
     collection = db[COLLECTIONS['USUARIOS']]
     
     try:
-        # Índice único para nombre_usuario
+        # Índice único para nombreUsuario
         collection.create_index(
-            [("nombre_usuario", ASCENDING)],
+            [("nombreUsuario", ASCENDING)],
             unique=True,
-            name="idx_nombre_usuario_unique"
+            name="idx_nombreUsuario_unique"
         )
-        print(f"  ✓ Índice único: nombre_usuario")
+        print(f"  ✓ Índice único: nombreUsuario")
         
         # Índice único para correo
         collection.create_index(
@@ -229,10 +147,29 @@ def create_usuarios_indexes(db):
         
         # Índice para compradores verificados
         collection.create_index(
-            [("comprador_verificado", ASCENDING)],
-            name="idx_comprador_verificado"
+            [("compradorVerificado", ASCENDING)],
+            name="idx_compradorVerificado"
         )
-        print(f"  ✓ Índice simple: comprador_verificado")
+        print(f"  ✓ Índice simple: compradorVerificado")
+        
+        # Índices para reseñas embebidas
+        collection.create_index(
+            [("resenas.idProducto", ASCENDING)],
+            name="idx_resenas_producto"
+        )
+        print(f"  ✓ Índice simple: resenas.idProducto")
+        
+        collection.create_index(
+            [("resenas.calificacion", DESCENDING)],
+            name="idx_resenas_calificacion"
+        )
+        print(f"  ✓ Índice simple: resenas.calificacion")
+        
+        collection.create_index(
+            [("resenas.compraVerificada", ASCENDING)],
+            name="idx_resenas_compraVerificada"
+        )
+        print(f"  ✓ Índice simple: resenas.compraVerificada")
         
     except OperationFailure as e:
         print(f"  ⚠ Error al crear índices de usuarios: {str(e)}")
@@ -252,10 +189,6 @@ def create_all_indexes():
         
         db = get_database()
         
-        print(f"📁 Creando índices en '{COLLECTIONS['MARCAS']}':")
-        create_marcas_indexes(db)
-        print()
-        
         print(f"📁 Creando índices en '{COLLECTIONS['CATEGORIAS']}':")
         create_categorias_indexes(db)
         print()
@@ -266,10 +199,6 @@ def create_all_indexes():
         
         print(f"📁 Creando índices en '{COLLECTIONS['PRODUCTOS']}':")
         create_productos_indexes(db)
-        print()
-        
-        print(f"📁 Creando índices en '{COLLECTIONS['RESENAS']}':")
-        create_resenas_indexes(db)
         print()
         
         print(f"📁 Creando índices en '{COLLECTIONS['IMAGENES']}':")
@@ -284,6 +213,8 @@ def create_all_indexes():
         
     except Exception as e:
         print(f"\n✗ Error al crear índices: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 

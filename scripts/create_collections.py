@@ -11,9 +11,13 @@ def create_productos_collection(db):
     validator = {
         "$jsonSchema": {
             "bsonType": "object",
-            "required": ["codigo_producto", "nombre", "descripcion", "marca", "idCategoria", "metadata"],
+            "required": ["codigoProducto", "nombre", "descripcion", "marca", "idCategoria"],
             "properties": {
-                "codigo_producto": {
+                "idProducto": {
+                    "bsonType": "int",
+                    "description": "ID secuencial del producto"
+                },
+                "codigoProducto": {
                     "bsonType": "string",
                     "pattern": "^PROD-[0-9]{3,}$",
                     "description": "Código único del producto (formato: PROD-XXX)"
@@ -24,10 +28,74 @@ def create_productos_collection(db):
                     "maxLength": 200,
                     "description": "Nombre del producto"
                 },
+                "idMarca": {
+                    "bsonType": "int",
+                    "description": "ID de la marca"
+                },
+                "idCategoria": {
+                    "bsonType": "int",
+                    "description": "ID de la categoría"
+                },
                 "descripcion": {
                     "bsonType": "string",
                     "minLength": 50,
                     "description": "Descripción detallada del producto"
+                },
+                "precioUsd": {
+                    "bsonType": ["double", "decimal"],
+                    "minimum": 0,
+                    "description": "Precio en dólares estadounidenses"
+                },
+                "fechaLanzamiento": {
+                    "bsonType": "date",
+                    "description": "Fecha de lanzamiento del producto"
+                },
+                "disponibilidad": {
+                    "enum": DISPONIBILIDAD_ENUM,
+                    "description": "Estado de disponibilidad del producto"
+                },
+                "calificacionPromedio": {
+                    "bsonType": ["double", "decimal"],
+                    "minimum": 0,
+                    "maximum": 5
+                },
+                "cantidadResenas": {
+                    "bsonType": "int",
+                    "minimum": 0
+                },
+                "fechaCreacion": {
+                    "bsonType": "date"
+                },
+                "fechaActualizacion": {
+                    "bsonType": "date"
+                },
+                "idEspecificaciones": {
+                    "bsonType": "int",
+                    "description": "ID de las especificaciones (campo plano)"
+                },
+                "procesador": {
+                    "bsonType": "string",
+                    "description": "Especificación de procesador (campo plano)"
+                },
+                "memoriaRam": {
+                    "bsonType": ["string", "array"],
+                    "description": "Especificación de memoria RAM (campo plano)"
+                },
+                "almacenamiento": {
+                    "bsonType": ["string", "array"],
+                    "description": "Especificación de almacenamiento (campo plano, puede ser array de opciones)"
+                },
+                "pantalla": {
+                    "bsonType": "string",
+                    "description": "Especificación de pantalla (campo plano)"
+                },
+                "bateria": {
+                    "bsonType": "string",
+                    "description": "Especificación de batería (campo plano)"
+                },
+                "sistemaOperativo": {
+                    "bsonType": "string",
+                    "description": "Especificación de sistema operativo (campo plano)"
                 },
                 "marca": {
                     "bsonType": "object",
@@ -39,54 +107,9 @@ def create_productos_collection(db):
                         "descripcion": {"bsonType": "string"}
                     }
                 },
-                "idCategoria": {
-                    "bsonType": "objectId",
-                    "description": "ID de la categoría (referencia a _id de categorias)"
-                },
-                "especificaciones": {
-                    "bsonType": "object",
-                    "description": "Especificaciones técnicas del producto"
-                },
-                "metadata": {
-                    "bsonType": "object",
-                    "required": ["precio_usd", "disponibilidad"],
-                    "properties": {
-                        "precio_usd": {
-                            "bsonType": "number",
-                            "minimum": 0,
-                            "description": "Precio en dólares estadounidenses"
-                        },
-                        "fecha_lanzamiento": {
-                            "bsonType": "date",
-                            "description": "Fecha de lanzamiento del producto"
-                        },
-                        "disponibilidad": {
-                            "enum": DISPONIBILIDAD_ENUM,
-                            "description": "Estado de disponibilidad del producto"
-                        },
-                        "calificacion_promedio": {
-                            "bsonType": ["double", "int"],
-                            "minimum": 0,
-                            "maximum": 5
-                        },
-                        "cantidad_resenas": {
-                            "bsonType": "int",
-                            "minimum": 0
-                        }
-                    }
-                },
-                "descripcion_embedding": {
+                "descripcionEmbedding": {
                     "bsonType": "array",
                     "description": "Vector de embedding de la descripción (384 dimensiones)"
-                },
-                "imagen_principal": {
-                    "bsonType": "string"
-                },
-                "fecha_creacion": {
-                    "bsonType": "date"
-                },
-                "fecha_actualizacion": {
-                    "bsonType": "date"
                 }
             }
         }
@@ -106,6 +129,10 @@ def create_categorias_collection(db):
             "bsonType": "object",
             "required": ["nombre", "slug"],
             "properties": {
+                "idCategoria": {
+                    "bsonType": "int",
+                    "description": "ID secuencial de la categoría"
+                },
                 "nombre": {
                     "bsonType": "string",
                     "minLength": 3,
@@ -120,11 +147,11 @@ def create_categorias_collection(db):
                 "descripcion": {
                     "bsonType": "string"
                 },
-                "id_categoria_padre": {
-                    "bsonType": ["objectId", "null"],
+                "idCategoriaPadre": {
+                    "bsonType": ["int", "null"],
                     "description": "ID de categoría padre para jerarquía"
                 },
-                "fecha_creacion": {
+                "fechaCreacion": {
                     "bsonType": "date"
                 }
             }
@@ -143,9 +170,13 @@ def create_usuarios_collection(db):
     validator = {
         "$jsonSchema": {
             "bsonType": "object",
-            "required": ["nombre_usuario", "correo"],
+            "required": ["nombreUsuario", "correo"],
             "properties": {
-                "nombre_usuario": {
+                "idUsuario": {
+                    "bsonType": "int",
+                    "description": "ID secuencial del usuario"
+                },
+                "nombreUsuario": {
                     "bsonType": "string",
                     "minLength": 3,
                     "maxLength": 50,
@@ -157,12 +188,18 @@ def create_usuarios_collection(db):
                     "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
                     "description": "Correo electrónico válido"
                 },
-                "nombre_completo": {
+                "nombreCompleto": {
                     "bsonType": "string"
                 },
-                "comprador_verificado": {
+                "compradorVerificado": {
                     "bsonType": "bool",
                     "description": "Indica si el usuario ha realizado compras verificadas"
+                },
+                "fechaCreacion": {
+                    "bsonType": "date"
+                },
+                "ultimoAcceso": {
+                    "bsonType": "date"
                 },
                 "resenas": {
                     "bsonType": "array",
@@ -171,7 +208,14 @@ def create_usuarios_collection(db):
                         "bsonType": "object",
                         "required": ["idProducto", "calificacion", "titulo", "contenido"],
                         "properties": {
-                            "idProducto": {"bsonType": "objectId"},
+                            "idResena": {
+                                "bsonType": "int",
+                                "description": "ID de la reseña"
+                            },
+                            "idProducto": {
+                                "bsonType": "int",
+                                "description": "ID del producto"
+                            },
                             "calificacion": {
                                 "bsonType": "int",
                                 "minimum": 1,
@@ -191,19 +235,13 @@ def create_usuarios_collection(db):
                             "votosUtiles": {"bsonType": "int"},
                             "compraVerificada": {"bsonType": "bool"},
                             "fechaCreacion": {"bsonType": "date"},
-                            "fechaActualizacion": {"bsonType": "date"}
+                            "fechaActualizacion": {"bsonType": "date"},
+                            "contenidoEmbedding": {
+                                "bsonType": "array",
+                                "description": "Vector embedding del contenido"
+                            }
                         }
                     }
-                },
-                "idResena": {
-                    "bsonType": "int",
-                    "description": "Contador de reseñas del usuario"
-                },
-                "fecha_creacion": {
-                    "bsonType": "date"
-                },
-                "ultimo_acceso": {
-                    "bsonType": "date"
                 }
             }
         }
@@ -221,48 +259,54 @@ def create_imagenes_collection(db):
     validator = {
         "$jsonSchema": {
             "bsonType": "object",
-            "required": ["id_producto", "url_imagen", "tipo_imagen"],
+            "required": ["idProducto", "urlImagen", "tipoImagen"],
             "properties": {
-                "id_producto": {
-                    "bsonType": "objectId",
+                "idImagen": {
+                    "bsonType": "int",
+                    "description": "ID secuencial de la imagen"
+                },
+                "idProducto": {
+                    "bsonType": "int",
                     "description": "ID del producto"
                 },
-                "url_imagen": {
+                "urlImagen": {
                     "bsonType": "string",
                     "description": "URL o ruta de la imagen"
                 },
-                "tipo_imagen": {
+                "tipoImagen": {
                     "enum": TIPO_IMAGEN_ENUM,
                     "description": "Tipo de imagen"
                 },
-                "angulo_vista": {
+                "anguloVista": {
                     "bsonType": "string",
                     "description": "Ángulo o vista de la fotografía"
                 },
-                "metadata": {
-                    "bsonType": "object",
-                    "properties": {
-                        "ancho": {"bsonType": "int", "minimum": 1},
-                        "alto": {"bsonType": "int", "minimum": 1},
-                        "formato": {"bsonType": "string"},
-                        "tamano_kb": {"bsonType": ["int", "double"], "minimum": 0}
-                    }
-                },
-                "imagen_embedding": {
-                    "bsonType": "array",
-                    "description": "Vector de embedding de la imagen (512 dimensiones)"
-                },
-                "texto_alternativo": {
-                    "bsonType": "string"
-                },
-                "es_principal": {
-                    "bsonType": "bool"
-                },
-                "orden_visualizacion": {
+                "ancho": {
                     "bsonType": "int",
                     "minimum": 1
                 },
-                "fecha_subida": {
+                "alto": {
+                    "bsonType": "int",
+                    "minimum": 1
+                },
+                "formato": {
+                    "bsonType": "string"
+                },
+                "tamanoKb": {
+                    "bsonType": ["int", "double"],
+                    "minimum": 0
+                },
+                "textoAlternativo": {
+                    "bsonType": "string"
+                },
+                "esPrincipal": {
+                    "bsonType": "bool"
+                },
+                "ordenVisualizacion": {
+                    "bsonType": "int",
+                    "minimum": 1
+                },
+                "fechaSubida": {
                     "bsonType": "date"
                 }
             }
@@ -279,6 +323,8 @@ def create_imagenes_collection(db):
 def create_all_collections():
     """
     Crea todas las colecciones del sistema con sus respectivas validaciones.
+    Marcas: EMBEBIDAS en productos (no colección independiente)
+    Reseñas: EMBEBIDAS en usuarios (no colección independiente)
     
     Returns:
         bool: True si todas las colecciones se crearon exitosamente
@@ -290,7 +336,7 @@ def create_all_collections():
         
         db = get_database()
         
-        # Crear cada colección (marcas y reseñas ahora embebidas)
+        # Crear colecciones (4 colecciones independientes)
         create_categorias_collection(db)
         create_usuarios_collection(db)
         create_productos_collection(db)
@@ -304,6 +350,8 @@ def create_all_collections():
         
     except Exception as e:
         print(f"\n✗ Error al crear colecciones: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
