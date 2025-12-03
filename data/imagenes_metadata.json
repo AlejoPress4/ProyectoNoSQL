@@ -1,7 +1,7 @@
 [
   {
     "codigo_producto": "PROD-001",
-        "url_imagen": "/images/iphone15promax.jpg",
+    "url_imagen": "/images/iphone15promax.jpg",
     "tipo_imagen": "foto_producto",
     "angulo_vista": "frontal",
     "metadata": {
@@ -14,7 +14,6 @@
     "es_principal": true,
     "orden_visualizacion": 1
   },
-
   {
     "codigo_producto": "PROD-002",
     "url_imagen": "/images/s24ultra.jpg",
@@ -239,5 +238,620 @@
     "texto_alternativo": "HP Spectre x360 14 en modo tent",
     "es_principal": false,
     "orden_visualizacion": 2
+  },
+  {
+    "codigo_producto": "PROD-011",
+    "url_imagen": "/images/oneplus12.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1280,
+      "alto": 856,
+      "formato": "jpg",
+      "tamano_kb": 86
+    },
+    "texto_alternativo": "OnePlus 12 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-012",
+    "url_imagen": "/images/iphone14.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 630,
+      "alto": 793,
+      "formato": "jpg",
+      "tamano_kb": 97
+    },
+    "texto_alternativo": "iPhone 14 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-013",
+    "url_imagen": "/images/galaxys23.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1629,
+      "alto": 1968,
+      "formato": "jpg",
+      "tamano_kb": 154
+    },
+    "texto_alternativo": "Samsung Galaxy S23 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-014",
+    "url_imagen": "/images/ipadpro129.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1200,
+      "alto": 630,
+      "formato": "jpg",
+      "tamano_kb": 41
+    },
+    "texto_alternativo": "iPad Pro 12.9 M2 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-015",
+    "url_imagen": "/images/tabs9ultra.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1600,
+      "alto": 1200,
+      "formato": "jpg",
+      "tamano_kb": 133
+    },
+    "texto_alternativo": "Samsung Galaxy Tab S9 Ultra vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-016",
+    "url_imagen": "/images/ipadair.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1600,
+      "alto": 1600,
+      "formato": "jpg",
+      "tamano_kb": 88
+    },
+    "texto_alternativo": "iPad Air M2 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-017",
+    "url_imagen": "/images/surfacepro9.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 6000,
+      "alto": 3375,
+      "formato": "jpg",
+      "tamano_kb": 1602
+    },
+    "texto_alternativo": "Microsoft Surface Pro 9 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-018",
+    "url_imagen": "/images/tabp12.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1500,
+      "alto": 920,
+      "formato": "jpg",
+      "tamano_kb": 64
+    },
+    "texto_alternativo": "Lenovo Tab P12 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-019",
+    "url_imagen": "/images/wh1000xm5.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1650,
+      "alto": 1650,
+      "formato": "jpg",
+      "tamano_kb": 157
+    },
+    "texto_alternativo": "Sony WH-1000XM5 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-020",
+    "url_imagen": "/images/qc_ultra.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 480,
+      "alto": 480,
+      "formato": "jpg",
+      "tamano_kb": 25
+    },
+    "texto_alternativo": "Bose QuietComfort Ultra vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-021",
+    "url_imagen": "/images/airpodspro2.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1342,
+      "alto": 755,
+      "formato": "jpg",
+      "tamano_kb": 44
+    },
+    "texto_alternativo": "Apple AirPods Pro 2 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-022",
+    "url_imagen": "/images/wf1000xm5.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1280,
+      "alto": 720,
+      "formato": "jpg",
+      "tamano_kb": 42
+    },
+    "texto_alternativo": "Sony WF-1000XM5 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-023",
+    "url_imagen": "/images/qc_earbuds2.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 800,
+      "alto": 800,
+      "formato": "jpg",
+      "tamano_kb": 55
+    },
+    "texto_alternativo": "Bose QuietComfort Earbuds II vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-024",
+    "url_imagen": "/images/applewatch9.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1600,
+      "alto": 900,
+      "formato": "jpg",
+      "tamano_kb": 65
+    },
+    "texto_alternativo": "Apple Watch Series 9 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-025",
+    "url_imagen": "/images/galaxywatch6.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1000,
+      "alto": 1000,
+      "formato": "jpg",
+      "tamano_kb": 78
+    },
+    "texto_alternativo": "Samsung Galaxy Watch 6 Classic vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-026",
+    "url_imagen": "/images/pixelwatch2.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1095,
+      "alto": 1095,
+      "formato": "jpg",
+      "tamano_kb": 92
+    },
+    "texto_alternativo": "Google Pixel Watch 2 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-027",
+    "url_imagen": "/images/xlimpro.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1500,
+      "alto": 1500,
+      "formato": "jpg",
+      "tamano_kb": 385
+    },
+    "texto_alternativo": "OXVA XLIM Pro vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-028",
+    "url_imagen": "/images/originx.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 800,
+      "alto": 800,
+      "formato": "jpg",
+      "tamano_kb": 27
+    },
+    "texto_alternativo": "OXVA Origin X vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-029",
+    "url_imagen": "/images/xlimsqpro.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 800,
+      "alto": 800,
+      "formato": "jpg",
+      "tamano_kb": 68
+    },
+    "texto_alternativo": "OXVA XLIM SQ Pro vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-030",
+    "url_imagen": "/images/zephyrusg14.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1500,
+      "alto": 981,
+      "formato": "jpg",
+      "tamano_kb": 105
+    },
+    "texto_alternativo": "Asus ROG Zephyrus G14 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-031",
+    "url_imagen": "/images/macbookair15.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 428
+    },
+    "texto_alternativo": "MacBook Air 15 M3 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-032",
+    "url_imagen": "/images/xiaomi13tpro.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1087,
+      "alto": 892,
+      "formato": "jpg",
+      "tamano_kb": 343
+    },
+    "texto_alternativo": "Xiaomi 13T Pro vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-033",
+    "url_imagen": "/images/pixel7a.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 471,
+      "alto": 524,
+      "formato": "jpg",
+      "tamano_kb": 10
+    },
+    "texto_alternativo": "Google Pixel 7a vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-034",
+    "url_imagen": "/images/galaxya54.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1920,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 120
+    },
+    "texto_alternativo": "Samsung Galaxy A54 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-035",
+    "url_imagen": "/images/iphonese3.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 2560,
+      "alto": 2560,
+      "formato": "jpg",
+      "tamano_kb": 108
+    },
+    "texto_alternativo": "iPhone SE 3rd Gen vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-036",
+    "url_imagen": "/images/redminote13pro.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 329,
+      "alto": 401,
+      "formato": "jpg",
+      "tamano_kb": 51
+    },
+    "texto_alternativo": "Xiaomi Redmi Note 13 Pro vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-037",
+    "url_imagen": "/images/zflip5.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 728,
+      "alto": 410,
+      "formato": "jpg",
+      "tamano_kb": 23
+    },
+    "texto_alternativo": "Samsung Galaxy Z Flip 5 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-038",
+    "url_imagen": "/images/scar18.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 809,
+      "alto": 590,
+      "formato": "jpg",
+      "tamano_kb": 50
+    },
+    "texto_alternativo": "Asus ROG Strix Scar 18 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-039",
+    "url_imagen": "/images/xps13plus.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 800,
+      "alto": 469,
+      "formato": "jpg",
+      "tamano_kb": 57
+    },
+    "texto_alternativo": "Dell XPS 13 Plus vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-040",
+    "url_imagen": "/images/omen16.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 800,
+      "alto": 800,
+      "formato": "jpg",
+      "tamano_kb": 51
+    },
+    "texto_alternativo": "HP Omen 16 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-041",
+    "url_imagen": "/images/yoga9i.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1683,
+      "alto": 1310,
+      "formato": "jpg",
+      "tamano_kb": 173
+    },
+    "texto_alternativo": "Lenovo Yoga 9i Gen 8 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-042",
+    "url_imagen": "/images/surfacelaptop5.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 3840,
+      "alto": 2160,
+      "formato": "jpg",
+      "tamano_kb": 70
+    },
+    "texto_alternativo": "Microsoft Surface Laptop 5 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-043",
+    "url_imagen": "/images/tabs9.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 950,
+      "alto": 634,
+      "formato": "jpg",
+      "tamano_kb": 36
+    },
+    "texto_alternativo": "Samsung Galaxy Tab S9 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-044",
+    "url_imagen": "/images/ipad10.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 600,
+      "alto": 600,
+      "formato": "jpg",
+      "tamano_kb": 41
+    },
+    "texto_alternativo": "iPad 10th Gen vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-045",
+    "url_imagen": "/images/tabp11pro2.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 600,
+      "alto": 600,
+      "formato": "jpg",
+      "tamano_kb": 54
+    },
+    "texto_alternativo": "Lenovo Tab P11 Pro Gen 2 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-046",
+    "url_imagen": "/images/surfacego3.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 650,
+      "alto": 650,
+      "formato": "jpg",
+      "tamano_kb": 31
+    },
+    "texto_alternativo": "Microsoft Surface Go 3 vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-047",
+    "url_imagen": "/images/ipadmini6.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1000,
+      "alto": 1000,
+      "formato": "jpg",
+      "tamano_kb": 39
+    },
+    "texto_alternativo": "iPad mini 6th Gen vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-048",
+    "url_imagen": "/images/taba9plus.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1440,
+      "alto": 1080,
+      "formato": "jpg",
+      "tamano_kb": 184
+    },
+    "texto_alternativo": "Samsung Galaxy Tab A9+ vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-049",
+    "url_imagen": "/images/soundlinkflex.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1024,
+      "alto": 717,
+      "formato": "jpg",
+      "tamano_kb": 76
+    },
+    "texto_alternativo": "Bose SoundLink Flex vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-050",
+    "url_imagen": "/images/linkbudss.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 1500,
+      "alto": 1012,
+      "formato": "jpg",
+      "tamano_kb": 44
+    },
+    "texto_alternativo": "Sony LinkBuds S vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
+  },
+  {
+    "codigo_producto": "PROD-051",
+    "url_imagen": "/images/oxva_xlim_go.jpg",
+    "tipo_imagen": "foto_producto",
+    "angulo_vista": "frontal",
+    "metadata": {
+      "ancho": 500,
+      "alto": 500,
+      "formato": "jpg",
+      "tamano_kb": 14
+    },
+    "texto_alternativo": "OXVA XLIM GO vista frontal",
+    "es_principal": true,
+    "orden_visualizacion": 1
   }
 ]

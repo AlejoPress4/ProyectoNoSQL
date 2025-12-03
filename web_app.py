@@ -72,11 +72,51 @@ def search_products(query, limit=10):
             "descripcionEmbedding": {"$exists": True, "$ne": []}
         }))
         
-        # Calcular similitudes
+        # Normalizar consulta para coincidencias de palabras clave
+        query_lower = query.lower().strip()
+        query_words = query_lower.split()
+        
+        # Calcular similitudes híbridas
         resultados = []
         for producto in productos:
             if "descripcionEmbedding" in producto and producto["descripcionEmbedding"]:
-                similarity = cosine_similarity(query_embedding, producto["descripcionEmbedding"])
+                # 1. Similitud semántica (embedding)
+                semantic_similarity = cosine_similarity(query_embedding, producto["descripcionEmbedding"])
+                
+                # 2. Puntuación por coincidencia exacta de palabras clave
+                keyword_score = 0
+                text_fields = [
+                    producto.get("nombre", "").lower(),
+                    producto.get("descripcion", "").lower(),
+                    str(producto.get("categoria", {}).get("nombre", "")).lower(),
+                    str(producto.get("marca", {}).get("nombre", "")).lower()
+                ]
+                combined_text = " ".join(text_fields)
+                
+                # Puntuación por coincidencias exactas
+                for word in query_words:
+                    if word in combined_text:
+                        keyword_score += 1
+                
+                # Normalizar keyword_score
+                keyword_score = keyword_score / len(query_words) if query_words else 0
+                
+                # 3. Boost especial para coincidencias exactas en nombre o categoría
+                exact_match_boost = 0
+                if query_lower in producto.get("nombre", "").lower():
+                    exact_match_boost = 0.3
+                elif query_lower in str(producto.get("categoria", {}).get("nombre", "")).lower():
+                    exact_match_boost = 0.25
+                
+                # 4. Combinar puntuaciones (pesos ajustados)
+                # Semantic: 60%, Keywords: 30%, Exact Match: 10%
+                hybrid_score = (
+                    semantic_similarity * 0.6 + 
+                    keyword_score * 0.3 + 
+                    exact_match_boost
+                )
+                
+                similarity = hybrid_score
                 
                 # Agregar información adicional
                 producto_info = {
@@ -101,12 +141,22 @@ def search_products(query, limit=10):
                         producto.get("metadata", {}).get("disponibilidad", "")
                     ),
                     "imagen_principal": producto.get("imagen_principal", ""),
-                    "similarity": round(similarity, 4)
+                    "similarity": round(similarity, 4),
+                    "semantic_score": round(semantic_similarity, 4),
+                    "keyword_score": round(keyword_score, 4),
+                    "exact_match_boost": round(exact_match_boost, 4)
                 }
                 resultados.append(producto_info)
         
         # Ordenar por similitud descendente
         resultados.sort(key=lambda x: x["similarity"], reverse=True)
+        
+        # Debug: mostrar top 5 resultados con puntuaciones
+        print(f"🎯 Top 5 resultados para '{query}':")
+        for i, producto in enumerate(resultados[:5]):
+            print(f"{i+1}. {producto['nombre']} - Híbrido: {producto['similarity']:.3f} "
+                  f"(Semántico: {producto['semantic_score']:.3f}, Keywords: {producto['keyword_score']:.3f}, "
+                  f"Exacto: {producto['exact_match_boost']:.3f})")
         
         return resultados[:limit]
         

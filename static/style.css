@@ -337,3 +337,82 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #0052a3;
 }
+
+/* Estilos para product details expandidos */
+.product-specs {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.product-specs small {
+    margin-bottom: 4px;
+}
+
+/* Modal mejorado para detalles del producto */
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Badges mejorados para disponibilidad */
+.availability-en_stock {
+    background-color: var(--success-color) !important;
+    color: white;
+}
+
+.availability-agotado {
+    background-color: var(--danger-color) !important;
+    color: white;
+}
+
+.availability-pre_orden {
+    background-color: var(--warning-color) !important;
+    color: black;
+}
+
+.availability-descontinuado {
+    background-color: var(--dark-color) !important;
+    color: white;
+}
+
+/* Botón Ver Detalles */
+.btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,102,204,0.3);
+}
+
+/* Tabla de información del producto */
+.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: rgba(0,0,0,.02);
+}
+
+/* Toast notifications */
+.toast {
+    z-index: 1060;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+}
+
+/* Análisis de coincidencia */
+.bg-primary.bg-opacity-10 {
+    background-color: rgba(0,102,204,0.1) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-lg {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .product-specs {
+        font-size: 0.8rem;
+    }
+}

@@ -11,6 +11,21 @@ class RAGTechSearch {
     this.searchResults = document.getElementById("searchResults");
     this.errorMessage = document.getElementById("errorMessage");
     this.searchForm = document.getElementById("searchForm");
+
+    // Cargar consulta desde URL si existe
+    this.loadQueryFromURL();
+  }
+
+  loadQueryFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get("query");
+    if (query) {
+      document.getElementById("queryInput").value = query;
+      // Ejecutar búsqueda automáticamente después de un breve delay
+      setTimeout(() => {
+        this.performSearch();
+      }, 500);
+    }
   }
 
   setupEventListeners() {
@@ -116,6 +131,10 @@ class RAGTechSearch {
     this.welcomeMessage.classList.add("d-none");
     this.errorMessage.classList.add("d-none");
     this.searchResults.classList.remove("d-none");
+
+    // Guardar resultados para acceso posterior
+    this.lastSearchResults = data.productos;
+    this.lastQuery = data.query;
 
     // Update query info
     document.getElementById("displayQuery").textContent = data.query;
@@ -240,8 +259,31 @@ class RAGTechSearch {
                     </div>
                     
                     <p class="card-text text-muted small" role="text" aria-label="Descripción del producto">
-                        ${this.truncateText(producto.descripcion, 120)}
+                        ${this.truncateText(producto.descripcion, 200)}
+                        ${
+                          producto.descripcion &&
+                          producto.descripcion.length > 200
+                            ? `<button class="btn btn-link btn-sm p-0 ms-2" onclick="window.ragTech.showProductDetails('${producto.id}')">Ver más...</button>`
+                            : ""
+                        }
                     </p>
+                    
+                    <!-- Información adicional del producto -->
+                    <div class="product-specs mb-2">
+                        <small class="text-muted d-block">
+                            <i class="fas fa-info-circle me-1" aria-hidden="true"></i>
+                            <strong>Código:</strong> ${producto.codigo_producto}
+                        </small>
+                        ${
+                          producto.categoria?.descripcion
+                            ? `
+                        <small class="text-muted d-block">
+                            <i class="fas fa-tag me-1" aria-hidden="true"></i>
+                            <strong>Categoría:</strong> ${producto.categoria.descripcion}
+                        </small>`
+                            : ""
+                        }
+                    </div>
                     
                     <div class="d-flex justify-content-between align-items-center mt-auto">
                         <div class="price-tag" 
@@ -265,6 +307,17 @@ class RAGTechSearch {
                               producto.calificacion?.toFixed(1) || "N/A"
                             })</small>
                         </div>
+                    </div>
+                    <div class="mt-2">
+                        <button class="btn btn-outline-primary btn-sm w-100" 
+                                onclick="window.ragTech.showProductDetails('${
+                                  producto.id
+                                }', ${producto.similarity})" 
+                                title="Ver detalles completos y análisis de coincidencia">
+                            <i class="fas fa-eye me-2"></i>Ver Detalles (${Math.round(
+                              producto.similarity * 100
+                            )}% match)
+                        </button>
                     </div>
                 </div>
             </div>
@@ -417,11 +470,198 @@ class RAGTechSearch {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength).trim() + "...";
   }
+
+  showProductDetails(productId, similarity = null) {
+    // Buscar el producto en los últimos resultados
+    const producto = this.lastSearchResults?.find((p) => p.id === productId);
+    if (!producto) {
+      alert("No se encontraron detalles del producto");
+      return;
+    }
+
+    // Crear contenido del modal con información completa
+    const modalContent = `
+      <div class="row">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="mb-0">${producto.nombre}</h5>
+            ${
+              similarity
+                ? `<span class="badge" style="background-color: ${this.getSimilarityColor(
+                    similarity
+                  )}; font-size: 1rem;">
+              ${Math.round(similarity * 100)}% coincidencia
+            </span>`
+                : ""
+            }
+          </div>
+          
+          <div class="row">
+            <div class="col-md-8">
+              <h6><i class="fas fa-align-left me-2"></i>Descripción Completa:</h6>
+              <div class="bg-light p-3 rounded mb-3" style="max-height: 200px; overflow-y: auto;">
+                <p class="mb-0">${
+                  producto.descripcion || "Sin descripción disponible"
+                }</p>
+              </div>
+              
+              <h6><i class="fas fa-info-circle me-2"></i>Información del Producto:</h6>
+              <table class="table table-sm table-striped">
+                <tbody>
+                  <tr>
+                    <td><strong>Código:</strong></td>
+                    <td>${producto.codigo_producto || "N/A"}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Marca:</strong></td>
+                    <td>${producto.marca?.nombre || "Sin marca"}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Categoría:</strong></td>
+                    <td>${producto.categoria?.nombre || "Sin categoría"}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Precio:</strong></td>
+                    <td>$${
+                      producto.precio_usd?.toLocaleString() || "No disponible"
+                    }</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Calificación:</strong></td>
+                    <td>
+                      ${this.renderStars(producto.calificacion)}
+                      <span class="ms-2">(${
+                        producto.calificacion?.toFixed(1) || "N/A"
+                      })</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><strong>Disponibilidad:</strong></td>
+                    <td>
+                      <span class="badge availability-${
+                        producto.disponibilidad
+                      }">
+                        ${this.formatAvailability(producto.disponibilidad)}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="col-md-4">
+              ${
+                similarity
+                  ? `
+              <h6><i class="fas fa-chart-line me-2"></i>Análisis de Coincidencia:</h6>
+              <div class="bg-primary bg-opacity-10 p-3 rounded mb-3">
+                <div class="text-center">
+                  <div class="display-6 fw-bold text-primary">${Math.round(
+                    similarity * 100
+                  )}%</div>
+                  <small class="text-muted">Relevancia semántica</small>
+                </div>
+                <hr>
+                <small class="text-muted">
+                  <i class="fas fa-lightbulb me-1"></i>
+                  Esta coincidencia se basa en la similitud semántica entre tu consulta y la descripción del producto usando embeddings vectoriales.
+                </small>
+              </div>
+              `
+                  : ""
+              }
+              
+              <h6><i class="fas fa-cog me-2"></i>Acciones:</h6>
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary btn-sm" onclick="window.ragTech.searchSimilarProducts('${
+                  producto.categoria?.nombre ||
+                  producto.marca?.nombre ||
+                  producto.nombre
+                }')">
+                  <i class="fas fa-search me-2"></i>Buscar Similares
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="window.ragTech.copyProductInfo('${productId}')">
+                  <i class="fas fa-copy me-2"></i>Copiar Información
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.displayModal(`Detalles: ${producto.nombre}`, modalContent);
+  }
+
+  searchSimilarProducts(query) {
+    document.getElementById("queryInput").value = query;
+    // Cerrar modal
+    const modal = bootstrap.Modal.getInstance(
+      document.getElementById("dynamicModal")
+    );
+    if (modal) modal.hide();
+    // Realizar búsqueda
+    this.performSearch();
+  }
+
+  copyProductInfo(productId) {
+    const producto = this.lastSearchResults?.find((p) => p.id === productId);
+    if (!producto) return;
+
+    const info =
+      `${producto.nombre}\n` +
+      `Marca: ${producto.marca?.nombre || "N/A"}\n` +
+      `Precio: $${producto.precio_usd?.toLocaleString() || "N/A"}\n` +
+      `Descripción: ${producto.descripcion || "N/A"}`;
+
+    navigator.clipboard.writeText(info).then(() => {
+      // Mostrar mensaje de confirmación
+      const toast = document.createElement("div");
+      toast.className = "toast show position-fixed top-0 end-0 m-3";
+      toast.innerHTML =
+        '<div class="toast-body">✓ Información copiada al portapapeles</div>';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    });
+  }
+
+  displayModal(title, content) {
+    // Crear modal si no existe
+    let modal = document.getElementById("dynamicModal");
+    if (!modal) {
+      const modalHTML = `
+        <div class="modal fade" id="dynamicModal" tabindex="-1" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+              </div>
+              <div class="modal-body"></div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML("beforeend", modalHTML);
+      modal = document.getElementById("dynamicModal");
+    }
+
+    // Actualizar contenido del modal
+    modal.querySelector(".modal-title").textContent = title;
+    modal.querySelector(".modal-body").innerHTML = content;
+
+    // Mostrar modal
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+  }
 }
 
 // Initialize the application when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  new RAGTechSearch();
+  window.ragTech = new RAGTechSearch();
 
   // Add some CSS animations
   const style = document.createElement("style");
