@@ -115,7 +115,7 @@ DATABASE_NAME=productos_tecnologicos
 
 ## 📖 Uso del Sistema
 
-### Ejecución
+### Ejecución de la Aplicación CLI
 
 ```bash
 python app.py
@@ -126,6 +126,40 @@ python app.py
 1. **Opción 6:** Verificar conexión a MongoDB
 2. **Opción 5:** Ejecutar setup completo (⏳ 10-15 minutos)
 3. **Opción 4:** Verificar datos cargados
+
+### 🌐 Interfaz Web RAG Tech
+
+La aplicación incluye una interfaz web moderna para búsquedas semánticas:
+
+```bash
+python web_app.py
+```
+
+**URLs disponibles:**
+- **Principal:** http://localhost:5000
+- **Búsqueda RAG:** http://localhost:5000/ragtech
+- **API Productos:** http://localhost:5000/api/products
+- **API Categorías:** http://localhost:5000/api/categories
+- **API Estadísticas:** http://localhost:5000/api/stats
+
+### Características de la Interfaz Web
+
+- ✅ **Búsqueda en lenguaje natural** con embeddings vectoriales
+- ✅ **Interfaz responsive** con Bootstrap 5
+- ✅ **Resultados ordenados por relevancia** semántica
+- ✅ **Visualización de productos** con imágenes y metadatos
+- ✅ **Análisis de reseñas** relacionadas
+- ✅ **APIs RESTful** para integración
+- ✅ **Consultas de ejemplo** predefinidas
+
+### Ejemplos de Consultas
+
+```
+"Smartphone con buena cámara y batería duradera"
+"Laptop para gaming con procesador potente"
+"Auriculares con cancelación de ruido"
+"Tablet para diseño gráfico y productividad"
+```
 
 ## 🗄️ Esquema de Base de Datos
 

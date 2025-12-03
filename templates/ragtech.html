@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Tech - Búsqueda Inteligente</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>RAG Tech
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/ragtech">Búsqueda RAG</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        <div class="row">
+            <!-- Search Panel -->
+            <div class="col-lg-4 col-xl-3">
+                <div class="card search-panel shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-search me-2"></i>Búsqueda Semántica
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="searchForm" aria-describedby="search-form-description">
+                            <div id="search-form-description" class="visually-hidden">Formulario para realizar búsquedas
+                                semánticas de productos</div>
+                            <div class="mb-3">
+                                <label for="queryInput" class="form-label">Consulta en lenguaje natural:</label>
+                                <textarea class="form-control" id="queryInput" rows="3"
+                                    placeholder="Ej: Smartphone con buena cámara y batería duradera..."
+                                    required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="limitSelect" class="form-label">Número de resultados:</label>
+                                <select class="form-select" id="limitSelect">
+                                    <option value="5">5 productos</option>
+                                    <option value="10" selected>10 productos</option>
+                                    <option value="20">20 productos</option>
+                                    <option value="50">50 productos</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="includeReviews" checked>
+                                    <label class="form-check-label" for="includeReviews">
+                                        Incluir reseñas relevantes
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100" id="searchBtn"
+                                aria-describedby="search-form-description" title="Ejecutar búsqueda semántica">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </form>
+
+                        <hr class="my-4">
+
+                        <!-- Quick Examples -->
+                        <h6 class="fw-bold mb-3">Consultas de ejemplo:</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm quick-example"
+                                data-query="iPhone con buena cámara para fotografía"
+                                title="Buscar: iPhone con buena cámara para fotografía"
+                                aria-label="Ejemplo de búsqueda: iPhone con buena cámara para fotografía">
+                                <i class="fas fa-mobile me-1"></i>iPhone fotografía
+                            </button>
+                            <button class="btn btn-outline-success btn-sm quick-example"
+                                data-query="Laptop gaming con procesador potente"
+                                title="Buscar: Laptop gaming con procesador potente"
+                                aria-label="Ejemplo de búsqueda: Laptop gaming con procesador potente">
+                                <i class="fas fa-laptop me-1"></i>Laptop gaming
+                            </button>
+                            <button class="btn btn-outline-info btn-sm quick-example"
+                                data-query="Auriculares con cancelación de ruido"
+                                title="Buscar: Auriculares con cancelación de ruido"
+                                aria-label="Ejemplo de búsqueda: Auriculares con cancelación de ruido">
+                                <i class="fas fa-headphones me-1"></i>Auriculares premium
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm quick-example"
+                                data-query="Tablet para diseño y productividad"
+                                title="Buscar: Tablet para diseño y productividad"
+                                aria-label="Ejemplo de búsqueda: Tablet para diseño y productividad">
+                                <i class="fas fa-tablet me-1"></i>Tablet profesional
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm quick-example"
+                                data-query="Smartwatch para deportistas" title="Buscar: Smartwatch para deportistas"
+                                aria-label="Ejemplo de búsqueda: Smartwatch para deportistas">
+                                <i class="fas fa-stopwatch me-1"></i>Smartwatch fitness
+                            </button>
+                        </div>
+
+                        <!-- Search Stats -->
+                        <div id="searchStats" class="mt-4 p-3 bg-light rounded d-none">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Tiempo de búsqueda: <span id="searchTime">-</span>ms<br>
+                                <i class="fas fa-chart-bar me-1"></i>
+                                Productos analizados: <span id="analyzedProducts">-</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="col-lg-8 col-xl-9">
+                <!-- Welcome Message -->
+                <div id="welcomeMessage" class="text-center py-5">
+                    <i class="fas fa-robot fa-5x text-primary mb-4"></i>
+                    <h2 class="text-primary">Bienvenido a RAG Tech</h2>
+                    <p class="lead text-muted">Utiliza el panel de la izquierda para realizar búsquedas inteligentes</p>
+                    <p class="text-muted">Nuestro sistema de IA analizará tu consulta y encontrará los productos más
+                        relevantes</p>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Buscando...</span>
+                    </div>
+                    <h5 class="text-primary">Analizando consulta con IA...</h5>
+                    <p class="text-muted">Generando embeddings y calculando similitudes semánticas</p>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="d-none">
+                    <!-- Query Info -->
+                    <div class="alert alert-primary border-0 shadow-sm mb-4">
+                        <h5 class="mb-2">
+                            <i class="fas fa-brain me-2"></i>Consulta analizada:
+                        </h5>
+                        <p class="mb-2 fw-bold" id="displayQuery">-</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small><i class="fas fa-mobile me-1"></i>Productos encontrados: <span id="totalProducts"
+                                        class="fw-bold">0</span></small>
+                            </div>
+                            <div class="col-md-6">
+                                <small><i class="fas fa-comments me-1"></i>Reseñas relevantes: <span id="totalReviews"
+                                        class="fw-bold">0</span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Results -->
+                    <div id="productsSection">
+                        <h4 class="mb-3">
+                            <i class="fas fa-shopping-cart me-2"></i>Productos Relevantes
+                        </h4>
+                        <div id="productsContainer" class="row g-3">
+                            <!-- Products will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Results -->
+                    <div id="reviewsSection" class="mt-5 d-none">
+                        <h4 class="mb-3">
+                            <i class="fas fa-star me-2"></i>Reseñas Relacionadas
+                        </h4>
+                        <div id="reviewsContainer">
+                            <!-- Reviews will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Error en la búsqueda</h5>
+                    <p id="errorText">-</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='ragtech.js') }}"></script>
+</body>
+
+</html>
