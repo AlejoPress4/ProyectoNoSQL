@@ -130,9 +130,11 @@
                     <div class="card-body">
                         <p><strong>Consulta Obligatoria:</strong> "¿Qué productos hablan sobre tecnología móvil?"</p>
                         <div class="input-group mb-3">
+                            <label for="semanticQuery" class="visually-hidden">Consulta de búsqueda semántica</label>
                             <input type="text" class="form-control" id="semanticQuery"
                                 value="¿Qué productos hablan sobre tecnología móvil?"
-                                placeholder="Ingresa tu consulta semántica">
+                                placeholder="Ingresa tu consulta semántica"
+                                aria-label="Campo de consulta para búsqueda semántica">
                             <button class="btn btn-outline-primary" onclick="testSemanticSearch()">
                                 <i class="fas fa-search me-2"></i>Probar
                             </button>
@@ -155,8 +157,8 @@
                         <p><strong>Consulta Obligatoria:</strong> "Smartphones en stock con precio menor a $800"</p>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label>Categoría:</label>
-                                <select class="form-select" id="hybridCategory">
+                                <label for="hybridCategory" class="form-label">Categoría:</label>
+                                <select class="form-select" id="hybridCategory" aria-label="Seleccionar categoría de productos">
                                     <option value="">Todas</option>
                                     <option value="smartphones">Smartphones</option>
                                     <option value="laptops">Laptops</option>
@@ -164,15 +166,16 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label>Precio Máximo:</label>
+                                <label for="hybridMaxPrice" class="form-label">Precio Máximo:</label>
                                 <input type="number" class="form-control" id="hybridMaxPrice" value="800"
-                                    placeholder="Precio máximo">
+                                    placeholder="Precio máximo" aria-label="Precio máximo en USD">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label>Búsqueda Textual:</label>
+                            <label for="hybridQuery" class="form-label">Búsqueda Textual:</label>
                             <input type="text" class="form-control" id="hybridQuery" value="smartphone en stock"
-                                placeholder="Términos de búsqueda">
+                                placeholder="Términos de búsqueda"
+                                aria-label="Campo de términos de búsqueda textual">
                         </div>
                         <button class="btn btn-outline-warning" onclick="testHybridFilter()">
                             <i class="fas fa-filter me-2"></i>Probar Filtro Híbrido
@@ -195,9 +198,11 @@
                         <p><strong>Consulta Obligatoria:</strong> "Explica las principales características de los
                             mejores smartphones según las reseñas"</p>
                         <div class="input-group mb-3">
+                            <label for="ragQuery" class="visually-hidden">Consulta RAG</label>
                             <input type="text" class="form-control" id="ragQuery"
                                 value="Explica las principales características de los mejores smartphones según las reseñas"
-                                placeholder="Ingresa tu consulta RAG">
+                                placeholder="Ingresa tu consulta RAG"
+                                aria-label="Campo de consulta para generación RAG">
                             <button class="btn btn-outline-success" onclick="testRAGComplex()">
                                 <i class="fas fa-robot me-2"></i>Probar RAG
                             </button>
