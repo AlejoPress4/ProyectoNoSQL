@@ -1,0 +1,24 @@
+{
+  "name": "idx_contenido_resena_vector",
+  "type": "vectorSearch",
+  "fields": [
+    {
+      "type": "vector",
+      "path": "contenido_embedding",
+      "numDimensions": 384,
+      "similarity": "cosine"
+    },
+    {
+      "type": "filter",
+      "path": "codigo_producto"
+    },
+    {
+      "type": "filter",
+      "path": "calificacion"
+    },
+    {
+      "type": "filter",
+      "path": "verificado"
+    }
+  ]
+}

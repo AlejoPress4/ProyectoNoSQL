@@ -1,0 +1,28 @@
+{
+  "name": "idx_descripcion_vector",
+  "type": "vectorSearch",
+  "fields": [
+    {
+      "type": "vector",
+      "path": "descripcion_embedding",
+      "numDimensions": 384,
+      "similarity": "cosine"
+    },
+    {
+      "type": "filter",
+      "path": "categoria.slug"
+    },
+    {
+      "type": "filter",
+      "path": "marca.nombre"
+    },
+    {
+      "type": "filter",
+      "path": "metadata.precio_usd"
+    },
+    {
+      "type": "filter",
+      "path": "disponibilidad"
+    }
+  ]
+}

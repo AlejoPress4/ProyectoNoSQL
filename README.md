@@ -1,208 +1,346 @@
-# Sistema RAG de Productos Tecnológicos con MongoDB Atlas
+# 🤖 Sistema RAG Multimodal + Groq LLM
 
-Sistema de Retrieval-Augmented Generation (RAG) para gestión de catálogo de productos tecnológicos con búsqueda semántica usando embeddings vectoriales.
+**Sistema de búsqueda inteligente de productos tecnológicos** que combina búsqueda por texto e imágenes con inteligencia artificial para generar respuestas naturales y personalizadas.
 
-## 📋 Descripción del Proyecto
+## 🎬 ¿Qué Hace Este Programa?
 
-Este proyecto implementa un sistema completo de gestión de productos tecnológicos (smartphones, laptops, tablets, audio, wearables, vaping) con reseñas de usuarios y capacidades de búsqueda semántica avanzada utilizando MongoDB Atlas y embeddings vectoriales generados con `sentence-transformers`.
+Este sistema te permite hacer preguntas en lenguaje natural como:
+- *"Necesito una laptop para gaming con buena refrigeración bajo $1500"*
+- *"¿Qué smartphone tiene mejor cámara para fotos nocturnas?"*
+- *"Compara laptops Dell vs Asus para gaming"*
 
-**Características principales:**
-- ✅ Base de datos NoSQL con MongoDB Atlas
-- ✅ Validación de esquemas con JSON Schema
-- ✅ Índices optimizados para búsquedas eficientes
-- ✅ Embeddings vectoriales de 384 dimensiones para búsqueda semántica
-- ✅ Más de 100 productos tecnológicos reales
-- ✅ Sistema de reseñas con calificaciones y análisis de sentimiento
-- ✅ Gestión de imágenes con metadatos
-- ✅ Interfaz CLI interactiva
+Y te responde con:
+- ✅ **Análisis inteligente** generado por IA (Groq LLM)
+- ✅ **Productos recomendados** con precios y especificaciones
+- ✅ **Ventajas y desventajas** según reseñas de usuarios
+- ✅ **Comparaciones automáticas** entre productos
+- ✅ **Búsqueda por imágenes** usando CLIP (texto-a-imagen)
 
-## 🎯 Entregable 1 - Bases de Datos No Relacionales
+## 🎯 Características Principales
 
-Este proyecto corresponde al Entregable 1 del curso de Bases de Datos No Relacionales, implementando:
-- Diseño de esquema NoSQL para productos tecnológicos
-- Colecciones relacionadas con referencias
-- Índices compuestos y de texto completo
-- Embeddings vectoriales para RAG
-- Validación de datos con JSON Schema
+### 🔍 Búsqueda Inteligente
+- **Multimodal:** Busca por texto O por descripción de imágenes
+- **Semántica:** Entiende el significado, no solo palabras clave
+- **Contextual:** Analiza productos, imágenes y reseñas de usuarios
 
-## 🏗️ Estructura del Proyecto
+### 🤖 Inteligencia Artificial
+- **Groq LLM:** Modelo `llama-3.1-8b-instant` para respuestas naturales
+- **CLIP:** Búsqueda de imágenes basada en texto (512 dimensiones)
+- **Sentence Transformers:** Embeddings de texto (384 dimensiones)
 
-```
-proyecto-rag-productos/
-├── .env                          # Variables de entorno (MongoDB URI)
-├── requirements.txt              # Dependencias de Python
-├── README.md                     # Documentación (este archivo)
-├── app.py                        # Aplicación principal con menú interactivo
-│
-├── config/                       # Configuraciones del sistema
-│   ├── __init__.py
-│   ├── mongodb_config.py         # Conexión a MongoDB Atlas
-│   └── settings.py               # Configuraciones generales
-│
-├── scripts/                      # Scripts de setup y carga
-│   ├── __init__.py
-│   ├── create_collections.py    # Crear colecciones con validación
-│   ├── create_indexes.py        # Crear índices optimizados
-│   ├── load_data.py             # Cargar datos con embeddings
-│   └── verify_data.py           # Verificar datos cargados
-│
-├── models/                       # Esquemas de datos
-│   ├── __init__.py
-│   └── schemas.py               # Definición de esquemas
-│
-└── data/                         # Archivos JSON de datos
-    ├── marcas.json              # 12 marcas tecnológicas
-    ├── categorias.json          # 7 categorías de productos
-    ├── productos.json           # 100+ productos detallados
-    ├── usuarios.json            # 50 usuarios
-    ├── resenas.json             # 300+ reseñas detalladas
-    └── imagenes_metadata.json   # Metadatos de imágenes
-```
+### 📊 Base de Datos
+- **MongoDB Atlas:** Base de datos NoSQL en la nube
+- **Vector Search:** Búsqueda por similitud de embeddings
+- **100+ Productos:** Laptops, smartphones, tablets, audio, wearables
+- **300+ Reseñas:** Con ventajas y desventajas reales
 
-## 🚀 Instalación y Configuración
+## 🛠️ Tecnologías Utilizadas
 
-### Requisitos Previos
+| Tecnología | Uso | Versión |
+|------------|-----|---------|
+| **Python** | Lenguaje principal | 3.8+ |
+| **Flask** | Servidor web | 3.0.0 |
+| **MongoDB Atlas** | Base de datos NoSQL | Cloud |
+| **Groq API** | LLM (llama-3.1) | API |
+| **CLIP** | Búsqueda de imágenes | openai/clip-vit-base-patch32 |
+| **Sentence Transformers** | Embeddings de texto | all-MiniLM-L6-v2 |
+| **PyTorch** | Deep Learning | 2.1.0+ |
+| **scikit-learn** | Similitud coseno | 1.3.0+ |
 
-- **Python 3.8 o superior**
-- **MongoDB Atlas** (cuenta gratuita o de pago)
-- **Conexión a Internet** para descargar modelos de embeddings
+## 📋 Requisitos del Sistema
 
-### Paso 1: Clonar el Repositorio
+### Necesario
+- ✅ Python 3.8 o superior
+- ✅ 4 GB RAM mínimo (8 GB recomendado)
+- ✅ 2 GB espacio en disco
+- ✅ Conexión a internet
+- ✅ Cuenta MongoDB Atlas (gratuita)
+- ✅ API Key de Groq (gratuita)
 
+### Opcional
+- GPU NVIDIA (para CLIP más rápido)
+- CUDA 11.8+ (si tienes GPU)
+
+## 🚀 Instalación Rápida (5 Pasos)
+
+## 🚀 Instalación Rápida (5 Pasos)
+
+### 1️⃣ Instalar Python
 ```bash
-git clone <url-del-repositorio>
+# Verificar que tienes Python 3.8+
+python --version
+# o
+py --version
+```
+
+### 2️⃣ Instalar Dependencias
+```bash
 cd ProyectoNoSQL
+pip install -r requirements.txt
+```
+⏳ *Esto tarda 5-10 minutos la primera vez (descarga modelos de IA)*
+
+### 3️⃣ Configurar MongoDB Atlas
+
+**Opción A: Usar mi base de datos (recomendado para probar)**
+```env
+# Ya está configurado en .env, solo úsalo
+MONGODB_URI=mongodb+srv://Alejandro:Alexia2002@cluster0.sqrqo.mongodb.net/
+DATABASE_NAME=ragtech
 ```
 
-### Paso 2: Crear Entorno Virtual
+**Opción B: Crear tu propia base de datos**
+1. Ve a [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+2. Crea cuenta gratis
+3. Crea un cluster M0 (gratis)
+4. Configura Network Access (añade tu IP: `0.0.0.0/0`)
+5. Crea usuario de base de datos
+6. Copia tu connection string al `.env`
 
-**Windows (PowerShell):**
-```powershell
-python -m venv venv
-.\venv\Scripts\Activate.ps1
+### 4️⃣ Configurar Groq API (Opcional)
+
+La API key ya está incluida en el código, pero puedes usar la tuya:
+
+1. Ve a [console.groq.com](https://console.groq.com)
+2. Crea cuenta gratis
+3. Genera API Key
+4. Agrégala al `.env`:
+```env
+GROQ_API_KEY=gsk_tu_api_key_aqui
 ```
 
-**Linux/Mac:**
+### 5️⃣ Iniciar el Servidor
+
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+py web_app.py
 ```
 
-### Paso 3: Instalar Dependencias
+✅ Abre tu navegador en: **http://localhost:5000**
 
+## 🧪 Cómo Probar el Sistema
+
+### Opción 1: Interfaz Web (Más Fácil)
+
+1. Inicia el servidor:
+   ```bash
+   py web_app.py
+   ```
+
+2. Abre **http://localhost:5000** en tu navegador
+
+3. Ve a la sección **"Búsqueda RAG"**
+
+4. Escribe una pregunta, por ejemplo:
+   ```
+   laptop gaming con buena refrigeración bajo $1500
+   ```
+
+5. Presiona **"Buscar con IA"**
+
+6. ✨ **Magia:** El sistema busca productos, analiza reseñas y te da una respuesta inteligente
+
+### Opción 2: API con curl
+
+```bash
+curl -X POST http://localhost:5000/rag \
+  -H "Content-Type: application/json" \
+  -d "{\"query\": \"smartphone con mejor cámara\", \"max_products\": 3}"
+```
+
+### Opción 3: Python Script
+
+```python
+import requests
+
+response = requests.post('http://localhost:5000/rag', json={
+    "query": "auriculares con cancelación de ruido",
+    "max_products": 5,
+    "include_reviews": True,
+    "include_images": True
+})
+
+data = response.json()
+print(data['rag_response'])  # Respuesta de la IA
+```
+
+### Opción 4: Ejemplos Incluidos
+
+```bash
+py ejemplos_uso_groq.py
+```
+
+Este script ejecuta 7 ejemplos diferentes automáticamente.
+
+## 📊 Ejemplos de Consultas
+
+Copia y pega estos en la interfaz web:
+
+### Búsquedas Simples
+```
+laptop para programación
+smartphone económico con buena batería
+auriculares inalámbricos deportivos
+tablet para diseño gráfico
+```
+
+### Búsquedas Específicas
+```
+laptop gaming con RTX 3060 y buena refrigeración bajo $1500
+smartphone con cámara de 108MP para fotografía nocturna
+auriculares Sony con cancelación de ruido activa
+tablet con stylus para ilustración digital
+```
+
+### Comparaciones
+```
+compara iPhone vs Samsung para fotografía
+diferencias entre Dell XPS y MacBook Pro
+mejor relación calidad-precio en laptops gaming
+```
+
+### Consultas Complejas
+```
+necesito una laptop ligera para viajar, que tenga buena batería, 
+pantalla de al menos 13 pulgadas, y pueda editar videos en 1080p
+```
+
+## 🎯 ¿Qué Responde el Sistema?
+
+Para cada consulta, la IA te da:
+
+1. **Análisis Inteligente**
+   - Recomendación principal con justificación
+   - Alternativas relevantes
+   - Comparaciones si aplica
+
+2. **Productos Específicos**
+   - Nombre y marca
+   - Precio en USD
+   - Especificaciones clave
+   - Score de relevancia (%)
+
+3. **Opiniones de Usuarios**
+   - Ventajas destacadas
+   - Desventajas a considerar
+   - Calificaciones promedio
+
+4. **Conclusión**
+   - Mejor opción según tu necesidad
+   - Relación calidad-precio
+   - Casos de uso recomendados
+
+## 🔧 Solución de Problemas Comunes
+
+### ❌ Error: "No module named 'flask'"
 ```bash
 pip install -r requirements.txt
 ```
 
-### Paso 4: Configurar MongoDB Atlas
+### ❌ Error: "Connection refused MongoDB"
+- Verifica tu IP en MongoDB Atlas Network Access
+- Asegúrate de que el URI en `.env` es correcto
+- Prueba con `0.0.0.0/0` en Network Access (permite todas las IPs)
 
-1. Crear cuenta en [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Crear un cluster (tier gratuito M0 disponible)
-3. Configurar acceso de red (agregar tu IP)
-4. Crear usuario de base de datos
-5. Obtener connection string
-
-### Paso 5: Configurar Variables de Entorno
-
-Editar el archivo `.env` con tus credenciales:
-
-```env
-MONGODB_URI=mongodb+srv://usuario:password@cluster0.xxxxx.mongodb.net/
-DATABASE_NAME=productos_tecnologicos
-```
-
-**⚠️ IMPORTANTE:** Reemplazar con tus credenciales reales.
-
-## 📖 Uso del Sistema
-
-### Ejecución de la Aplicación CLI
-
+### ❌ Error: "CLIP model not found"
 ```bash
-python app.py
+pip install torch torchvision transformers
 ```
 
-### Flujo Recomendado (Primera Vez)
+### ❌ Servidor muy lento la primera vez
+- Es normal, está descargando modelos de IA (~1.5 GB)
+- Solo pasa la primera vez
+- Siguiente inicio será rápido (5 segundos)
 
-1. **Opción 6:** Verificar conexión a MongoDB
-2. **Opción 5:** Ejecutar setup completo (⏳ 10-15 minutos)
-3. **Opción 4:** Verificar datos cargados
+### ❌ Error: "Groq API rate limit"
+- Estás haciendo muchas consultas muy rápido
+- Espera 1 minuto
+- O usa tu propia API key (gratis en console.groq.com)
 
-### 🌐 Interfaz Web RAG Tech
+### ❌ Resultados no relevantes
+- Asegúrate de que los datos estén cargados: `py app.py` → Opción 4
+- Verifica que los índices vectoriales existan en MongoDB Atlas
+- Prueba con consultas más específicas
 
-La aplicación incluye una interfaz web moderna para búsquedas semánticas:
-
-```bash
-python web_app.py
-```
-
-**URLs disponibles:**
-- **Principal:** http://localhost:5000
-- **Búsqueda RAG:** http://localhost:5000/ragtech
-- **API Productos:** http://localhost:5000/api/products
-- **API Categorías:** http://localhost:5000/api/categories
-- **API Estadísticas:** http://localhost:5000/api/stats
-
-### Características de la Interfaz Web
-
-- ✅ **Búsqueda en lenguaje natural** con embeddings vectoriales
-- ✅ **Interfaz responsive** con Bootstrap 5
-- ✅ **Resultados ordenados por relevancia** semántica
-- ✅ **Visualización de productos** con imágenes y metadatos
-- ✅ **Análisis de reseñas** relacionadas
-- ✅ **APIs RESTful** para integración
-- ✅ **Consultas de ejemplo** predefinidas
-
-### Ejemplos de Consultas
+## 📁 Estructura de Archivos (Simplificada)
 
 ```
-"Smartphone con buena cámara y batería duradera"
-"Laptop para gaming con procesador potente"
-"Auriculares con cancelación de ruido"
-"Tablet para diseño gráfico y productividad"
+ProyectoNoSQL/
+├── web_app.py                 # 🚀 SERVIDOR PRINCIPAL - Ejecuta este
+├── requirements.txt           # 📦 Dependencias
+├── .env                       # 🔐 Configuración (MongoDB, Groq)
+├── README.md                  # 📖 Esta guía
+│
+├── data/                      # 💾 Datos de productos y reseñas (JSON)
+├── config/                    # ⚙️ Configuración de base de datos
+├── scripts/                   # 🛠️ Scripts de setup y pruebas
+└── docs/                      # 📚 Documentación adicional
 ```
 
-## 🗄️ Esquema de Base de Datos
+## 🧠 ¿Cómo Funciona Internamente?
 
-### Colecciones Principales
+### Flujo de Búsqueda RAG
 
-- **productos**: Catálogo de productos con embeddings
-- **marcas**: Fabricantes de productos
-- **categorias**: Clasificación de productos
-- **usuarios**: Usuarios del sistema
-- **resenas**: Reseñas con embeddings de contenido
-- **imagenes_producto**: Metadatos de imágenes
+1. **Tu pregunta:** "laptop gaming con buena refrigeración"
 
-Ver esquemas completos en `models/schemas.py`
+2. **Embedding de texto:** 
+   - Convierte tu texto en vector de 384 números
+   - Modelo: sentence-transformers/all-MiniLM-L6-v2
 
-## 🧠 Embeddings Vectoriales
+3. **Embedding CLIP (opcional):**
+   - Convierte tu descripción en vector de 512 números
+   - Modelo: openai/clip-vit-base-patch32
+   - Busca imágenes similares
 
-**Modelo:** sentence-transformers/all-MiniLM-L6-v2
-- **Dimensiones:** 384
-- **Idioma:** Multilingüe
-- **Uso:** Búsqueda semántica y recomendaciones
+4. **Búsqueda Vectorial (MongoDB):**
+   - Compara tu vector con todos los productos
+   - Usa similitud coseno (sklearn)
+   - Encuentra los más parecidos
 
-## 📝 Datos Incluidos
+5. **Análisis de Reseñas:**
+   - Busca reseñas relevantes
+   - Extrae ventajas y desventajas
+   - Calcula scores de sentimiento
+
+6. **Fusión Híbrida:**
+   ```python
+   score_final = texto * 0.6 + imagen * 0.4
+   ```
+
+7. **Contexto para LLM:**
+   - Top 6 productos
+   - Especificaciones
+   - Reseñas de usuarios
+   - Scores de similitud
+
+8. **Generación de Respuesta (Groq):**
+   - Modelo: llama-3.1-8b-instant
+   - Temperature: 0.4 (balance creatividad/precisión)
+   - Max tokens: 800
+
+9. **Tu respuesta:** Análisis inteligente en lenguaje natural 🎉
+
+## 📊 Datos del Sistema
 
 - **100+ Productos** distribuidos en 7 categorías
 - **12 Marcas** tecnológicas reconocidas
 - **50 Usuarios** con perfiles variados
-- **300+ Reseñas** detalladas en múltiples idiomas
+- **300+ Reseñas** detalladas con ventajas/desventajas
+- **Imágenes** con embeddings CLIP
 
-## 🛠️ Solución de Problemas
+## 🧪 Testing
 
-### Error de Conexión
-- Verificar URI en `.env`
-- Verificar IP autorizada en MongoDB Atlas
-- Verificar conexión a internet
+```bash
+# Ejecutar tests de integración
+python scripts/test_groq_integration.py
 
-### Carga Lenta
-- La primera vez descarga el modelo (~90MB)
-- Generar embeddings toma 5-10 minutos
-- Es normal, solo ocurre una vez
+# Ejecutar ejemplos de uso
+python ejemplos_uso_groq.py
+```
 
 ## 👥 Autor
 
-Proyecto académico - Bases de Datos No Relacionales 2024
+Proyecto académico - Bases de Datos No Relacionales 2024/2025
+**Versión 2.0** - RAG Multimodal + Groq LLM
 
 ## 📄 Licencia
 
@@ -210,4 +348,76 @@ Uso académico
 
 ---
 
-**Documentación completa:** Consulta [MongoDB Docs](https://docs.mongodb.com/) y [Sentence Transformers](https://www.sbert.net/)
+## 📊 Datos del Sistema
+
+| Colección | Cantidad | Descripción |
+|-----------|----------|-------------|
+| **Productos** | 100+ | Laptops, smartphones, tablets, audio, wearables |
+| **Marcas** | 12 | Apple, Samsung, Dell, Asus, Sony, etc. |
+| **Categorías** | 7 | Clasificación de productos |
+| **Usuarios** | 50 | Perfiles variados |
+| **Reseñas** | 300+ | Con ventajas, desventajas y calificaciones |
+
+## 🎓 Proyecto Académico
+
+**Curso:** Bases de Datos No Relacionales 2024/2025
+**Entregable:** Sistema RAG con MongoDB Atlas + IA
+**Versión:** 2.0 - RAG Multimodal + Groq LLM
+
+### Objetivos Cumplidos
+- ✅ Diseño de esquema NoSQL
+- ✅ Índices optimizados (compuestos, texto, vectoriales)
+- ✅ Embeddings vectoriales (384d + 512d)
+- ✅ Validación con JSON Schema
+- ✅ APIs RESTful
+- ✅ Integración con IA (Groq LLM + CLIP)
+- ✅ Búsqueda semántica multimodal
+- ✅ Sistema de recomendaciones
+
+## 📞 Endpoints de la API
+
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | `/` | Página principal |
+| POST | `/rag` | **Búsqueda RAG con IA** ⭐ |
+| GET | `/api/products` | Lista de productos |
+| GET | `/api/categories` | Lista de categorías |
+| GET | `/api/stats` | Estadísticas del sistema |
+| POST | `/api/utils/update-caption` | Actualizar descripción |
+| DELETE | `/api/utils/delete-image` | Eliminar producto |
+| POST | `/api/utils/show-results` | Debug de búsquedas |
+
+## 🔗 Enlaces Útiles
+
+- 📚 [Documentación MongoDB](https://docs.mongodb.com/)
+- 🤖 [Groq API Docs](https://console.groq.com/docs)
+- 🧠 [Sentence Transformers](https://www.sbert.net/)
+- 🖼️ [CLIP Model](https://huggingface.co/openai/clip-vit-base-patch32)
+- 📖 [Flask Docs](https://flask.palletsprojects.com/)
+
+## 💡 Tips para Mejor Experiencia
+
+1. **Primera vez:** La carga de modelos tarda ~10 minutos
+2. **Consultas específicas:** Mejor que consultas genéricas
+3. **include_images=false:** Búsqueda más rápida (solo texto)
+4. **max_products:** Limita a 3-5 para respuestas más rápidas
+5. **include_reviews=true:** Contexto más rico para la IA
+
+## 📄 Licencia
+
+Uso académico - Universidad 2024/2025
+
+---
+
+**¿Necesitas ayuda?** Lee `RESUMEN_IMPLEMENTACION.md` o `docs/INTEGRACION_GROQ_LLM.md` para más detalles técnicos.
+
+**¿Quieres probar rápido?** Ejecuta `py ejemplos_uso_groq.py` para ver 7 ejemplos automáticos.
+
+**Documentación adicional:**
+- [RESUMEN_IMPLEMENTACION.md](./RESUMEN_IMPLEMENTACION.md)
+- [docs/INTEGRACION_GROQ_LLM.md](./docs/INTEGRACION_GROQ_LLM.md)
+- [MongoDB Atlas Docs](https://docs.mongodb.com/)
+- [Groq API Docs](https://console.groq.com/docs)
+- [Sentence Transformers](https://www.sbert.net/)
+- [CLIP Model](https://huggingface.co/openai/clip-vit-base-patch32)
+
