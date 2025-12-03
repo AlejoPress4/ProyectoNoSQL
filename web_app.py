@@ -800,14 +800,22 @@ def api_products_search_by_image():
             if not description:
                 return jsonify({
                     'error': 'Debes proporcionar una descripción o subir una imagen',
-                    'results': []
+                    'results': [],
+                    'hint': 'Escribe una descripción del producto que buscas (ej: "smartphone con buena cámara") o sube una imagen'
                 }), 400
             
-            query_embedding = generate_clip_text_embedding(description)
-            query_type = "texto"
-            query_display = description
-            
-            print(f"🔍 Búsqueda por DESCRIPCIÓN (CLIP): '{description}'")
+            try:
+                query_embedding = generate_clip_text_embedding(description)
+                query_type = "texto"
+                query_display = description
+                print(f"🔍 Búsqueda por DESCRIPCIÓN (CLIP): '{description}'")
+            except Exception as clip_error:
+                print(f"⚠️ Error generando embedding CLIP: {clip_error}")
+                return jsonify({
+                    'error': 'Error al generar embedding CLIP. Verifica que el modelo esté cargado.',
+                    'details': str(clip_error),
+                    'results': []
+                }), 500
         
         limit = request.args.get('limit', default=10, type=int)
         
@@ -870,39 +878,84 @@ def api_products_search_by_image():
             resultados = list(imagenes_collection.aggregate(pipeline))
             print(f"   ✓ Vector Search CLIP encontró {len(resultados)} resultados")
             
+            # Si no hay resultados, dar feedback al usuario
+            if len(resultados) == 0:
+                print(f"   ⚠️ No se encontraron productos con embeddings CLIP")
+                print(f"   💡 Sugerencia: Ejecuta scripts/generate_image_embeddings_clip.py")
+            
         except Exception as ve:
             # Fallback: búsqueda manual con cosine similarity
             print(f"   ⚠️ Vector Search no disponible: {ve}")
             print(f"   → Usando búsqueda manual con embeddings CLIP")
             
-            imagenes = list(imagenes_collection.find({
-                'imagen_embedding_clip': {'$exists': True, '$ne': []},
-                'es_principal': True
-            }).limit(200))
+            # Contar cuántas imágenes tienen embeddings CLIP
+            total_con_embedding = imagenes_collection.count_documents({
+                'imagen_embedding_clip': {'$exists': True, '$ne': [], '$ne': None}
+            })
+            print(f"   📊 Imágenes con embedding CLIP en BD: {total_con_embedding}")
             
-            imagenes_con_similitud = []
-            for img in imagenes:
-                if img.get('imagen_embedding_clip'):
-                    similitud = cosine_similarity(query_embedding, img['imagen_embedding_clip'])
-                    img['similarity_score'] = similitud
-                    imagenes_con_similitud.append(img)
-            
-            imagenes_con_similitud.sort(key=lambda x: x['similarity_score'], reverse=True)
-            
-            # Lookup manual de productos
-            productos_collection = db[COLLECTIONS['PRODUCTOS']]
-            resultados = []
-            for img in imagenes_con_similitud[:limit]:
-                producto = productos_collection.find_one({
-                    'codigo_producto': img['codigo_producto']
-                })
-                if producto:
+            if total_con_embedding == 0:
+                # No hay embeddings CLIP, usar búsqueda de texto normal como fallback
+                print(f"   ⚠️ No hay embeddings CLIP. Fallback: búsqueda de texto normal")
+                productos_collection = db[COLLECTIONS['PRODUCTOS']]
+                
+                # Buscar por nombre/descripción
+                search_regex = {'$regex': query_display, '$options': 'i'}
+                productos = list(productos_collection.find({
+                    '$or': [
+                        {'nombre': search_regex},
+                        {'descripcion': search_regex},
+                        {'marca_nombre': search_regex}
+                    ]
+                }).limit(limit))
+                
+                resultados = []
+                for p in productos:
                     resultados.append({
-                        'producto_info': producto,
-                        'similarity_score': img['similarity_score'],
-                        'texto_alternativo': img.get('texto_alternativo', ''),
-                        'url_imagen': img.get('url_imagen', '')
+                        'producto_info': p,
+                        'similarity_score': 0.5,  # Score arbitrario para fallback
+                        'texto_alternativo': '',
+                        'url_imagen': p.get('imagen_principal', '')
                     })
+                
+                print(f"   ✓ Fallback texto encontró {len(resultados)} productos")
+            else:
+                # Hay embeddings, hacer búsqueda manual
+                imagenes = list(imagenes_collection.find({
+                    'imagen_embedding_clip': {'$exists': True, '$ne': [], '$ne': None},
+                    'es_principal': True
+                }).limit(200))
+                
+                imagenes_con_similitud = []
+                for img in imagenes:
+                    embedding = img.get('imagen_embedding_clip')
+                    if embedding and len(embedding) == 512:  # Verificar dimensionalidad
+                        try:
+                            similitud = cosine_similarity(query_embedding, embedding)
+                            img['similarity_score'] = similitud
+                            imagenes_con_similitud.append(img)
+                        except Exception as sim_error:
+                            print(f"   ⚠️ Error calculando similitud: {sim_error}")
+                            continue
+                
+                imagenes_con_similitud.sort(key=lambda x: x['similarity_score'], reverse=True)
+                
+                # Lookup manual de productos
+                productos_collection = db[COLLECTIONS['PRODUCTOS']]
+                resultados = []
+                for img in imagenes_con_similitud[:limit]:
+                    producto = productos_collection.find_one({
+                        'codigo_producto': img['codigo_producto']
+                    })
+                    if producto:
+                        resultados.append({
+                            'producto_info': producto,
+                            'similarity_score': img['similarity_score'],
+                            'texto_alternativo': img.get('texto_alternativo', ''),
+                            'url_imagen': img.get('url_imagen', '')
+                        })
+                
+                print(f"   ✓ Búsqueda manual encontró {len(resultados)} productos")
         
         # Formatear resultados
         productos_formateados = []
@@ -921,13 +974,24 @@ def api_products_search_by_image():
         
         print(f"✓ Devolviendo {len(productos_formateados)} productos (búsqueda por {query_type})")
         
-        return jsonify({
+        response = {
             'query': query_display,
             'query_type': query_type,
             'total_results': len(productos_formateados),
             'results': productos_formateados,
             'search_method': 'clip_multimodal_512d'
-        })
+        }
+        
+        # Agregar mensaje si no hay resultados
+        if len(productos_formateados) == 0:
+            response['message'] = 'No se encontraron productos. Posibles razones:'
+            response['suggestions'] = [
+                '1. No hay embeddings CLIP en la base de datos. Ejecuta: py scripts/generate_image_embeddings_clip.py',
+                '2. Intenta con una descripción más general (ej: "smartphone" en vez de "smartphone con cámara de 108MP")',
+                '3. Verifica que los índices vectoriales estén creados en MongoDB Atlas'
+            ]
+        
+        return jsonify(response)
         
     except Exception as e:
         print(f"❌ Error en búsqueda por imagen: {e}")

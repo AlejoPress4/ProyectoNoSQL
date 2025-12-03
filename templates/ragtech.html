@@ -714,7 +714,26 @@
                     container.innerHTML += renderProductCard(product);
                 });
             } else {
-                container.innerHTML = '<div class="col-12"><p class="text-muted text-center py-4">No se encontraron productos para la búsqueda.</p></div>';
+                // Mostrar mensaje con sugerencias
+                let errorHTML = '<div class="col-12"><div class="alert alert-warning shadow-sm">';
+                errorHTML += '<h5><i class="fas fa-exclamation-triangle me-2"></i>No se encontraron productos</h5>';
+                
+                if (data.message) {
+                    errorHTML += '<p class="mb-2">' + data.message + '</p>';
+                }
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    errorHTML += '<ul class="mb-0">';
+                    data.suggestions.forEach(suggestion => {
+                        errorHTML += '<li>' + suggestion + '</li>';
+                    });
+                    errorHTML += '</ul>';
+                } else {
+                    errorHTML += '<p class="mb-0">💡 Intenta con una descripción más general o verifica que los embeddings CLIP estén cargados en la base de datos.</p>';
+                }
+                
+                errorHTML += '</div></div>';
+                container.innerHTML = errorHTML;
             }
         }
 

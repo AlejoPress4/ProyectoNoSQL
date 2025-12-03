@@ -23,21 +23,21 @@ cp .env.example .env
 Abre el archivo `.env` con tu editor favorito y configura:
 
 ```env
-# MongoDB Atlas
-MONGODB_URI=mongodb+srv://RAGTECH:RAGTECH@rag.wbjezpr.mongodb.net/?appName=RAG
-DATABASE_NAME=RAG
+# MongoDB Atlas (usa tus propias credenciales o las que te proporcioné por otro medio)
+MONGODB_URI=mongodb+srv://usuario:password@cluster.xxxxx.mongodb.net/?appName=RAG
+DATABASE_NAME=ragtech
 
-# Groq API Key
-GROQ_API_KEY=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
+# Groq API Key (obtén una gratis en console.groq.com)
+GROQ_API_KEY=tu_groq_api_key_aqui
 ```
 
 **🔐 Importante:** 
-- **MongoDB:** Ya tengo una base de datos configurada que puedes usar (credenciales arriba)
-- **Groq API:** También incluyo una API key que puedes usar, pero si quieres tu propia key:
+- **MongoDB:** Usa las credenciales que te compartí de forma privada, o crea tu propia base de datos
+- **Groq API:** 
   1. Ve a [console.groq.com](https://console.groq.com)
   2. Crea una cuenta gratis
   3. Genera tu API Key
-  4. Reemplázala en el `.env`
+  4. Agrégala al `.env`
 
 ## 2️⃣ Instalar Dependencias
 
