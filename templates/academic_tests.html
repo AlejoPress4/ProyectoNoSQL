@@ -323,6 +323,46 @@
             document.getElementById('lastTest').textContent = new Date().toLocaleString();
         }
 
+        // Función para renderizar productos                               function renderProductCard(producto) {
+            c                            to.imagen_principal ? 
+                `<img src="${produc                            " 
+                                                                         style="height: 150px; object-fit: cover                                        {producto.nombre}" 
+                     onerro                    a:im                    64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE1MCIg                MCAwIDIwMC                      Im5vbmUiIH                    8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRo                    dD0iMTUwIiBmaWxs                    Cjx0ZXh0IHg9IjEwMCIgeT0iNzUiIHRl                    aWRkbGUiIGRvbWluYW50                    aWRkbGUiIGZpbGw9IiM2Yzc1N2Q                taWx5                Zm9udC1zaXp                uIGlt                dD4KPC9zdmc+';">` :
+                       iv cl            d-img-top d-flex align-item             just            ent-center" style="height: 150px; background: #f8f9              i class="fas fa-ima                yle="font-size: 2rem;"></i>
+                                 
+            const marca = producto.marca?.nombre || 'Sin marca';
+              const  cat            m bre || 'Sin cat e gorí            t preci o  = producto.precio_usd || 0;
+            const calificacion = producto.calificacion || 0;
+            const similitud = producto.similarity || 0;
+            
+            return `
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100">
+                        ${imagen}
+                        <div class="card-body">
+                            <h6 class="card-title">${producto.nombre}</h6>
+                              <p class="card-t e                                                <strong>Marca:</strong> ${marca}<br>
+                                  <strong>Categoría:</strong> ${categoria}<br>
+                                  <stron g >Precio:</s trong> $          g:</strong> ${calificacion}/5<br>
+                                    <span class="badge bg-primary">Similitud: ${(similitud * 100).toF                pan>
+                            </p>
+                            </div>
+                    </div>
+                    </div>
+            `;
+        }ar                 lista de productos
+        function renderProductsList(productos) {
+            if (!productos || productos.length === 0) {
+                return '<p>No se encontraron productos.</p>';
+            }
+            
+            return `
+                <div class="row">
+                    ${productos.map(producto => renderProductCard(producto)).join('')}
+                </div>
+            `;
+        }
+
         async function testSemanticSearch() {
             logMessage('🔍 Iniciando prueba de búsqueda semántica...', 'info');
             const query = document.getElementById('semanticQuery').value;
@@ -341,10 +381,11 @@
 
                     document.getElementById('semanticResults').style.display = 'block';
                     document.getElementById('semanticResults').innerHTML =
-                        `<strong>✅ Búsqueda Semántica Exitosa</strong>
-                         <br>Productos encontrados: ${data.results?.length || 0}
-                         <br>Tiempo de respuesta: ${data.processing_time || 'N/A'}
-                         <br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                         `<div class="mb-3">
+                             <strong>✅ Búsqueda Semá ntica Exitosa</stro                            
+                                                <small class="text-mute                                                         Productos encontrados: ${data.results?.lengt                                                                Tiempo: ${data.processing_time ||                                                                             </small>
+                        </div>
+                                                    ProductsList(data.results)}`;
 
                     logMessage('✅ Búsqueda semántica: APROBADA (20/20 puntos)', 'success');
                 } else {
@@ -382,10 +423,14 @@
 
                     document.getElementById('hybridResults').style.display = 'block';
                     document.getElementById('hybridResults').innerHTML =
-                        `<strong>✅ Filtros Híbridos Exitosos</strong>
-                         <br>Productos filtrados: ${data.results?.length || 0}
-                         <br>Filtros aplicados: Categoría(${category || 'Todas'}), Precio(≤$${maxPrice || 'Sin límite'})
-                         <br><pre>${JSON.stringify(data.results?.slice(0, 3) || [], null, 2)}</pre>`;
+                        `<div class="mb-3">
+                            <strong>✅ Filtros Híbridos Exitosos</strong><br>
+                            <small class="text-muted">
+                                Productos filtrados: ${data.results?.length || 0} | 
+                                Filtros: Categoría(${category || 'Todas'}), Precio(≤$${maxPrice || 'Sin límite'})
+                            </small>
+                        </div>
+                        ${renderProductsList(data.results)}`;
 
                     logMessage('✅ Filtros híbridos: APROBADOS (20/20 puntos)', 'success');
                 } else {
@@ -420,14 +465,26 @@
 
                     document.getElementById('ragResults').style.display = 'block';
                     document.getElementById('ragResults').innerHTML =
-                        `<strong>✅ RAG Complejo Exitoso</strong>
-                         <br>Modelo usado: ${data.metadata?.model_used || 'N/A'}
-                         <br>Contexto: ${data.context?.total_productos || 0} productos, ${data.context?.total_resenas || 0} reseñas
-                         <br>Tokens: ${data.metadata?.tokens_used || 'N/A'}
-                         <br><strong>Respuesta RAG:</strong>
-                         <div style="background: white; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                         ${data.rag_response || 'Sin respuesta'}
-                         </div>`;
+                        `<div class="mb-3">
+                            <strong>✅ RAG Complejo Exitoso</strong><br>
+                            <small class="text-muted">
+                                Modelo: ${data.metadata?.model_used || 'N/A'} | 
+                                Contexto: ${data.context?.total_productos || 0} productos, ${data.context?.total_resenas || 0} reseñas | 
+                                Tokens: ${data.metadata?.tokens_used || 'N/A'}
+                            </small>
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Respuesta RAG:</strong>
+                            <div style="background: white; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                                ${data.rag_response || 'Sin respuesta'}
+                            </div>
+                        </div>
+                         <details class= "mt-3">
+                            <summary><strong>Ver productos del contexto</strong></summary>
+                            <div class="mt-2">
+                                ${renderProductsList(data.context?.productos || [])}
+                            </div>
+                        </details>`;
 
                     logMessage('✅ RAG complejo: APROBADO (20/20 puntos)', 'success');
                 } else {

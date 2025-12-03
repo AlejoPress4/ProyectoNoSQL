@@ -3,7 +3,7 @@ Aplicación web Flask para búsquedas semánticas de productos tecnológicos.
 Endpoint: /ragtech para consultas en lenguaje natural.
 """
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from config import get_database, COLLECTIONS, EMBEDDING_MODEL_NAME
@@ -11,6 +11,12 @@ from pymongo import DESCENDING
 import os
 
 app = Flask(__name__)
+
+@app.route('/images/<filename>')
+def serve_image(filename):
+    """Servir imágenes estáticas desde el directorio data/images."""
+    images_dir = os.path.join(os.path.dirname(__file__), 'data', 'images')
+    return send_from_directory(images_dir, filename)
 
 # Variable global para el modelo de embeddings
 _embedding_model = None
