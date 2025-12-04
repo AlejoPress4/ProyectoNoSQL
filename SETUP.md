@@ -28,7 +28,7 @@ MONGODB_URI=mongodb+srv://usuario:password@cluster.xxxxx.mongodb.net/?appName=RA
 DATABASE_NAME=ragtech
 
 # Groq API Key (obtén una gratis en console.groq.com)
-GROQ_API_KEY=tu_groq_api_key_aqui
+GROQ_API_KEY=gsk_tu_api_key_aqui
 ```
 
 **🔐 Importante:** 
