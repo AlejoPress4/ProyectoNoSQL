@@ -156,7 +156,7 @@
                                 <form id="imageSearchForm">
                                     <div class="mb-3">
                                         <label for="imageUpload" class="form-label">Subir imagen:</label>
-                                        <input type="file" class="form-control" id="imageUpload" accept="image/*" required>
+                                        <input type="file" class="form-control" id="imageUpload" accept="image/*">
                                         <small class="text-muted">Formatos: JPG, PNG, GIF</small>
                                     </div>
                             
@@ -684,17 +684,19 @@
             }
 
             const img = imagenUrl ?
-                '<img src="' + imagenUrl + '" class="card-img-top" style="height:150px;object-fit:cover;" alt="' + (p.nombre || 'Producto') + '" />' :
-                '<div class="card-img-top d-flex align-items-center justify-content-center" style="height:150px;background:#f8f9fa;"><i class="fas fa-image text-muted" style="font-size:2rem;"></i></div>';
+                '<img src="' + imagenUrl + '" class="card-img-top" style="height:200px;object-fit:contain;padding:15px;background:#f8f9fa;" alt="' + (p.nombre || 'Producto') + '" />' :
+                '<div class="card-img-top d-flex align-items-center justify-content-center" style="height:200px;background:#f8f9fa;"><i class="fas fa-image text-muted" style="font-size:2rem;"></i></div>';
 
-            return '<div class="col-md-4 mb-3"><div class="card h-100 shadow-sm">' + img +
+            return '<div class="col-md-4 mb-3"><div class="card h-100 shadow-sm product-card" style="cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform=\'scale(1.02)\';this.style.boxShadow=\'0 4px 15px rgba(0,0,0,0.2)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'\'" onclick="showProductDetails(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')">' + img +
                 '<div class="card-body">' +
                 '<h6 class="card-title">' + (p.nombre || 'Sin nombre') + '</h6>' +
+                '<p class="card-text text-muted small">' + (p.descripcion ? p.descripcion.substring(0, 80) + '...' : 'Sin descripción') + '</p>' +
                 '<p class="card-text">' +
                 '<strong>Marca:</strong> ' + (p.marca || 'N/A') + '<br>' +
                 '<strong>Precio:</strong> $' + (p.precio_usd || 0) + '<br>' +
                 (p.similarity ? '<span class="badge bg-primary mt-1">Similitud: ' + p.similarity.toFixed(1) + '%</span>' : '') +
                 '</p>' +
+                '<button class="btn btn-sm btn-outline-primary w-100" onclick="event.stopPropagation();showProductDetails(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')"><i class="fas fa-info-circle me-1"></i>Ver detalles</button>' +
                 '</div></div></div>';
         }
 
@@ -742,27 +744,120 @@
             document.getElementById('searchResults').classList.remove('d-none');
             document.getElementById('errorMessage').classList.add('d-none');
             document.getElementById('displayQuery').textContent = query;
+            document.getElementById('totalProducts').textContent = data.context?.total_productos || 0;
+            document.getElementById('totalReviews').textContent = data.context?.total_resenas || 0;
 
             const container = document.getElementById('productsContainer');
-            container.innerHTML = '<div class="col-12">' +
+            
+            // Mostrar respuesta RAG primero
+            let ragHTML = '<div class="col-12">' +
                 '<div class="alert alert-info shadow-sm">' +
                 '<h5><i class="fas fa-robot me-2"></i>Respuesta del Sistema RAG:</h5>' +
-                '<p class="mb-0">' + (data.rag_response || 'Sin respuesta') + '</p>' +
+                '<div class="mb-0" style="white-space: pre-wrap;">' + (data.rag_response || 'Sin respuesta') + '</div>' +
                 '</div>' +
-                '<div class="card mt-3">' +
+                '<div class="card mt-3 mb-4">' +
                 '<div class="card-body">' +
                 '<p class="mb-2"><strong><i class="fas fa-brain me-1"></i> Modelo:</strong> ' + (data.metadata?.model_used || 'N/A') + '</p>' +
                 '<p class="mb-2"><strong><i class="fas fa-box me-1"></i> Productos analizados:</strong> ' + (data.context?.total_productos || 0) + '</p>' +
                 '<p class="mb-0"><strong><i class="fas fa-comments me-1"></i> Reseñas incluidas:</strong> ' + (data.context?.total_resenas || 0) + '</p>' +
-                '</div></div>' +
-                '</div>';
+                '</div></div></div>';
+            
+            container.innerHTML = ragHTML;
+            
+            // Agregar productos si existen en el contexto
+            if (data.context && data.context.productos && data.context.productos.length > 0) {
+                container.innerHTML += '<div class="col-12"><h5 class="mt-3 mb-3"><i class="fas fa-boxes me-2"></i>Productos Analizados:</h5></div>';
+                data.context.productos.forEach(product => {
+                    container.innerHTML += renderProductCard(product);
+                });
+            }
         }
 
-                                    function showError(message) {
-                                        document.getElementById('loadingIndicator').classList.add('d-none');
-                                        document.getElementById('welcomeMessage').classList.add('d-none');
-                                        document.getElementById('searchResults').classList.add('d-none');
-                                        document.getElementById('errorMessage').classList.remove('d-none');
-                                        document.getElementById('errorText').textContent = message;
-                                    }
-                                </script>
+        function showProductDetails(product) {
+            // Construir URL de imagen
+            let imagenUrl = '';
+            const imagenNombre = product.imagen || product.imagenPrincipal;
+            if (imagenNombre) {
+                if (imagenNombre.startsWith('/images/') || imagenNombre.startsWith('http')) {
+                    imagenUrl = imagenNombre;
+                } else {
+                    imagenUrl = '/images/' + imagenNombre;
+                }
+            }
+
+            const modalHTML = `
+                <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"><i class="fas fa-box me-2"></i>\${product.nombre || 'Producto'}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        \${imagenUrl ? 
+                                            \`<img src="\${imagenUrl}" class="img-fluid rounded shadow" style="width:100%;object-fit:contain;max-height:300px;background:#f8f9fa;padding:20px;" alt="\${product.nombre || 'Producto'}">\` :
+                                            '<div class="d-flex align-items-center justify-content-center" style="height:300px;background:#f8f9fa;border-radius:8px;"><i class="fas fa-image text-muted" style="font-size:4rem;"></i></div>'
+                                        }
+                                        \${product.similarity ? \`<div class="text-center mt-3"><span class="badge bg-primary fs-6">Similitud: \${product.similarity.toFixed(1)}%</span></div>\` : ''}
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h6 class="text-muted mb-3">\${product.descripcion || 'Sin descripción disponible'}</h6>
+                                        
+                                        <div class="mb-3">
+                                            <p class="mb-2"><strong><i class="fas fa-tag me-2 text-primary"></i>Código:</strong> \${product.codigo || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-copyright me-2 text-primary"></i>Marca:</strong> \${product.marca || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-folder me-2 text-primary"></i>Categoría:</strong> \${product.categoria || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-dollar-sign me-2 text-success"></i>Precio:</strong> <span class="fs-4 text-success fw-bold">$\${product.precio_usd || 0}</span></p>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-success btn-lg" onclick="alert('Funcionalidad de compra en desarrollo')">
+                                                <i class="fas fa-shopping-cart me-2"></i>Agregar al carrito
+                                            </button>
+                                            <button class="btn btn-outline-primary" onclick="alert('Comparador en desarrollo')">
+                                                <i class="fas fa-balance-scale me-2"></i>Comparar producto
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Eliminar modal anterior si existe
+            const oldModal = document.getElementById('productModal');
+            if (oldModal) {
+                oldModal.remove();
+            }
+
+            // Agregar modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+
+            // Limpiar al cerrar
+            document.getElementById('productModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+
+        function showError(message) {
+            document.getElementById('welcomeMessage').classList.add('d-none');
+            document.getElementById('loadingIndicator').classList.add('d-none');
+            document.getElementById('searchResults').classList.add('d-none');
+            document.getElementById('errorMessage').classList.remove('d-none');
+            document.getElementById('errorText').textContent = message;
+        }
+    </script>
+</body>
+
+</html>

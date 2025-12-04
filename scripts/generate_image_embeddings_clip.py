@@ -28,12 +28,13 @@ CLIP_MODEL_NAME = "openai/clip-vit-base-patch32"
 # Directorio de imágenes
 IMAGE_DIR = Path("data/images")
 
+# Cargar variables de entorno
+from dotenv import load_dotenv
+load_dotenv()
+
 # MongoDB
-MONGODB_URI = os.getenv(
-    "MONGODB_URI",
-    "mongodb+srv://baironvasquez16:duvier16042005@basenosql.r9oaz2u.mongodb.net/?retryWrites=true&w=majority&appName=BaseNoSQL"
-)
-DB_NAME = "ragtech_db"
+MONGODB_URI = os.getenv("MONGODB_URI")
+DB_NAME = os.getenv("DATABASE_NAME", "RAG")
 COLLECTION_IMAGENES = "imagenesProducto"
 
 # ==================== INICIALIZACIÓN ====================
@@ -179,17 +180,11 @@ def main():
     print(f"   Con embeddings CLIP: {with_embeddings}")
     print(f"   Sin embeddings: {total_docs - with_embeddings}")
     
-    # Preguntar si regenerar todos o solo los faltantes
-    regenerar = input("\n¿Regenerar TODOS los embeddings? (s/N): ").strip().lower()
-    
-    if regenerar == 's':
-        docs = list(imagenes_collection.find({}))
-        print(f"\n🔄 Regenerando embeddings para {len(docs)} imágenes...")
-    else:
-        docs = list(imagenes_collection.find(
-            {"imagen_embedding_clip": {"$exists": False}}
-        ))
-        print(f"\n🔄 Generando embeddings para {len(docs)} imágenes nuevas...")
+    # Solo generar los faltantes (sin embeddings)
+    docs = list(imagenes_collection.find(
+        {"imagen_embedding_clip": {"$exists": False}}
+    ))
+    print(f"\n🔄 Generando embeddings para {len(docs)} imágenes nuevas...")
     
     if not docs:
         print("✅ Todas las imágenes ya tienen embeddings CLIP!")
@@ -200,18 +195,37 @@ def main():
     error_count = 0
     
     for doc in tqdm(docs, desc="Procesando imágenes"):
-        url_imagen = doc.get("url_imagen", "")
+        # Intentar ambos formatos: camelCase y snake_case
+        url_imagen = doc.get("urlImagen") or doc.get("url_imagen", "")
+        
+        # Debug: imprimir primera URL para verificar
+        if success_count == 0 and error_count == 0:
+            print(f"\n🔍 Debug - Primera URL: '{url_imagen}'")
+        
+        # Saltar si url_imagen está vacía o es inválida
+        if not url_imagen or url_imagen == "images":
+            if error_count < 3:  # Solo mostrar primeros 3 errores
+                print(f"\n❌ URL inválida: '{url_imagen}'")
+            error_count += 1
+            continue
         
         # Extraer nombre de archivo de la URL
         if url_imagen.startswith("/images/"):
             filename = url_imagen.replace("/images/", "")
+        elif url_imagen.startswith("images/"):
+            filename = url_imagen.replace("images/", "")
         else:
             filename = Path(url_imagen).name
+        
+        # Validar que filename no esté vacío
+        if not filename or filename == "images":
+            error_count += 1
+            continue
         
         image_path = IMAGE_DIR / filename
         
         if not image_path.exists():
-            print(f"⚠️ Imagen no encontrada: {image_path}")
+            print(f"\n⚠️ Imagen no encontrada: {image_path}")
             error_count += 1
             continue
         

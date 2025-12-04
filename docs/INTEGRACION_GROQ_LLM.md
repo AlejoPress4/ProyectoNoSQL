@@ -203,6 +203,142 @@ curl -X POST http://localhost:5000/api/utils/show-results \
    }
    ```
 
+    ## 📦 Índices Vectoriales y Pipelines de Búsqueda (Atlas Vector Search)
+
+    Esta sección describe los índices vectoriales necesarios y ejemplos de pipelines `$vectorSearch` que implementa la aplicación.
+
+    Archivos de ejemplo con la definición de índices están en `atlas_search_indexes/`:
+
+    - `idx_descripcion_vector.json` (productos, `descripcion_embedding`, 384 dims)
+    - `idx_imagen_vector_clip.json` (imágenes, `imagen_embedding_clip`, 512 dims)
+    - `idx_contenido_resena_vector.json` (reseñas, `contenido_embedding`, 384 dims)
+
+    Recomendación: importa estos JSON en la sección "Search Indexes" de MongoDB Atlas para crear los índices. Asegúrate de que `numDimensions` coincida con el tamaño del vector (384 para text, 512 para CLIP).
+
+    ### 1) Crear índices en Atlas (pasos rápidos)
+
+    1. Abre tu cluster en MongoDB Atlas → Search → Create Search Index.
+    2. Selecciona la colección (ej. `productos`, `imagenesProducto`, `resenas`).
+    3. Usa la opción "Import JSON" y pega el contenido de los archivos en `atlas_search_indexes/`.
+    4. Guarda y espera a que Atlas construya el índice (puede tardar unos minutos).
+
+    ### 2) Pipeline de ejemplo — Productos (búsqueda por descripción)
+
+    ```json
+    [{
+      "$vectorSearch": {
+        "index": "idx_descripcion_vector",
+        "path": "descripcion_embedding",
+        "queryVector": /* aquí tu embedding de texto (lista) */,
+        "numCandidates": 100,
+        "limit": 10
+      }
+    }, {
+      "$addFields": {"text_similarity": {"$meta": "vectorSearchScore"}}
+    }, {
+      "$project": {"nombre": 1, "marca_nombre": 1, "precio_usd": 1, "descripcion": 1, "text_similarity": 1}
+    }]
+    ```
+
+    ### 3) Pipeline de ejemplo — Imágenes (CLIP)
+
+    ```json
+    [{
+      "$vectorSearch": {
+        "index": "idx_imagen_vector_clip",
+        "path": "imagen_embedding_clip",
+        "queryVector": /* embedding CLIP (512 dims) */,
+        "numCandidates": 200,
+        "limit": 20
+      }
+    }, {
+      "$addFields": {"image_similarity": {"$meta": "vectorSearchScore"}}
+    }, {
+      "$project": {"codigo_producto": 1, "imagen_url": 1, "texto_alternativo": 1, "image_similarity": 1}
+    }]
+    ```
+
+    ### 4) Pipeline de ejemplo — Reseñas
+
+    ```json
+    [{
+      "$vectorSearch": {
+        "index": "idx_contenido_resena_vector",
+        "path": "contenido_embedding",
+        "queryVector": /* embedding de texto (384 dims) */,
+        "numCandidates": 200,
+        "limit": 10
+      }
+    }, {
+      "$addFields": {"review_similarity": {"$meta": "vectorSearchScore"}}
+    }, {
+      "$project": {"codigo_producto": 1, "titulo": 1, "contenido": 1, "calificacion": 1, "review_similarity": 1}
+    }]
+    ```
+
+    ### 5) Fallback cuando Atlas Vector Search no está disponible
+
+    Si no puedes usar `$vectorSearch` (por ejemplo en entornos locales o si los índices no existen), la aplicación ofrece un fallback que:
+
+    - Calcula similitud coseno localmente usando `sklearn.metrics.pairwise.cosine_similarity` entre tu embedding y embeddings almacenados en la colección.
+    - Aplica filtros (categoría, marca, precio) y ordena por similitud.
+
+    Ejemplo (pseudo-code Python):
+
+    ```python
+    from sklearn.metrics.pairwise import cosine_similarity
+    query_emb = generate_embedding(query_text)  # 384d
+    docs = list(db['productos'].find({'descripcion_embedding': {'$exists': True}}))
+    scores = []
+    for d in docs:
+        v = d['descripcion_embedding']
+        s = float(cosine_similarity([query_emb], [v])[0][0])
+        scores.append((s, d))
+    top = sorted(scores, key=lambda x: x[0], reverse=True)[:10]
+    ```
+
+    ### 6) Verificar que los embeddings existen (comandos útiles)
+
+    En una sesión Python (o en `scripts/`):
+
+    ```python
+    db = get_database()
+    print('Productos con embedding:', db['productos'].count_documents({'descripcion_embedding': {'$exists': True}}))
+    print('Imágenes con CLIP emb:', db['imagenesProducto'].count_documents({'imagen_embedding_clip': {'$exists': True}}))
+    print('Reseñas con embedding:', db['resenas'].count_documents({'contenido_embedding': {'$exists': True}}))
+    ```
+
+    Si los conteos son 0 para imágenes, debes generar embeddings CLIP; hay un script en `scripts/generate_image_embeddings_clip.py`.
+
+    ### 7) Generar embeddings (resumen rápido)
+
+    - Embeddings de texto: `scripts/load_data.py` o `scripts/generate_text_embeddings.py` (según tu repo) — usa `sentence-transformers` (384d).
+    - Embeddings de imágenes CLIP: `scripts/generate_image_embeddings_clip.py` — usa `openai/clip-vit-base-patch32` y guarda los vectores en `imagen_embedding_clip` (512d).
+
+    Ejemplo para ejecutar el script de imágenes:
+
+    ```powershell
+    py scripts\generate_image_embeddings_clip.py
+    ```
+
+    ### 8) Validación de dimensionalidad
+
+    Antes de crear índices, valida la dimensión de los vectores guardados:
+
+    ```python
+    sample = db['imagenesProducto'].find_one({'imagen_embedding_clip': {'$exists': True}})
+    len(sample['imagen_embedding_clip'])  # debe ser 512
+    ```
+
+    ### 9) Logs y debugging
+
+    - El servidor registra cuántas imágenes con embeddings encuentra al arrancar y cuando se ejecutan búsquedas.
+    - Si ves `0` imágenes con embeddings, ejecuta el script de generación y vuelve a importar el índice en Atlas.
+
+    ---
+
+    Con esto, la aplicación podrá ejecutar correctamente las tres búsquedas vectoriales y fusionarlas para obtener resultados multimodales. Si quieres, implemento un script adicional que valide los índices en Atlas vía la API (o que intente crear los índices automáticamente con la Admin API). ¿Qué prefieres que haga ahora: (A) añadir un script para crear índices automáticamente, o (B) documentar el proceso paso a paso para importarlos manualmente en Atlas?
+
 **Ejemplo de consulta:**
 ```bash
 curl -X POST http://localhost:5000/rag \

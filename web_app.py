@@ -763,7 +763,7 @@ def api_products_search_by_image():
     1. GET con ?description= → busca por descripción de texto
     2. POST con archivo de imagen → busca por imagen real subida
     
-    Requiere índice 'idx_imagen_vector_clip' en MongoDB Atlas.
+    Requiere índice 'foto_index' en MongoDB Atlas.
     """
     try:
         query_embedding = None
@@ -826,7 +826,7 @@ def api_products_search_by_image():
         pipeline = [
             {
                 '$vectorSearch': {
-                    'index': 'idx_imagen_vector_clip',  # Índice CLIP (512 dims)
+                    'index': 'foto_index',  # Índice CLIP (512 dims)
                     'path': 'imagen_embedding_clip',
                     'queryVector': query_embedding,
                     'numCandidates': limit * 10,
@@ -840,14 +840,14 @@ def api_products_search_by_image():
             },
             {
                 '$match': {
-                    'es_principal': True  # Solo imágenes principales
+                    'esPrincipal': True  # Solo imágenes principales (camelCase)
                 }
             },
             {
                 '$lookup': {
                     'from': 'productos',
-                    'localField': 'codigo_producto',
-                    'foreignField': 'codigo_producto',
+                    'localField': 'idProducto',  # camelCase en imagenesProducto
+                    'foreignField': 'idProducto',  # camelCase en productos
                     'as': 'producto_info'
                 }
             },
@@ -856,16 +856,16 @@ def api_products_search_by_image():
             },
             {
                 '$project': {
-                    'producto_info.codigo_producto': 1,
+                    'producto_info.codigoProducto': 1,
                     'producto_info.nombre': 1,
                     'producto_info.descripcion': 1,
-                    'producto_info.marca_nombre': 1,
-                    'producto_info.categoria_slug': 1,
-                    'producto_info.precio_usd': 1,
-                    'producto_info.imagen_principal': 1,
+                    'producto_info.marcaNombre': 1,
+                    'producto_info.categoriaSlug': 1,
+                    'producto_info.precioUsd': 1,
+                    'producto_info.imagenPrincipal': 1,
                     'similarity_score': 1,
-                    'texto_alternativo': 1,
-                    'url_imagen': 1
+                    'textoAlternativo': 1,
+                    'urlImagen': 1
                 }
             },
             {
@@ -874,6 +874,15 @@ def api_products_search_by_image():
         ]
         
         try:
+            # Primero verificar cuántas imágenes tienen embeddings
+            total_con_embedding = imagenes_collection.count_documents({
+                'imagen_embedding_clip': {'$exists': True}
+            })
+            total_principales = imagenes_collection.count_documents({
+                'esPrincipal': True
+            })
+            print(f"   📊 Debug: {total_con_embedding} imágenes con embedding, {total_principales} principales")
+            
             # Intentar búsqueda vectorial con Atlas
             resultados = list(imagenes_collection.aggregate(pipeline))
             print(f"   ✓ Vector Search CLIP encontró {len(resultados)} resultados")
@@ -881,7 +890,57 @@ def api_products_search_by_image():
             # Si no hay resultados, dar feedback al usuario
             if len(resultados) == 0:
                 print(f"   ⚠️ No se encontraron productos con embeddings CLIP")
-                print(f"   💡 Sugerencia: Ejecuta scripts/generate_image_embeddings_clip.py")
+                print(f"   💡 Intentando búsqueda SIN filtro esPrincipal...")
+                
+                # Pipeline sin filtro esPrincipal
+                pipeline_sin_filtro = [
+                    {
+                        '$vectorSearch': {
+                            'index': 'foto_index',
+                            'path': 'imagen_embedding_clip',
+                            'queryVector': query_embedding,
+                            'numCandidates': limit * 10,
+                            'limit': limit * 3
+                        }
+                    },
+                    {
+                        '$addFields': {
+                            'similarity_score': {'$meta': 'vectorSearchScore'}
+                        }
+                    },
+                    {
+                        '$lookup': {
+                            'from': 'productos',
+                            'localField': 'idProducto',
+                            'foreignField': 'idProducto',
+                            'as': 'producto_info'
+                        }
+                    },
+                    {
+                        '$unwind': '$producto_info'
+                    },
+                    {
+                        '$project': {
+                            'producto_info.codigoProducto': 1,
+                            'producto_info.nombre': 1,
+                            'producto_info.descripcion': 1,
+                            'producto_info.marcaNombre': 1,
+                            'producto_info.categoriaSlug': 1,
+                            'producto_info.precioUsd': 1,
+                            'producto_info.imagenPrincipal': 1,
+                            'similarity_score': 1,
+                            'textoAlternativo': 1,
+                            'urlImagen': 1,
+                            'esPrincipal': 1
+                        }
+                    },
+                    {
+                        '$limit': limit
+                    }
+                ]
+                
+                resultados = list(imagenes_collection.aggregate(pipeline_sin_filtro))
+                print(f"   ✓ Búsqueda SIN filtro encontró {len(resultados)} resultados")
             
         except Exception as ve:
             # Fallback: búsqueda manual con cosine similarity
@@ -962,13 +1021,13 @@ def api_products_search_by_image():
         for r in resultados:
             p = r.get('producto_info', r)
             productos_formateados.append({
-                'codigo': p.get('codigo_producto', ''),
+                'codigo': p.get('codigoProducto', p.get('codigo_producto', '')),
                 'nombre': p.get('nombre', ''),
                 'descripcion': p.get('descripcion', ''),
-                'marca': p.get('marca_nombre', ''),
-                'categoria': p.get('categoria_slug', ''),
-                'precio_usd': p.get('precio_usd', 0),
-                'imagen': r.get('url_imagen', p.get('imagen_principal', '')),
+                'marca': p.get('marcaNombre', p.get('marca_nombre', '')),
+                'categoria': p.get('categoriaSlug', p.get('categoria_slug', '')),
+                'precio_usd': p.get('precioUsd', p.get('precio_usd', 0)),
+                'imagen': r.get('urlImagen', r.get('url_imagen', p.get('imagenPrincipal', p.get('imagen_principal', '')))),
                 'similarity': round(r.get('similarity_score', 0) * 100, 2)
             })
         
@@ -1140,13 +1199,13 @@ def rag_query():
             },
             {
                 '$project': {
-                    'codigo_producto': 1,
+                    'codigoProducto': 1,
                     'nombre': 1,
                     'descripcion': 1,
-                    'marca_nombre': 1,
-                    'categoria_slug': 1,
-                    'precio_usd': 1,
-                    'imagen_principal': 1,
+                    'marcaNombre': 1,
+                    'categoriaSlug': 1,
+                    'precioUsd': 1,
+                    'imagenPrincipal': 1,
                     'especificaciones': 1,
                     'text_similarity': 1,
                     '_id': 1
@@ -1179,7 +1238,7 @@ def rag_query():
             pipeline_imagenes = [
                 {
                     '$vectorSearch': {
-                        'index': 'idx_imagen_vector_clip',
+                        'index': 'foto_index',
                         'path': 'imagen_embedding_clip',
                         'queryVector': query_embedding_clip,
                         'numCandidates': max_products * 5,
@@ -1187,7 +1246,7 @@ def rag_query():
                     }
                 },
                 {
-                    '$match': {'es_principal': True}
+                    '$match': {'esPrincipal': True}
                 },
                 {
                     '$addFields': {
@@ -1197,8 +1256,8 @@ def rag_query():
                 {
                     '$lookup': {
                         'from': 'productos',
-                        'localField': 'codigo_producto',
-                        'foreignField': 'codigo_producto',
+                        'localField': 'idProducto',
+                        'foreignField': 'codigoProducto',
                         'as': 'producto_info'
                     }
                 },
@@ -1290,7 +1349,7 @@ def rag_query():
                         }
                     },
                     {
-                        '$match': {'codigo_producto': p.get('codigo_producto')}
+                        '$match': {'codigoProducto': p.get('codigoProducto', p.get('codigo_producto'))}
                     },
                     {
                         '$addFields': {
@@ -1306,7 +1365,7 @@ def rag_query():
                     resenas = list(resenas_collection.aggregate(pipeline_resenas))
                 except:
                     resenas = list(resenas_collection.find(
-                        {'codigo_producto': p.get('codigo_producto')}
+                        {'codigoProducto': p.get('codigoProducto', p.get('codigo_producto'))}
                     ).limit(max_reviews))
                 
                 resenas_por_producto[str(pid)] = resenas
@@ -1324,9 +1383,9 @@ def rag_query():
         
         for i, item in enumerate(productos_ordenados, 1):
             p = item['producto']
-            contexto += f"\n{i}. {p.get('nombre', 'N/A')} - {p.get('marca_nombre', 'N/A')}\n"
+            contexto += f"\n{i}. {p.get('nombre', 'N/A')} - {p.get('marcaNombre', p.get('marca_nombre', 'N/A'))}\n"
             contexto += f"   {'─'*70}\n"
-            contexto += f"   💰 Precio: ${p.get('precio_usd', 0):.2f} USD\n"
+            contexto += f"   💰 Precio: ${p.get('precioUsd', p.get('precio_usd', 0)):.2f} USD\n"
             contexto += f"   📊 Score Híbrido: {item['hybrid_score']*100:.1f}%\n"
             contexto += f"      • Texto: {item['text_score']*100:.1f}%\n"
             contexto += f"      • Imagen: {item['image_score']*100:.1f}%\n"
@@ -1399,7 +1458,7 @@ def rag_query():
             for i, item in enumerate(productos_ordenados[:3], 1):
                 p = item['producto']
                 respuesta += f"**{i}. {p.get('nombre', 'N/A')}**\n"
-                respuesta += f"   💰 ${p.get('precio_usd', 0):.2f} | "
+                respuesta += f"   💰 ${p.get('precioUsd', p.get('precio_usd', 0)):.2f} | "
                 respuesta += f"🎯 Relevancia: {item['hybrid_score']*100:.0f}%\n"
                 
                 # Análisis de reseñas
@@ -1425,11 +1484,14 @@ def rag_query():
         for item in productos_ordenados:
             p = item['producto']
             productos_formateados.append({
-                'codigo': p.get('codigo_producto', ''),
+                'codigo': p.get('codigoProducto', p.get('codigo_producto', '')),
                 'nombre': p.get('nombre', ''),
-                'marca': p.get('marca_nombre', ''),
-                'precio_usd': p.get('precio_usd', 0),
-                'imagen': p.get('imagen_principal', ''),
+                'descripcion': p.get('descripcion', ''),
+                'marca': p.get('marcaNombre', p.get('marca_nombre', '')),
+                'categoria': p.get('categoriaSlug', p.get('categoria_slug', '')),
+                'precio_usd': p.get('precioUsd', p.get('precio_usd', 0)),
+                'imagen': p.get('imagenPrincipal', p.get('imagen_principal', '')),
+                'similarity': round(item['hybrid_score'] * 100, 2),
                 'text_similarity': round(item['text_score'] * 100, 2),
                 'image_similarity': round(item['image_score'] * 100, 2),
                 'hybrid_score': round(item['hybrid_score'] * 100, 2)
@@ -1452,11 +1514,13 @@ def rag_query():
                 },
                 'model_text': EMBEDDING_MODEL_NAME,
                 'model_image': 'openai/clip-vit-base-patch32' if include_images else None,
+                'model_used': 'Groq Llama 3.3 70B + CLIP + Sentence Transformers',
                 'search_method': 'rag_multimodal_complex'
             },
             'context': {
                 'total_productos': len(productos_ordenados),
-                'total_resenas': total_resenas
+                'total_resenas': total_resenas,
+                'productos': productos_formateados
             }
         })
         
