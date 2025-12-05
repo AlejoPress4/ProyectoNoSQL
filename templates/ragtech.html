@@ -98,12 +98,13 @@
                                     <i class="fas fa-image me-1"></i>Imagen
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <!-- FILTROS DESHABILITADOS -->
+                            <!-- <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="hybrid-search-tab" data-bs-toggle="tab" data-bs-target="#hybrid-search"
                                     type="button" role="tab">
                                     <i class="fas fa-filter me-1"></i>Filtros
                                 </button>
-                            </li>
+                            </li> -->
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link" id="rag-search-tab" data-bs-toggle="tab" data-bs-target="#rag-search" type="button"
                                     role="tab">
@@ -178,8 +179,8 @@
                                 </form>
                             </div>
                             
-                            <!-- Hybrid Search Tab -->
-                            <div class="tab-pane fade" id="hybrid-search" role="tabpanel">
+                            <!-- FILTROS DESHABILITADOS -->
+                            <!-- <div class="tab-pane fade" id="hybrid-search" role="tabpanel">
                                 <form id="hybridSearchForm">
                                     <div class="mb-3">
                                         <label for="hybridQueryInput" class="form-label">Consulta:</label>
@@ -212,7 +213,7 @@
                                         <i class="fas fa-filter me-2"></i>Aplicar Filtros
                                     </button>
                                 </form>
-                            </div>
+                            </div> -->
                             
                             <!-- RAG Search Tab -->
                             <div class="tab-pane fade" id="rag-search" role="tabpanel">
@@ -602,7 +603,8 @@
                 }
             });
 
-            // Hybrid search form handler
+            // FILTROS DESHABILITADOS - JavaScript comentado
+            /*
             document.getElementById('hybridSearchForm')?.addEventListener('submit', async function (e) {
                 e.preventDefault();
                 const query = document.getElementById('hybridQueryInput').value;
@@ -632,6 +634,7 @@
                     showError(error.message);
                 }
             });
+            */
 
             // RAG search form handler
             document.getElementById('ragSearchForm')?.addEventListener('submit', async function (e) {

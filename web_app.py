@@ -390,6 +390,10 @@ def search_products(query, limit=10):
         query_lower = query.lower().strip()
         query_words = query_lower.split()
         
+        # Detectar consultas de precios/ranking
+        is_price_query = any(word in query_lower for word in ['caro', 'caros', 'cara', 'caras', 'costoso', 'costosos', 'precio', 'expensive', 'más caro', 'mas caro'])
+        is_cheap_query = any(word in query_lower for word in ['barato', 'baratos', 'barata', 'baratas', 'económico', 'cheap', 'menos caro', 'más barato', 'mas barato'])
+        
         # Calcular similitudes híbridas
         resultados = []
         for producto in productos:
@@ -422,45 +426,60 @@ def search_products(query, limit=10):
                 elif query_lower in str(producto.get("categoria", {}).get("nombre", "")).lower():
                     exact_match_boost = 0.25
                 
-                # 4. Combinar puntuaciones (pesos ajustados)
-                # Semantic: 60%, Keywords: 30%, Exact Match: 10%
+                # 4. Boost especial para consultas de precios
+                price_boost = 0
+                precio_producto = (
+                    producto.get("precioUsd") or 
+                    producto.get("metadata", {}).get("precio_usd") or 
+                    producto.get("precio_usd", 0)
+                )
+                
+                if is_price_query and precio_producto > 0:
+                    # Para consultas de "caros", boost productos con precios altos
+                    if precio_producto >= 1000:
+                        price_boost = 0.4  # Boost alto para productos premium
+                    elif precio_producto >= 500:
+                        price_boost = 0.2  # Boost medio para productos mid-range
+                elif is_cheap_query and precio_producto > 0:
+                    # Para consultas de "baratos", boost productos con precios bajos
+                    if precio_producto <= 300:
+                        price_boost = 0.4
+                    elif precio_producto <= 600:
+                        price_boost = 0.2
+                
+                # 5. Combinar puntuaciones (pesos ajustados para incluir precio)
+                # Semantic: 50%, Keywords: 25%, Exact Match: 10%, Price: 15%
                 hybrid_score = (
-                    semantic_similarity * 0.6 + 
-                    keyword_score * 0.3 + 
-                    exact_match_boost
+                    semantic_similarity * 0.5 + 
+                    keyword_score * 0.25 + 
+                    exact_match_boost * 0.1 +
+                    price_boost * 0.15
                 )
                 
                 similarity = hybrid_score
                 
-                # Agregar información adicional
-                producto_info = {
-                    "id": str(producto.get("_id")),
-                    "codigo_producto": producto.get("codigoProducto") or producto.get("codigo_producto", ""),
-                    "nombre": producto.get("nombre", ""),
-                    "descripcion": producto.get("descripcion", ""),
-                    "marca": producto.get("marca", {}),
-                    "categoria": producto.get("categoria", {}),
-                    "precio_usd": (
-                        producto.get("precioUsd") or 
-                        producto.get("metadata", {}).get("precio_usd") or 
-                        producto.get("precio_usd", 0)
-                    ),
-                    "calificacion": (
-                        producto.get("calificacionPromedio") or 
-                        producto.get("metadata", {}).get("calificacion_promedio") or 
-                        producto.get("calificacion_promedio", 0)
-                    ),
-                    "disponibilidad": (
-                        producto.get("disponibilidad") or 
-                        producto.get("metadata", {}).get("disponibilidad", "")
-                    ),
-                    "imagen_principal": producto.get("imagen_principal", ""),
-                    "similarity": round(similarity, 4),
-                    "semantic_score": round(semantic_similarity, 4),
-                    "keyword_score": round(keyword_score, 4),
-                    "exact_match_boost": round(exact_match_boost, 4)
-                }
-                resultados.append(producto_info)
+                # Solo procesar productos con similitud mínima
+                if similarity >= 0.1:
+                    precio_producto = producto.get("precioUsd", 0)
+                    
+                    producto_info = {
+                        "id": str(producto.get("_id")),
+                        "codigo_producto": producto.get("codigoProducto", ""),
+                        "nombre": producto.get("nombre", ""),
+                        "descripcion": producto.get("descripcion", ""),
+                        "marca": producto.get("marca", {}),
+                        "categoria": producto.get("categoria", {}),
+                        "precio_usd": precio_producto,
+                        "calificacion": producto.get("calificacionPromedio", 0),
+                        "disponibilidad": producto.get("disponibilidad", ""),
+                        "imagen_principal": producto.get("imagen_principal", ""),
+                        "similarity": round(similarity, 4),
+                        "semantic_score": round(semantic_similarity, 4),
+                        "keyword_score": round(keyword_score, 4),
+                        "exact_match_boost": round(exact_match_boost, 4),
+                        "price_boost": round(price_boost, 4)
+                    }
+                    resultados.append(producto_info)
         
         # Ordenar por similitud descendente
         resultados.sort(key=lambda x: x["similarity"], reverse=True)
@@ -468,9 +487,10 @@ def search_products(query, limit=10):
         # Debug: mostrar top 5 resultados con puntuaciones
         print(f"🎯 Top 5 resultados para '{query}':")
         for i, producto in enumerate(resultados[:5]):
-            print(f"{i+1}. {producto['nombre']} - Híbrido: {producto['similarity']:.3f} "
+            precio = producto['precio_usd']
+            print(f"{i+1}. {producto['nombre']} - ${precio:.0f} - Híbrido: {producto['similarity']:.3f} "
                   f"(Semántico: {producto['semantic_score']:.3f}, Keywords: {producto['keyword_score']:.3f}, "
-                  f"Exacto: {producto['exact_match_boost']:.3f})")
+                  f"Exacto: {producto['exact_match_boost']:.3f}, Precio: {producto.get('price_boost', 0):.3f})")
         
         return resultados[:limit]
         
@@ -599,9 +619,9 @@ def api_products_search():
     """
     try:
         query = request.args.get('query', '').strip()
-        category = request.args.get('category', '').strip()
-        max_price = request.args.get('max_price', type=float)
-        brand = request.args.get('brand', '').strip()
+        # category = request.args.get('category', '').strip()  # FILTROS DESHABILITADOS
+        # max_price = request.args.get('max_price', type=float)  # FILTROS DESHABILITADOS
+        # brand = request.args.get('brand', '').strip()  # FILTROS DESHABILITADOS
         limit = request.args.get('limit', default=10, type=int)
         
         if not query:
@@ -610,7 +630,8 @@ def api_products_search():
                 'results': []
             }), 400
         
-        print(f"🔍 VECTOR SEARCH: '{query}' | Cat: {category or 'todas'} | $max: {max_price or '∞'} | Marca: {brand or 'todas'}")
+        print(f"🔍 VECTOR SEARCH: '{query}' (filtros deshabilitados)")
+        # print(f"🔍 VECTOR SEARCH: '{query}' | Cat: {category or 'todas'} | $max: {max_price or '∞'} | Marca: {brand or 'todas'}")
         
         # Generar embedding de la consulta
         query_embedding = generate_embedding(query)
@@ -637,19 +658,19 @@ def api_products_search():
             }
         ]
         
-        # Agregar filtros tradicionales (búsqueda híbrida)
-        filtros = []
-        if category:
-            filtros.append({'categoria.slug': category})
-        if max_price:
-            filtros.append({'metadata.precio_usd': {'$lte': max_price}})
-        if brand:
-            filtros.append({'marca.nombre': {'$regex': brand, '$options': 'i'}})
-        
-        if filtros:
-            pipeline.append({
-                '$match': {'$and': filtros}
-            })
+        # FILTROS TRADICIONALES DESHABILITADOS
+        # filtros = []
+        # if category:
+        #     filtros.append({'categoria.slug': category})
+        # if max_price:
+        #     filtros.append({'metadata.precio_usd': {'$lte': max_price}})
+        # if brand:
+        #     filtros.append({'marca.nombre': {'$regex': brand, '$options': 'i'}})
+        # 
+        # if filtros:
+        #     pipeline.append({
+        #         '$match': {'$and': filtros}
+        #     })
         
         # Proyección de campos necesarios
         pipeline.append({
@@ -695,17 +716,17 @@ def api_products_search():
             print(f"   ⚠️ Vector Search no disponible: {ve}")
             print(f"   → Usando búsqueda manual con embeddings")
             
-            # Construir filtros para búsqueda manual
-            filtros_mongo = {}
-            if category:
-                filtros_mongo['categoria.slug'] = category
-            if max_price:
-                filtros_mongo['metadata.precio_usd'] = {'$lte': max_price}
-            if brand:
-                filtros_mongo['marca.nombre'] = {'$regex': brand, '$options': 'i'}
+            # FILTROS MANUALES DESHABILITADOS
+            # filtros_mongo = {}
+            # if category:
+            #     filtros_mongo['categoria.slug'] = category
+            # if max_price:
+            #     filtros_mongo['metadata.precio_usd'] = {'$lte': max_price}
+            # if brand:
+            #     filtros_mongo['marca.nombre'] = {'$regex': brand, '$options': 'i'}
             
-            # Obtener productos y calcular similitud manualmente
-            productos = list(productos_collection.find(filtros_mongo).limit(200))
+            # Obtener productos sin filtros y calcular similitud manualmente
+            productos = list(productos_collection.find({}).limit(200))
             
             productos_con_similitud = []
             for producto in productos:
@@ -1136,23 +1157,20 @@ def api_stats():
         }), 500
 
 
-@app.route('/rag', methods=['POST'])
+@app.route('/rag', methods=['GET', 'POST'])
 def rag_query():
     """
-    Sistema RAG COMPLEJO con búsqueda multimodal.
-    Combina: productos (texto), imágenes (CLIP), y reseñas.
-    
-    Capacidades:
-    - Búsqueda vectorial en productos (descripción semántica)
-    - Búsqueda vectorial en imágenes (CLIP multimodal)
-    - Búsqueda vectorial en reseñas (opiniones de usuarios)
-    - Análisis de tendencias y patrones
-    - Generación de respuesta contextual inteligente
+    🧠 RAG SIMPLE: Usando search_products que SÍ funciona
     """
+    if request.method == 'GET':
+        return render_template('rag_interface.html')
+    
     try:
         data = request.get_json()
         query = data.get('query', '').strip()
-        max_products = data.get('max_products', 5)
+        
+        # Manejar tanto max_products (frontend) como max_results
+        max_products = data.get('max_products', data.get('max_results', 5))
         max_reviews = data.get('max_reviews', 3)
         include_reviews = data.get('include_reviews', True)
         include_images = data.get('include_images', True)
@@ -1160,375 +1178,98 @@ def rag_query():
         if not query:
             return jsonify({'error': 'El parámetro query es requerido'}), 400
         
-        print(f"🤖 RAG COMPLEJO: '{query}'")
+        print(f"🤖 RAG SIMPLE: '{query}'")
         print(f"   📦 Max productos: {max_products} | 💬 Reviews: {include_reviews} | 🖼️ Imágenes: {include_images}")
         
-        # Generar embeddings para la consulta
-        query_embedding_text = generate_embedding(query)  # 384 dims (sentence-transformers)
-        
-        # Si incluye imágenes, generar también embedding CLIP
-        query_embedding_clip = None
-        if include_images:
-            try:
-                query_embedding_clip = generate_clip_text_embedding(query)  # 512 dims (CLIP)
-                print(f"   ✓ Embedding CLIP generado para búsqueda multimodal")
-            except Exception as e:
-                print(f"   ⚠️ CLIP no disponible: {e}")
-        
-        db = get_database()
+        # ============================================================
+        # USAR LA FUNCIÓN QUE YA FUNCIONA
+        # ============================================================
         
         # ============================================================
-        # 1. BÚSQUEDA VECTORIAL EN PRODUCTOS (Descripción)
+        # USAR LA FUNCIÓN search_productos QUE SÍ FUNCIONA
         # ============================================================
-        productos_collection = db[COLLECTIONS['PRODUCTOS']]
+        from search.vector_search import search_productos, search_resenas
         
-        pipeline_productos = [
-            {
-                '$vectorSearch': {
-                    'index': 'idx_descripcion_vector',
-                    'path': 'descripcion_embedding',
-                    'queryVector': query_embedding_text,
-                    'numCandidates': max_products * 10,
-                    'limit': max_products * 2
-                }
-            },
-            {
-                '$addFields': {
-                    'text_similarity': {'$meta': 'vectorSearchScore'}
-                }
-            },
-            {
-                '$project': {
-                    'codigoProducto': 1,
-                    'nombre': 1,
-                    'descripcion': 1,
-                    'marcaNombre': 1,
-                    'categoriaSlug': 1,
-                    'precioUsd': 1,
-                    'imagenPrincipal': 1,
-                    'especificaciones': 1,
-                    'text_similarity': 1,
-                    '_id': 1
-                }
-            }
-        ]
+        productos_finales = search_productos(
+            query=query,
+            limit=max_products,
+            min_score=0.3
+        )
         
-        try:
-            productos_texto = list(productos_collection.aggregate(pipeline_productos))
-            print(f"   ✓ Productos (texto): {len(productos_texto)} encontrados")
-        except Exception as ve:
-            print(f"   ⚠️ Vector Search productos: {ve} | Fallback manual")
-            productos = list(productos_collection.find({}).limit(100))
-            productos_texto = []
-            for p in productos:
-                if p.get('descripcion_embedding'):
-                    sim = cosine_similarity(query_embedding_text, p['descripcion_embedding'])
-                    p['text_similarity'] = sim
-                    productos_texto.append(p)
-            productos_texto.sort(key=lambda x: x['text_similarity'], reverse=True)
-            productos_texto = productos_texto[:max_products * 2]
-        
-        # ============================================================
-        # 2. BÚSQUEDA VECTORIAL EN IMÁGENES (CLIP Multimodal)
-        # ============================================================
-        productos_imagen = []
-        if include_images and query_embedding_clip:
-            imagenes_collection = db[COLLECTIONS['IMAGENES']]
-            
-            pipeline_imagenes = [
-                {
-                    '$vectorSearch': {
-                        'index': 'foto_index',
-                        'path': 'imagen_embedding_clip',
-                        'queryVector': query_embedding_clip,
-                        'numCandidates': max_products * 5,
-                        'limit': max_products
-                    }
-                },
-                {
-                    '$match': {'esPrincipal': True}
-                },
-                {
-                    '$addFields': {
-                        'image_similarity': {'$meta': 'vectorSearchScore'}
-                    }
-                },
-                {
-                    '$lookup': {
-                        'from': 'productos',
-                        'localField': 'idProducto',
-                        'foreignField': 'codigoProducto',
-                        'as': 'producto_info'
-                    }
-                },
-                {
-                    '$unwind': '$producto_info'
-                },
-                {
-                    '$project': {
-                        'codigo_producto': 1,
-                        'producto_info': 1,
-                        'image_similarity': 1,
-                        'texto_alternativo': 1
-                    }
-                }
-            ]
-            
-            try:
-                productos_imagen = list(imagenes_collection.aggregate(pipeline_imagenes))
-                print(f"   ✓ Productos (imagen/CLIP): {len(productos_imagen)} encontrados")
-            except Exception as ve:
-                print(f"   ⚠️ Vector Search imágenes: {ve}")
-        
-        # ============================================================
-        # 3. FUSIÓN DE RESULTADOS (Híbrido: Texto + Imagen)
-        # ============================================================
-        productos_fusionados = {}
-        
-        # Agregar productos de búsqueda por texto
-        for p in productos_texto:
-            pid = str(p.get('_id', p.get('codigo_producto', '')))
-            productos_fusionados[pid] = {
-                'producto': p,
-                'text_score': p.get('text_similarity', 0),
-                'image_score': 0,
-                'hybrid_score': p.get('text_similarity', 0) * 0.7  # Peso 70% texto
-            }
-        
-        # Agregar/actualizar con productos de búsqueda por imagen
-        for item in productos_imagen:
-            p = item.get('producto_info', {})
-            pid = str(p.get('_id', p.get('codigo_producto', '')))
-            
-            if pid in productos_fusionados:
-                # Ya existe, actualizar con score de imagen
-                productos_fusionados[pid]['image_score'] = item.get('image_similarity', 0)
-                productos_fusionados[pid]['hybrid_score'] = (
-                    productos_fusionados[pid]['text_score'] * 0.6 +  # Peso 60% texto
-                    item.get('image_similarity', 0) * 0.4  # Peso 40% imagen
-                )
-            else:
-                # Nuevo producto encontrado solo por imagen
-                productos_fusionados[pid] = {
-                    'producto': p,
-                    'text_score': 0,
-                    'image_score': item.get('image_similarity', 0),
-                    'hybrid_score': item.get('image_similarity', 0) * 0.4
-                }
-        
-        # Ordenar por score híbrido
-        productos_ordenados = sorted(
-            productos_fusionados.values(),
-            key=lambda x: x['hybrid_score'],
-            reverse=True
-        )[:max_products]
-        
-        print(f"   ✓ Fusión híbrida: {len(productos_ordenados)} productos finales")
-        
-        # ============================================================
-        # 4. BÚSQUEDA VECTORIAL EN RESEÑAS
-        # ============================================================
-        resenas_por_producto = {}
-        total_resenas = 0
-        
+        resenas_encontradas = []
         if include_reviews:
-            resenas_collection = db['resenas']
-            
-            for item in productos_ordenados:
-                p = item['producto']
-                pid = p.get('_id')
-                
-                pipeline_resenas = [
-                    {
-                        '$vectorSearch': {
-                            'index': 'idx_contenido_resena_vector',
-                            'path': 'contenido_embedding',
-                            'queryVector': query_embedding_text,
-                            'numCandidates': max_reviews * 5,
-                            'limit': max_reviews * 3
-                        }
-                    },
-                    {
-                        '$match': {'codigoProducto': p.get('codigoProducto', p.get('codigo_producto'))}
-                    },
-                    {
-                        '$addFields': {
-                            'review_similarity': {'$meta': 'vectorSearchScore'}
-                        }
-                    },
-                    {
-                        '$limit': max_reviews
-                    }
-                ]
-                
-                try:
-                    resenas = list(resenas_collection.aggregate(pipeline_resenas))
-                except:
-                    resenas = list(resenas_collection.find(
-                        {'codigoProducto': p.get('codigoProducto', p.get('codigo_producto'))}
-                    ).limit(max_reviews))
-                
-                resenas_por_producto[str(pid)] = resenas
-                total_resenas += len(resenas)
+            try:
+                resenas_encontradas = search_resenas(
+                    query=query,
+                    limit=max_reviews
+                )
+            except Exception as e:
+                print(f"   ⚠️ Error buscando reseñas: {e}")
+                resenas_encontradas = []
         
-        print(f"   ✓ Reseñas relevantes: {total_resenas} recuperadas")
+        print(f"   ✅ Encontrados: {len(productos_finales)} productos, {len(resenas_encontradas)} reseñas")
         
         # ============================================================
-        # 5. CONSTRUIR CONTEXTO ENRIQUECIDO
+        # GENERAR RESPUESTA CON GROQ LLM
         # ============================================================
-        contexto = f"CONSULTA: {query}\n\n"
-        contexto += "="*80 + "\n"
-        contexto += "ANÁLISIS MULTIMODAL (Texto + Imágenes + Reseñas)\n"
-        contexto += "="*80 + "\n\n"
         
-        for i, item in enumerate(productos_ordenados, 1):
-            p = item['producto']
-            contexto += f"\n{i}. {p.get('nombre', 'N/A')} - {p.get('marcaNombre', p.get('marca_nombre', 'N/A'))}\n"
-            contexto += f"   {'─'*70}\n"
-            contexto += f"   💰 Precio: ${p.get('precioUsd', p.get('precio_usd', 0)):.2f} USD\n"
-            contexto += f"   📊 Score Híbrido: {item['hybrid_score']*100:.1f}%\n"
-            contexto += f"      • Texto: {item['text_score']*100:.1f}%\n"
-            contexto += f"      • Imagen: {item['image_score']*100:.1f}%\n"
-            
-            # Especificaciones técnicas
-            if p.get('especificaciones'):
-                contexto += f"\n   🔧 Especificaciones:\n"
-                specs = p['especificaciones']
-                for key, value in list(specs.items())[:4]:
-                    contexto += f"      • {key}: {value}\n"
-            
-            # Reseñas
-            pid = str(p.get('_id', ''))
-            if pid in resenas_por_producto:
-                resenas = resenas_por_producto[pid]
-                if resenas:
-                    contexto += f"\n   💬 Opiniones ({len(resenas)} reseñas relevantes):\n"
-                    for j, r in enumerate(resenas, 1):
-                        contexto += f"      {j}. ⭐ {r.get('calificacion', 0)}/5 - {r.get('titulo', 'Sin título')}\n"
-                        if r.get('ventajas'):
-                            contexto += f"         👍 {', '.join(r['ventajas'][:2])}\n"
-                        if r.get('desventajas'):
-                            contexto += f"         👎 {', '.join(r['desventajas'][:2])}\n"
-            
-            contexto += "\n"
+        # Construir contexto para el LLM
+        contexto = f"CONSULTA: {query}\n\nPRODUCTOS ENCONTRADOS:\n\n"
         
-        # ============================================================
-        # 6. GENERAR RESPUESTA INTELIGENTE CON GROQ LLM
-        # ============================================================
-        # Construir contexto estructurado para el LLM
-        llm_context = build_context_for_llm_from_products(
-            [item['producto'] for item in productos_ordenados],
-            max_items=min(6, len(productos_ordenados))
-        )
+        for i, producto in enumerate(productos_finales, 1):
+            contexto += f"{i}. {producto['nombre']}\n"
+            contexto += f"   Marca: {producto['marca']['nombre']}\n"
+            contexto += f"   Precio: ${producto['precioUsd']:.2f} USD\n"
+            contexto += f"   Descripción: {producto['descripcion'][:200]}...\n"
+            contexto += f"   Similitud: {producto['search_score']:.3f}\n\n"
         
-        # Agregar información de reseñas al contexto
-        for item in productos_ordenados[:6]:
-            p = item['producto']
-            pid = str(p.get('_id', ''))
-            if pid in resenas_por_producto and resenas_por_producto[pid]:
-                resenas = resenas_por_producto[pid]
-                ventajas = []
-                desventajas = []
-                for r in resenas:
-                    ventajas.extend(r.get('ventajas', []))
-                    desventajas.extend(r.get('desventajas', []))
-                
-                # Agregar al producto para build_context
-                p['ventajas'] = list(set(ventajas))[:5]
-                p['desventajas'] = list(set(desventajas))[:5]
+        if resenas_encontradas:
+            contexto += "RESEÑAS RELEVANTES:\n\n"
+            for i, resena_data in enumerate(resenas_encontradas[:3], 1):
+                resena = resena_data['resena']  # Accedemos al objeto resena anidado
+                contexto += f"{i}. {resena['titulo']} ({resena['calificacion']}/5)\n"
+                contexto += f"   {resena['contenido'][:150]}...\n\n"
         
-        # Reconstruir contexto con reseñas
-        llm_context = build_context_for_llm_from_products(
-            [item['producto'] for item in productos_ordenados],
-            max_items=min(6, len(productos_ordenados))
-        )
-        
-        print(f"   🧠 Generando respuesta con Groq LLM...")
+        # Generar respuesta con LLM
         try:
-            # Generar respuesta con LLM
-            respuesta = generate_answer_with_llm(llm_context, query)
+            print("   🧠 Generando respuesta con Groq LLM...")
+            respuesta = generate_answer_with_llm(contexto, query)
             print(f"   ✓ Respuesta LLM generada: {len(respuesta)} caracteres")
-        except Exception as llm_error:
-            print(f"   ⚠️ Error en LLM: {llm_error} | Usando respuesta básica")
-            # Fallback: respuesta básica sin LLM
-            respuesta = f"**Análisis RAG Multimodal para: '{query}'**\n\n"
-            respuesta += f"He realizado una búsqueda avanzada combinando análisis de texto, imágenes y opiniones de usuarios. "
-            respuesta += f"Encontré {len(productos_ordenados)} productos altamente relevantes:\n\n"
-            
-            for i, item in enumerate(productos_ordenados[:3], 1):
-                p = item['producto']
-                respuesta += f"**{i}. {p.get('nombre', 'N/A')}**\n"
-                respuesta += f"   💰 ${p.get('precioUsd', p.get('precio_usd', 0)):.2f} | "
-                respuesta += f"🎯 Relevancia: {item['hybrid_score']*100:.0f}%\n"
-                
-                # Análisis de reseñas
-                pid = str(p.get('_id', ''))
-                if pid in resenas_por_producto and resenas_por_producto[pid]:
-                    resenas = resenas_por_producto[pid]
-                    ventajas_todas = []
-                    for r in resenas:
-                        ventajas_todas.extend(r.get('ventajas', []))
-                    if ventajas_todas:
-                        respuesta += f"   ✨ Destacado por usuarios: {', '.join(set(ventajas_todas[:3]))}\n"
-                
-                respuesta += "\n"
-            
-            metodo = "Multimodal (CLIP + Texto)" if include_images else "Texto vectorial"
-            respuesta += f"\n📊 **Método de búsqueda**: {metodo}\n"
-            respuesta += f"🔍 **Precisión**: Alta relevancia semántica (>{productos_ordenados[0]['hybrid_score']*100:.0f}%)"
+        except Exception as e:
+            print(f"   ❌ Error en LLM: {e}")
+            respuesta = f"**Resultados para '{query}':**\n\n"
+            for i, p in enumerate(productos_finales[:3], 1):
+                respuesta += f"{i}. **{p['nombre']}** - ${p['precioUsd']:.2f}\n"
         
-        # ============================================================
-        # 7. FORMATEAR RESPUESTA JSON
-        # ============================================================
-        productos_formateados = []
-        for item in productos_ordenados:
-            p = item['producto']
-            productos_formateados.append({
-                'codigo': p.get('codigoProducto', p.get('codigo_producto', '')),
-                'nombre': p.get('nombre', ''),
-                'descripcion': p.get('descripcion', ''),
-                'marca': p.get('marcaNombre', p.get('marca_nombre', '')),
-                'categoria': p.get('categoriaSlug', p.get('categoria_slug', '')),
-                'precio_usd': p.get('precioUsd', p.get('precio_usd', 0)),
-                'imagen': p.get('imagenPrincipal', p.get('imagen_principal', '')),
-                'similarity': round(item['hybrid_score'] * 100, 2),
-                'text_similarity': round(item['text_score'] * 100, 2),
-                'image_similarity': round(item['image_score'] * 100, 2),
-                'hybrid_score': round(item['hybrid_score'] * 100, 2)
-            })
-        
-        print(f"✅ RAG COMPLEJO completado exitosamente")
+        print(f"✅ RAG SIMPLE completado exitosamente")
         
         return jsonify({
+            'status': 'success',  # ¡Esto es clave para el frontend!
             'query': query,
             'rag_response': respuesta,
             'contexto': contexto,
-            'productos': productos_formateados,
+            'productos': productos_finales,
             'metadata': {
-                'total_productos': len(productos_ordenados),
-                'total_resenas': total_resenas,
-                'search_modes': {
-                    'text_search': True,
-                    'image_search': include_images and query_embedding_clip is not None,
-                    'review_search': include_reviews
-                },
-                'model_text': EMBEDDING_MODEL_NAME,
-                'model_image': 'openai/clip-vit-base-patch32' if include_images else None,
-                'model_used': 'Groq Llama 3.3 70B + CLIP + Sentence Transformers',
-                'search_method': 'rag_multimodal_complex'
+                'total_productos': len(productos_finales),
+                'total_resenas': len(resenas_encontradas),
+                'model_used': 'search_products + Groq LLM',
+                'search_method': 'rag_simple_functional'
             },
             'context': {
-                'total_productos': len(productos_ordenados),
-                'total_resenas': total_resenas,
-                'productos': productos_formateados
-            }
+                'total_productos': len(productos_finales),
+                'total_resenas': len(resenas_encontradas),
+                'productos': productos_finales,
+                'resenas': resenas_encontradas
+            },
+            'sources': productos_finales  # También agregar sources
         })
         
     except Exception as e:
-        print(f"❌ Error en RAG complejo: {e}")
+        error_msg = f'Error en RAG: {str(e)}'
+        print(f"❌ {error_msg}")
         import traceback
         traceback.print_exc()
-        return jsonify({'error': f'Error en RAG: {str(e)}'}), 500
+        return jsonify({'error': error_msg, 'status': 'error'}), 500
 
 
 @app.route('/api/utils/update-caption', methods=['POST'])
