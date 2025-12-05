@@ -27,7 +27,7 @@ def get_embedding_model():
         _embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
         print("✓ Modelo de texto cargado")
     return _embedding_model
-
+        
 
 def get_clip_model():
     """Obtiene el modelo CLIP para imágenes (singleton)."""
@@ -157,6 +157,9 @@ def search_productos(
     
     print(f"✓ Encontrados {len(resultados)} productos relevantes")
     
+    # Si limit es 0 o None, devolver todos los resultados
+    if limit is None or limit <= 0:
+        return resultados
     return resultados[:limit]
 
 
@@ -223,6 +226,9 @@ def search_resenas(
     
     print(f"✓ Encontradas {len(resultados)} reseñas relevantes")
     
+    # Si limit es 0, None o negativo, devolver todos los resultados
+    if limit is None or limit <= 0:
+        return resultados
     return resultados[:limit]
 
 

@@ -1159,9 +1159,6 @@ def api_stats():
 
 @app.route('/rag', methods=['GET', 'POST'])
 def rag_query():
-    """
-    🧠 RAG SIMPLE: Usando search_products que SÍ funciona
-    """
     if request.method == 'GET':
         return render_template('rag_interface.html')
     
@@ -1175,11 +1172,20 @@ def rag_query():
         include_reviews = data.get('include_reviews', True)
         include_images = data.get('include_images', True)
         
+        # Convertir a entero y manejar el caso de "todos"
+        max_products = int(max_products) if max_products else 5
+        max_reviews = int(max_reviews) if max_reviews else 3
+        
+        # Valor 0 para productos significa "todos"
+        # Valor -1 para reseñas significa "todas"
+        productos_label = "TODOS" if max_products <= 0 else str(max_products)
+        resenas_label = "TODAS" if max_reviews < 0 else ("0" if max_reviews == 0 else str(max_reviews))
+        
         if not query:
             return jsonify({'error': 'El parámetro query es requerido'}), 400
         
         print(f"🤖 RAG SIMPLE: '{query}'")
-        print(f"   📦 Max productos: {max_products} | 💬 Reviews: {include_reviews} | 🖼️ Imágenes: {include_images}")
+        print(f"   📦 Max productos: {productos_label} | 💬 Max reseñas: {resenas_label} | 🖼️ Imágenes: {include_images}")
         
         # ============================================================
         # USAR LA FUNCIÓN QUE YA FUNCIONA

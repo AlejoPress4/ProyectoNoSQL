@@ -327,26 +327,8 @@ class RAGTechSearch {
   }
 
   renderProductImage(producto) {
-    if (producto.imagen_principal && producto.imagen_principal !== "") {
-      return `<img src="${producto.imagen_principal}" 
-                   class="card-img-top product-image" 
-                   alt="Imagen del producto: ${producto.nombre}" 
-                   title="Imagen del ${producto.nombre}"
-                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="card-img-top product-image" style="display: none;" 
-                         role="img" 
-                         aria-label="Imagen no disponible para ${producto.nombre}"
-                         title="Imagen no disponible">
-                        <i class="fas fa-mobile-alt" aria-hidden="true"></i>
-                    </div>`;
-    } else {
-      return `<div class="card-img-top product-image" 
-                   role="img" 
-                   aria-label="Imagen no disponible para ${producto.nombre}"
-                   title="Imagen no disponible">
-                        <i class="fas fa-mobile-alt" aria-hidden="true"></i>
-                    </div>`;
-    }
+    // Imágenes ocultas en búsqueda por texto
+    return "";
   }
 
   displayReviews(resenas) {
