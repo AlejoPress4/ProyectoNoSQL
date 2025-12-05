@@ -1,0 +1,21 @@
+# Dependencias adicionales para generación de embeddings de imágenes con CLIP
+# Ejecutar: pip install -r requirements-clip.txt
+
+# PyTorch (versión CPU - para GPU usa torch con cuda)
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Transformers (Hugging Face) con CLIP
+transformers>=4.30.0
+accelerate>=0.20.0
+
+# Procesamiento de imágenes
+Pillow>=10.0.0
+
+# Barra de progreso
+tqdm>=4.65.0
+
+# Ya deberías tener instaladas (de requirements.txt):
+# pymongo>=4.5.0
+# python-dotenv>=1.0.0
+# numpy>=1.24.0

@@ -1,0 +1,1450 @@
+"""
+Aplicación web Flask para búsquedas semánticas de productos tecnológicos.
+Endpoint: /ragtech para consultas en lenguaje natural.
+"""
+
+from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask_cors import CORS
+import numpy as np
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity as sklearn_cosine_similarity
+from config import get_database, COLLECTIONS, EMBEDDING_MODEL_NAME
+from pymongo import DESCENDING
+import os
+import io
+from PIL import Image
+from openai import OpenAI
+import gridfs
+from bson import ObjectId
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route('/images/<filename>')
+def serve_image(filename):
+    """Servir imágenes estáticas desde el directorio data/images."""
+    images_dir = os.path.join(os.path.dirname(__file__), 'data', 'images')
+    return send_from_directory(images_dir, filename)
+
+# Variables globales para modelos de embeddings
+_embedding_model = None
+_clip_model = None
+_clip_processor = None
+
+# Cliente Groq (OpenAI API compatible)
+_groq_client = None
+
+def get_groq_client():
+    """Obtiene el cliente de Groq (singleton)."""
+    global _groq_client
+    if _groq_client is None:
+        api_key = os.environ.get("GROQ_API_KEY")
+        if not api_key:
+            raise ValueError("GROQ_API_KEY no configurada. Agrega tu API key en el archivo .env")
+        _groq_client = OpenAI(
+            api_key=api_key,
+            base_url="https://api.groq.com/openai/v1"
+        )
+        print("✓ Cliente Groq configurado")
+    return _groq_client
+
+
+def get_embedding_model():
+    """Carga el modelo de embeddings de texto (singleton)."""
+    global _embedding_model
+    if _embedding_model is None:
+        print(f"📥 Cargando modelo de embeddings: {EMBEDDING_MODEL_NAME}")
+        _embedding_model = SentenceTransformer(EMBEDDING_MODEL_NAME)
+        print(f"✓ Modelo cargado correctamente")
+    return _embedding_model
+
+
+def get_clip_model():
+    """
+    Carga el modelo CLIP para embeddings multimodales (singleton).
+    Retorna (modelo, procesador, device).
+    """
+    global _clip_model, _clip_processor
+    
+    if _clip_model is None:
+        try:
+            print("📥 Cargando modelo CLIP para búsqueda de imágenes...")
+            import torch
+            from transformers import CLIPModel, CLIPProcessor
+            
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            model_name = "openai/clip-vit-base-patch32"
+            
+            _clip_model = CLIPModel.from_pretrained(model_name).to(device)
+            _clip_processor = CLIPProcessor.from_pretrained(model_name)
+            
+            print(f"✓ Modelo CLIP cargado correctamente (device: {device})")
+            return _clip_model, _clip_processor, device
+            
+        except ImportError:
+            print("⚠️ CLIP no disponible. Instala: pip install torch transformers")
+            return None, None, None
+    
+    import torch
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    return _clip_model, _clip_processor, device
+
+
+def generate_embedding(text):
+    """Genera embedding de texto para búsqueda semántica (384 dims)."""
+    model = get_embedding_model()
+    embedding = model.encode(text)
+    return embedding.tolist()
+
+
+def generate_clip_text_embedding(text):
+    """
+    Genera embedding de texto usando CLIP (512 dims).
+    Compatible con embeddings de imágenes CLIP.
+    """
+    clip_model, clip_processor, device = get_clip_model()
+    
+    if clip_model is None:
+        print("⚠️ CLIP no disponible, usando modelo de texto estándar")
+        return generate_embedding(text)
+    
+    import torch
+    
+    inputs = clip_processor(text=[text], return_tensors="pt", padding=True)
+    input_ids = inputs["input_ids"].to(device)
+    attention_mask = inputs["attention_mask"].to(device)
+    
+    with torch.no_grad():
+        text_features = clip_model.get_text_features(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )
+    
+    # Normalizar para cosine similarity
+    text_features = text_features / text_features.norm(p=2, dim=-1, keepdim=True)
+    
+    return text_features.cpu().numpy()[0].astype("float32").tolist()
+
+
+def generate_clip_image_embedding(pil_image):
+    """
+    Genera embedding de imagen usando CLIP (512 dims).
+    Args:
+        pil_image: PIL.Image object
+    Returns:
+        list: embedding de 512 dimensiones
+    """
+    clip_model, clip_processor, device = get_clip_model()
+    
+    if clip_model is None:
+        raise ValueError("CLIP no está disponible. Instala: pip install torch transformers")
+    
+    import torch
+    
+    inputs = clip_processor(images=pil_image, return_tensors="pt")
+    pixel_values = inputs["pixel_values"].to(device)
+    
+    with torch.no_grad():
+        image_features = clip_model.get_image_features(pixel_values=pixel_values)
+    
+    # Normalizar para cosine similarity
+    image_features = image_features / image_features.norm(p=2, dim=-1, keepdim=True)
+    
+    return image_features.cpu().numpy()[0].astype("float32").tolist()
+
+
+def cosine_similarity(vec1, vec2):
+    """
+    Calcula la similitud coseno entre dos vectores.
+    Usa sklearn para mayor eficiencia (como en el colab).
+    """
+    vec1 = np.array(vec1).reshape(1, -1)
+    vec2 = np.array(vec2).reshape(1, -1)
+    
+    # Usar sklearn (más rápido y preciso)
+    similarity = sklearn_cosine_similarity(vec1, vec2)[0][0]
+    return float(similarity)
+
+
+def show_results(docs, fs):
+    """
+    Muestra resultados de búsqueda con scores y metadatos.
+    Renderiza imágenes desde GridFS usando PIL.
+    
+    Args:
+        docs: Lista de documentos con metadatos y referencias a imágenes
+        fs: Instancia de GridFS para recuperar binarios de imágenes
+    """
+    results = []
+    for d in docs:
+        sc = d.get("score") or d.get("text_similarity") or d.get("hybrid_score")
+        sc_str = f"{sc:.4f}" if isinstance(sc, (float, int)) else "N/A"
+        
+        result_info = {
+            'title': d.get('nombre') or d.get('title'),
+            'score': sc_str,
+            'category': d.get('categoria_nombre') or d.get('category'),
+            'tags': d.get('tags'),
+            'caption': d.get('descripcion') or d.get('caption')
+        }
+        
+        print(f"🔎 {result_info['title']} | score={sc_str} | cat={result_info['category']} | tags={result_info['tags']}")
+        
+        # Intentar mostrar imagen desde GridFS
+        fid = d.get("image_file_id") or d.get("archivo_id")
+        if fid and fs:
+            try:
+                if isinstance(fid, str):
+                    fid = ObjectId(fid)
+                data = fs.get(fid).read()
+                img = Image.open(io.BytesIO(data))
+                result_info['image'] = img
+                print(f"  📷 Imagen cargada: {img.size} px")
+            except Exception as e:
+                print(f"  ⚠️ No se pudo mostrar imagen: {e}")
+                result_info['image'] = None
+        
+        results.append(result_info)
+    
+    return results
+
+
+def update_caption_by_title(db, title, new_caption):
+    """
+    Actualiza el caption/descripción de un documento por título.
+    
+    Args:
+        db: Base de datos MongoDB
+        title: Título del documento a actualizar
+        new_caption: Nuevo caption/descripción
+    """
+    result = db[COLLECTIONS['imagenes']].update_one(
+        {"nombre": title},
+        {"$set": {"descripcion": new_caption}}
+    )
+    if result.modified_count > 0:
+        print(f"✏️ Caption actualizado para: {title}")
+        return True
+    else:
+        print(f"⚠️ No se encontró documento con título: {title}")
+        return False
+
+
+def delete_by_title(db, fs, title):
+    """
+    Elimina un documento y su imagen asociada en GridFS por título.
+    
+    Args:
+        db: Base de datos MongoDB
+        fs: Instancia de GridFS
+        title: Título del documento a eliminar
+    """
+    doc = db[COLLECTIONS['imagenes']].find_one({"nombre": title})
+    if not doc:
+        print(f"⚠️ No existe documento con título: {title}")
+        return False
+    
+    fid = doc.get("archivo_id")
+    if fid:
+        try:
+            if isinstance(fid, str):
+                fid = ObjectId(fid)
+            fs.delete(fid)
+            print(f"🗑️ Archivo GridFS eliminado: {fid}")
+        except Exception as e:
+            print(f"⚠️ Advertencia al eliminar binario: {e}")
+    
+    db[COLLECTIONS['imagenes']].delete_one({"_id": doc["_id"]})
+    print(f"🗑️ Documento eliminado: {title}")
+    return True
+
+
+def generate_answer_with_llm(context, question, model="llama-3.1-8b-instant"):
+    """
+    Genera respuesta usando Groq LLM basándose en contexto recuperado.
+    
+    Args:
+        context: Contexto textual con información recuperada
+        question: Pregunta del usuario
+        model: Modelo de Groq a utilizar
+    
+    Returns:
+        str: Respuesta generada por el LLM
+    """
+    try:
+        client = get_groq_client()
+        
+        system_prompt = (
+            "Eres un asistente experto en búsqueda semántica y recuperación de información multimodal. "
+            "Respondes de forma clara, directa y con base solo en el contexto entregado. "
+            "Eres especialista en productos tecnológicos y ayudas a los usuarios a encontrar el mejor producto para sus necesidades."
+        )
+        
+        full_prompt = f"""[Contexto recuperado]
+{context}
+
+[PREGUNTA]
+{question}
+
+[INSTRUCCIONES]
+Con base únicamente en el contexto anterior, responde de manera clara y completa.
+Incluye:
+- Recomendaciones específicas de productos con sus características clave
+- Ventajas y desventajas relevantes
+- Comparaciones si hay múltiples opciones
+- Precio y relación calidad-precio
+
+Si el contexto no contiene información suficiente, dilo explícitamente.
+Responde en español de manera profesional pero amigable.
+"""
+        
+        response = client.chat.completions.create(
+            model=model,
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": full_prompt}
+            ],
+            temperature=0.4,
+            max_tokens=800
+        )
+        
+        return response.choices[0].message.content.strip()
+        
+    except Exception as e:
+        print(f"⚠️ Error al invocar Groq LLM: {e}")
+        return f"[Error al generar respuesta con LLM: {e}]"
+
+
+def build_context_for_llm_from_products(productos, max_items=6):
+    """
+    Construye contexto textual a partir de productos recuperados.
+    
+    Args:
+        productos: Lista de productos con metadatos
+        max_items: Número máximo de productos a incluir
+    
+    Returns:
+        str: Contexto formateado para el LLM
+    """
+    lines = []
+    for i, p in enumerate(productos[:max_items], 1):
+        nombre = p.get('nombre', 'Sin nombre')
+        marca = p.get('marca_nombre', 'N/A')
+        precio = p.get('precio_usd', 0)
+        categoria = p.get('categoria_nombre', 'N/A')
+        descripcion = p.get('descripcion', 'N/A')
+        
+        # Scores de similitud
+        text_score = p.get('text_similarity', 0)
+        image_score = p.get('image_similarity', 0)
+        hybrid_score = p.get('hybrid_score', 0)
+        
+        # Especificaciones
+        specs = p.get('especificaciones', {})
+        specs_str = ', '.join([f"{k}: {v}" for k, v in specs.items()]) if specs else 'N/A'
+        
+        # Reseñas (ventajas/desventajas)
+        ventajas = p.get('ventajas', [])
+        desventajas = p.get('desventajas', [])
+        ventajas_str = '\n    + ' + '\n    + '.join(ventajas[:3]) if ventajas else ''
+        desventajas_str = '\n    - ' + '\n    - '.join(desventajas[:3]) if desventajas else ''
+        
+        lines.append(f"""[PRODUCTO {i}]
+Nombre: {nombre}
+Marca: {marca}
+Precio: ${precio:.2f} USD
+Categoría: {categoria}
+Descripción: {descripcion}
+Especificaciones: {specs_str}
+Relevancia: Text={text_score:.1f}%, Image={image_score:.1f}%, Hybrid={hybrid_score:.1f}%{ventajas_str}{desventajas_str}
+""")
+    
+    return "\n".join(lines)
+
+
+def search_products(query, limit=10):
+    """
+    Busca productos usando búsqueda semántica con embeddings.
+    
+    Args:
+        query (str): Consulta en lenguaje natural
+        limit (int): Número máximo de resultados
+        
+    Returns:
+        list: Lista de productos ordenados por relevancia
+    """
+    try:
+        # Generar embedding de la consulta
+        query_embedding = generate_embedding(query)
+        
+        # Conectar a la base de datos
+        db = get_database()
+        productos_collection = db[COLLECTIONS['PRODUCTOS']]
+        
+        # Obtener todos los productos con embeddings
+        productos = list(productos_collection.find({
+            "descripcionEmbedding": {"$exists": True, "$ne": []}
+        }))
+        
+        # Normalizar consulta para coincidencias de palabras clave
+        query_lower = query.lower().strip()
+        query_words = query_lower.split()
+        
+        # Detectar consultas de precios/ranking
+        is_price_query = any(word in query_lower for word in ['caro', 'caros', 'cara', 'caras', 'costoso', 'costosos', 'precio', 'expensive', 'más caro', 'mas caro'])
+        is_cheap_query = any(word in query_lower for word in ['barato', 'baratos', 'barata', 'baratas', 'económico', 'cheap', 'menos caro', 'más barato', 'mas barato'])
+        
+        # Calcular similitudes híbridas
+        resultados = []
+        for producto in productos:
+            if "descripcionEmbedding" in producto and producto["descripcionEmbedding"]:
+                # 1. Similitud semántica (embedding)
+                semantic_similarity = cosine_similarity(query_embedding, producto["descripcionEmbedding"])
+                
+                # 2. Puntuación por coincidencia exacta de palabras clave
+                keyword_score = 0
+                text_fields = [
+                    producto.get("nombre", "").lower(),
+                    producto.get("descripcion", "").lower(),
+                    str(producto.get("categoria", {}).get("nombre", "")).lower(),
+                    str(producto.get("marca", {}).get("nombre", "")).lower()
+                ]
+                combined_text = " ".join(text_fields)
+                
+                # Puntuación por coincidencias exactas
+                for word in query_words:
+                    if word in combined_text:
+                        keyword_score += 1
+                
+                # Normalizar keyword_score
+                keyword_score = keyword_score / len(query_words) if query_words else 0
+                
+                # 3. Boost especial para coincidencias exactas en nombre o categoría
+                exact_match_boost = 0
+                if query_lower in producto.get("nombre", "").lower():
+                    exact_match_boost = 0.3
+                elif query_lower in str(producto.get("categoria", {}).get("nombre", "")).lower():
+                    exact_match_boost = 0.25
+                
+                # 4. Boost especial para consultas de precios
+                price_boost = 0
+                precio_producto = (
+                    producto.get("precioUsd") or 
+                    producto.get("metadata", {}).get("precio_usd") or 
+                    producto.get("precio_usd", 0)
+                )
+                
+                if is_price_query and precio_producto > 0:
+                    # Para consultas de "caros", boost productos con precios altos
+                    if precio_producto >= 1000:
+                        price_boost = 0.4  # Boost alto para productos premium
+                    elif precio_producto >= 500:
+                        price_boost = 0.2  # Boost medio para productos mid-range
+                elif is_cheap_query and precio_producto > 0:
+                    # Para consultas de "baratos", boost productos con precios bajos
+                    if precio_producto <= 300:
+                        price_boost = 0.4
+                    elif precio_producto <= 600:
+                        price_boost = 0.2
+                
+                # 5. Combinar puntuaciones (pesos ajustados para incluir precio)
+                # Semantic: 50%, Keywords: 25%, Exact Match: 10%, Price: 15%
+                hybrid_score = (
+                    semantic_similarity * 0.5 + 
+                    keyword_score * 0.25 + 
+                    exact_match_boost * 0.1 +
+                    price_boost * 0.15
+                )
+                
+                similarity = hybrid_score
+                
+                # Solo procesar productos con similitud mínima
+                if similarity >= 0.1:
+                    precio_producto = producto.get("precioUsd", 0)
+                    
+                    producto_info = {
+                        "id": str(producto.get("_id")),
+                        "codigo_producto": producto.get("codigoProducto", ""),
+                        "nombre": producto.get("nombre", ""),
+                        "descripcion": producto.get("descripcion", ""),
+                        "marca": producto.get("marca", {}),
+                        "categoria": producto.get("categoria", {}),
+                        "precio_usd": precio_producto,
+                        "calificacion": producto.get("calificacionPromedio", 0),
+                        "disponibilidad": producto.get("disponibilidad", ""),
+                        "imagen_principal": producto.get("imagen_principal", ""),
+                        "similarity": round(similarity, 4),
+                        "semantic_score": round(semantic_similarity, 4),
+                        "keyword_score": round(keyword_score, 4),
+                        "exact_match_boost": round(exact_match_boost, 4),
+                        "price_boost": round(price_boost, 4)
+                    }
+                    resultados.append(producto_info)
+        
+        # Ordenar por similitud descendente
+        resultados.sort(key=lambda x: x["similarity"], reverse=True)
+        
+        # Debug: mostrar top 5 resultados con puntuaciones
+        print(f"🎯 Top 5 resultados para '{query}':")
+        for i, producto in enumerate(resultados[:5]):
+            precio = producto['precio_usd']
+            print(f"{i+1}. {producto['nombre']} - ${precio:.0f} - Híbrido: {producto['similarity']:.3f} "
+                  f"(Semántico: {producto['semantic_score']:.3f}, Keywords: {producto['keyword_score']:.3f}, "
+                  f"Exacto: {producto['exact_match_boost']:.3f}, Precio: {producto.get('price_boost', 0):.3f})")
+        
+        return resultados[:limit]
+        
+    except Exception as e:
+        print(f"Error en búsqueda semántica: {str(e)}")
+        return []
+
+
+def search_reviews(query, limit=5):
+    """
+    Busca reseñas usando búsqueda semántica con embeddings.
+    
+    Args:
+        query (str): Consulta en lenguaje natural
+        limit (int): Número máximo de resultados
+        
+    Returns:
+        list: Lista de reseñas ordenadas por relevancia
+    """
+    try:
+        # Generar embedding de la consulta
+        query_embedding = generate_embedding(query)
+        
+        # Conectar a la base de datos
+        db = get_database()
+        usuarios_collection = db[COLLECTIONS['USUARIOS']]
+        
+        # Obtener usuarios con reseñas que tengan embeddings
+        usuarios = list(usuarios_collection.find({
+            "resenas": {"$exists": True, "$ne": []}
+        }))
+        
+        # Calcular similitudes para reseñas
+        resultados = []
+        for usuario in usuarios:
+            if "resenas" in usuario:
+                for resena in usuario["resenas"]:
+                    if "contenidoEmbedding" in resena and resena["contenidoEmbedding"]:
+                        similarity = cosine_similarity(query_embedding, resena["contenidoEmbedding"])
+                        
+                        resena_info = {
+                            "usuario": usuario.get("nombreUsuario", ""),
+                            "titulo": resena.get("titulo", ""),
+                            "contenido": resena.get("contenido", ""),
+                            "calificacion": resena.get("calificacion", 0),
+                            "id_producto": str(resena.get("idProducto", resena.get("id_producto", ""))),
+                            "compra_verificada": resena.get("compraVerificada", resena.get("compra_verificada", False)),
+                            "similarity": round(similarity, 4)
+                        }
+                        resultados.append(resena_info)
+        
+        # Ordenar por similitud descendente
+        resultados.sort(key=lambda x: x["similarity"], reverse=True)
+        
+        return resultados[:limit]
+        
+    except Exception as e:
+        print(f"Error en búsqueda de reseñas: {str(e)}")
+        return []
+
+
+@app.route('/')
+def index():
+    """Página principal."""
+    return render_template('ragtech.html')
+
+
+@app.route('/academic')
+def academic():
+    """Página de pruebas académicas."""
+    return render_template('academic_tests.html')
+
+
+@app.route('/ragtech', methods=['GET', 'POST'])
+def ragtech():
+    """Endpoint principal para búsquedas semánticas."""
+    if request.method == 'GET':
+        return render_template('ragtech.html')
+    
+    elif request.method == 'POST':
+        try:
+            # Obtener consulta del request
+            data = request.get_json()
+            if not data or 'query' not in data:
+                return jsonify({"error": "Consulta requerida"}), 400
+            
+            query = data['query'].strip()
+            if not query:
+                return jsonify({"error": "Consulta vacía"}), 400
+            
+            limit = data.get('limit', 10)
+            include_reviews = data.get('include_reviews', True)
+            
+            # Realizar búsqueda de productos
+            productos = search_products(query, limit)
+            
+            # Realizar búsqueda de reseñas si se solicita
+            resenas = []
+            if include_reviews:
+                resenas = search_reviews(query, 5)
+            
+            # Preparar respuesta
+            response = {
+                "query": query,
+                "total_productos": len(productos),
+                "total_resenas": len(resenas),
+                "productos": productos,
+                "resenas": resenas,
+                "status": "success"
+            }
+            
+            return jsonify(response)
+            
+        except Exception as e:
+            return jsonify({
+                "error": f"Error interno del servidor: {str(e)}",
+                "status": "error"
+            }), 500
+
+
+@app.route('/api/products/search', methods=['GET'])
+def api_products_search():
+    """
+    API para búsqueda semántica de productos usando Atlas Vector Search.
+    Combina búsqueda vectorial con filtros tradicionales (híbrido).
+    """
+    try:
+        query = request.args.get('query', '').strip()
+        # category = request.args.get('category', '').strip()  # FILTROS DESHABILITADOS
+        # max_price = request.args.get('max_price', type=float)  # FILTROS DESHABILITADOS
+        # brand = request.args.get('brand', '').strip()  # FILTROS DESHABILITADOS
+        limit = request.args.get('limit', default=10, type=int)
+        
+        if not query:
+            return jsonify({
+                'error': 'El parámetro query es requerido',
+                'results': []
+            }), 400
+        
+        print(f"🔍 VECTOR SEARCH: '{query}' (filtros deshabilitados)")
+        # print(f"🔍 VECTOR SEARCH: '{query}' | Cat: {category or 'todas'} | $max: {max_price or '∞'} | Marca: {brand or 'todas'}")
+        
+        # Generar embedding de la consulta
+        query_embedding = generate_embedding(query)
+        
+        # Obtener base de datos
+        db = get_database()
+        productos_collection = db[COLLECTIONS['PRODUCTOS']]
+        
+        # Construir pipeline de agregación con $vectorSearch
+        pipeline = [
+            {
+                '$vectorSearch': {
+                    'index': 'idx_descripcion_vector',  # Índice vectorial en MongoDB Atlas
+                    'path': 'descripcion_embedding',
+                    'queryVector': query_embedding,
+                    'numCandidates': limit * 10,  # Candidatos a evaluar
+                    'limit': limit * 3  # Obtener más para aplicar filtros
+                }
+            },
+            {
+                '$addFields': {
+                    'similarity_score': {'$meta': 'vectorSearchScore'}
+                }
+            }
+        ]
+        
+        # FILTROS TRADICIONALES DESHABILITADOS
+        # filtros = []
+        # if category:
+        #     filtros.append({'categoria.slug': category})
+        # if max_price:
+        #     filtros.append({'metadata.precio_usd': {'$lte': max_price}})
+        # if brand:
+        #     filtros.append({'marca.nombre': {'$regex': brand, '$options': 'i'}})
+        # 
+        # if filtros:
+        #     pipeline.append({
+        #         '$match': {'$and': filtros}
+        #     })
+        
+        # Proyección de campos necesarios
+        pipeline.append({
+            '$project': {
+                '_id': 0,
+                'codigo_producto': 1,
+                'nombre': 1,
+                'descripcion': 1,
+                'marca.nombre': 1,
+                'categoria.nombre': 1,
+                'metadata.precio_usd': 1,
+                'metadata.calificacion_promedio': 1,
+                'imagen_principal': 1,
+                'similarity_score': 1
+            }
+        })
+        
+        # Limitar resultados finales
+        pipeline.append({'$limit': limit})
+        
+        try:
+            # Intentar usar Atlas Vector Search
+            resultados = list(productos_collection.aggregate(pipeline))
+            print(f"   ✓ Atlas Vector Search: {len(resultados)} resultados")
+            
+            # Formatear resultados
+            productos_formateados = []
+            for p in resultados:
+                productos_formateados.append({
+                    'codigo': p.get('codigo_producto', ''),
+                    'nombre': p.get('nombre', ''),
+                    'descripcion': p.get('descripcion', ''),
+                    'marca': p.get('marca', {}).get('nombre', ''),
+                    'categoria': p.get('categoria', {}).get('nombre', ''),
+                    'precio_usd': p.get('metadata', {}).get('precio_usd', 0),
+                    'calificacion': p.get('metadata', {}).get('calificacion_promedio', 0),
+                    'imagen': p.get('imagen_principal', ''),
+                    'similarity': round(p.get('similarity_score', 0) * 100, 2)
+                })
+            
+        except Exception as ve:
+            # Fallback si Vector Search no está disponible
+            print(f"   ⚠️ Vector Search no disponible: {ve}")
+            print(f"   → Usando búsqueda manual con embeddings")
+            
+            # FILTROS MANUALES DESHABILITADOS
+            # filtros_mongo = {}
+            # if category:
+            #     filtros_mongo['categoria.slug'] = category
+            # if max_price:
+            #     filtros_mongo['metadata.precio_usd'] = {'$lte': max_price}
+            # if brand:
+            #     filtros_mongo['marca.nombre'] = {'$regex': brand, '$options': 'i'}
+            
+            # Obtener productos sin filtros y calcular similitud manualmente
+            productos = list(productos_collection.find({}).limit(200))
+            
+            productos_con_similitud = []
+            for producto in productos:
+                if 'descripcion_embedding' in producto and producto['descripcion_embedding']:
+                    similitud = cosine_similarity(query_embedding, producto['descripcion_embedding'])
+                    
+                    productos_con_similitud.append({
+                        'producto': producto,
+                        'similarity_score': similitud
+                    })
+            
+            # Ordenar por similitud
+            productos_con_similitud.sort(key=lambda x: x['similarity_score'], reverse=True)
+            
+            # Formatear top resultados
+            productos_formateados = []
+            for item in productos_con_similitud[:limit]:
+                p = item['producto']
+                productos_formateados.append({
+                    'codigo': p.get('codigo_producto', ''),
+                    'nombre': p.get('nombre', ''),
+                    'descripcion': p.get('descripcion', ''),
+                    'marca': p.get('marca', {}).get('nombre', ''),
+                    'categoria': p.get('categoria', {}).get('nombre', ''),
+                    'precio_usd': p.get('metadata', {}).get('precio_usd', 0),
+                    'calificacion': p.get('metadata', {}).get('calificacion_promedio', 0),
+                    'imagen': p.get('imagen_principal', ''),
+                    'similarity': round(item['similarity_score'] * 100, 2)
+                })
+        
+        print(f"✓ Devolviendo {len(productos_formateados)} productos vectoriales")
+        
+        return jsonify({
+            'query': query,
+            'total_results': len(productos_formateados),
+            'results': productos_formateados
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en búsqueda vectorial: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': f'Error en búsqueda: {str(e)}',
+            'results': []
+        }), 500
+
+
+@app.route('/api/products/search-by-image', methods=['GET', 'POST'])
+def api_products_search_by_image():
+    """
+    Búsqueda MULTIMODAL usando CLIP embeddings (512 dims).
+    
+    Modos soportados:
+    1. GET con ?description= → busca por descripción de texto
+    2. POST con archivo de imagen → busca por imagen real subida
+    
+    Requiere índice 'foto_index' en MongoDB Atlas.
+    """
+    try:
+        query_embedding = None
+        query_type = "texto"
+        query_display = ""
+        
+        # MODO 1: POST con imagen subida
+        if request.method == 'POST' and 'image' in request.files:
+            file = request.files['image']
+            if file.filename:
+                try:
+                    # Leer imagen y generar embedding CLIP
+                    image_bytes = file.read()
+                    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+                    
+                    query_embedding = generate_clip_image_embedding(pil_image)
+                    query_type = "imagen"
+                    query_display = f"Imagen subida: {file.filename}"
+                    
+                    print(f"🖼️ Búsqueda por IMAGEN REAL: {file.filename}")
+                    
+                except Exception as e:
+                    print(f"❌ Error procesando imagen: {e}")
+                    return jsonify({
+                        'error': f'Error al procesar imagen: {str(e)}',
+                        'results': []
+                    }), 400
+        
+        # MODO 2: GET/POST con descripción de texto
+        if query_embedding is None:
+            description = request.args.get('description') or request.form.get('description', '')
+            description = description.strip()
+            
+            if not description:
+                return jsonify({
+                    'error': 'Debes proporcionar una descripción o subir una imagen',
+                    'results': [],
+                    'hint': 'Escribe una descripción del producto que buscas (ej: "smartphone con buena cámara") o sube una imagen'
+                }), 400
+            
+            try:
+                query_embedding = generate_clip_text_embedding(description)
+                query_type = "texto"
+                query_display = description
+                print(f"🔍 Búsqueda por DESCRIPCIÓN (CLIP): '{description}'")
+            except Exception as clip_error:
+                print(f"⚠️ Error generando embedding CLIP: {clip_error}")
+                return jsonify({
+                    'error': 'Error al generar embedding CLIP. Verifica que el modelo esté cargado.',
+                    'details': str(clip_error),
+                    'results': []
+                }), 500
+        
+        limit = request.args.get('limit', default=10, type=int)
+        
+        db = get_database()
+        imagenes_collection = db[COLLECTIONS['IMAGENES']]
+        
+        # Pipeline de búsqueda vectorial con MongoDB Atlas Vector Search
+        pipeline = [
+            {
+                '$vectorSearch': {
+                    'index': 'foto_index',  # Índice CLIP (512 dims)
+                    'path': 'imagen_embedding_clip',
+                    'queryVector': query_embedding,
+                    'numCandidates': limit * 10,
+                    'limit': limit * 3
+                }
+            },
+            {
+                '$addFields': {
+                    'similarity_score': {'$meta': 'vectorSearchScore'}
+                }
+            },
+            {
+                '$match': {
+                    'esPrincipal': True  # Solo imágenes principales (camelCase)
+                }
+            },
+            {
+                '$lookup': {
+                    'from': 'productos',
+                    'localField': 'idProducto',  # camelCase en imagenesProducto
+                    'foreignField': 'idProducto',  # camelCase en productos
+                    'as': 'producto_info'
+                }
+            },
+            {
+                '$unwind': '$producto_info'
+            },
+            {
+                '$project': {
+                    'producto_info.codigoProducto': 1,
+                    'producto_info.nombre': 1,
+                    'producto_info.descripcion': 1,
+                    'producto_info.marcaNombre': 1,
+                    'producto_info.categoriaSlug': 1,
+                    'producto_info.precioUsd': 1,
+                    'producto_info.imagenPrincipal': 1,
+                    'similarity_score': 1,
+                    'textoAlternativo': 1,
+                    'urlImagen': 1
+                }
+            },
+            {
+                '$limit': limit
+            }
+        ]
+        
+        try:
+            # Primero verificar cuántas imágenes tienen embeddings
+            total_con_embedding = imagenes_collection.count_documents({
+                'imagen_embedding_clip': {'$exists': True}
+            })
+            total_principales = imagenes_collection.count_documents({
+                'esPrincipal': True
+            })
+            print(f"   📊 Debug: {total_con_embedding} imágenes con embedding, {total_principales} principales")
+            
+            # Intentar búsqueda vectorial con Atlas
+            resultados = list(imagenes_collection.aggregate(pipeline))
+            print(f"   ✓ Vector Search CLIP encontró {len(resultados)} resultados")
+            
+            # Si no hay resultados, dar feedback al usuario
+            if len(resultados) == 0:
+                print(f"   ⚠️ No se encontraron productos con embeddings CLIP")
+                print(f"   💡 Intentando búsqueda SIN filtro esPrincipal...")
+                
+                # Pipeline sin filtro esPrincipal
+                pipeline_sin_filtro = [
+                    {
+                        '$vectorSearch': {
+                            'index': 'foto_index',
+                            'path': 'imagen_embedding_clip',
+                            'queryVector': query_embedding,
+                            'numCandidates': limit * 10,
+                            'limit': limit * 3
+                        }
+                    },
+                    {
+                        '$addFields': {
+                            'similarity_score': {'$meta': 'vectorSearchScore'}
+                        }
+                    },
+                    {
+                        '$lookup': {
+                            'from': 'productos',
+                            'localField': 'idProducto',
+                            'foreignField': 'idProducto',
+                            'as': 'producto_info'
+                        }
+                    },
+                    {
+                        '$unwind': '$producto_info'
+                    },
+                    {
+                        '$project': {
+                            'producto_info.codigoProducto': 1,
+                            'producto_info.nombre': 1,
+                            'producto_info.descripcion': 1,
+                            'producto_info.marcaNombre': 1,
+                            'producto_info.categoriaSlug': 1,
+                            'producto_info.precioUsd': 1,
+                            'producto_info.imagenPrincipal': 1,
+                            'similarity_score': 1,
+                            'textoAlternativo': 1,
+                            'urlImagen': 1,
+                            'esPrincipal': 1
+                        }
+                    },
+                    {
+                        '$limit': limit
+                    }
+                ]
+                
+                resultados = list(imagenes_collection.aggregate(pipeline_sin_filtro))
+                print(f"   ✓ Búsqueda SIN filtro encontró {len(resultados)} resultados")
+            
+        except Exception as ve:
+            # Fallback: búsqueda manual con cosine similarity
+            print(f"   ⚠️ Vector Search no disponible: {ve}")
+            print(f"   → Usando búsqueda manual con embeddings CLIP")
+            
+            # Contar cuántas imágenes tienen embeddings CLIP
+            total_con_embedding = imagenes_collection.count_documents({
+                'imagen_embedding_clip': {'$exists': True, '$ne': [], '$ne': None}
+            })
+            print(f"   📊 Imágenes con embedding CLIP en BD: {total_con_embedding}")
+            
+            if total_con_embedding == 0:
+                # No hay embeddings CLIP, usar búsqueda de texto normal como fallback
+                print(f"   ⚠️ No hay embeddings CLIP. Fallback: búsqueda de texto normal")
+                productos_collection = db[COLLECTIONS['PRODUCTOS']]
+                
+                # Buscar por nombre/descripción
+                search_regex = {'$regex': query_display, '$options': 'i'}
+                productos = list(productos_collection.find({
+                    '$or': [
+                        {'nombre': search_regex},
+                        {'descripcion': search_regex},
+                        {'marca_nombre': search_regex}
+                    ]
+                }).limit(limit))
+                
+                resultados = []
+                for p in productos:
+                    resultados.append({
+                        'producto_info': p,
+                        'similarity_score': 0.5,  # Score arbitrario para fallback
+                        'texto_alternativo': '',
+                        'url_imagen': p.get('imagen_principal', '')
+                    })
+                
+                print(f"   ✓ Fallback texto encontró {len(resultados)} productos")
+            else:
+                # Hay embeddings, hacer búsqueda manual
+                imagenes = list(imagenes_collection.find({
+                    'imagen_embedding_clip': {'$exists': True, '$ne': [], '$ne': None},
+                    'es_principal': True
+                }).limit(200))
+                
+                imagenes_con_similitud = []
+                for img in imagenes:
+                    embedding = img.get('imagen_embedding_clip')
+                    if embedding and len(embedding) == 512:  # Verificar dimensionalidad
+                        try:
+                            similitud = cosine_similarity(query_embedding, embedding)
+                            img['similarity_score'] = similitud
+                            imagenes_con_similitud.append(img)
+                        except Exception as sim_error:
+                            print(f"   ⚠️ Error calculando similitud: {sim_error}")
+                            continue
+                
+                imagenes_con_similitud.sort(key=lambda x: x['similarity_score'], reverse=True)
+                
+                # Lookup manual de productos
+                productos_collection = db[COLLECTIONS['PRODUCTOS']]
+                resultados = []
+                for img in imagenes_con_similitud[:limit]:
+                    producto = productos_collection.find_one({
+                        'codigo_producto': img['codigo_producto']
+                    })
+                    if producto:
+                        resultados.append({
+                            'producto_info': producto,
+                            'similarity_score': img['similarity_score'],
+                            'texto_alternativo': img.get('texto_alternativo', ''),
+                            'url_imagen': img.get('url_imagen', '')
+                        })
+                
+                print(f"   ✓ Búsqueda manual encontró {len(resultados)} productos")
+        
+        # Formatear resultados
+        productos_formateados = []
+        for r in resultados:
+            p = r.get('producto_info', r)
+            productos_formateados.append({
+                'codigo': p.get('codigoProducto', p.get('codigo_producto', '')),
+                'nombre': p.get('nombre', ''),
+                'descripcion': p.get('descripcion', ''),
+                'marca': p.get('marcaNombre', p.get('marca_nombre', '')),
+                'categoria': p.get('categoriaSlug', p.get('categoria_slug', '')),
+                'precio_usd': p.get('precioUsd', p.get('precio_usd', 0)),
+                'imagen': r.get('urlImagen', r.get('url_imagen', p.get('imagenPrincipal', p.get('imagen_principal', '')))),
+                'similarity': round(r.get('similarity_score', 0) * 100, 2)
+            })
+        
+        print(f"✓ Devolviendo {len(productos_formateados)} productos (búsqueda por {query_type})")
+        
+        response = {
+            'query': query_display,
+            'query_type': query_type,
+            'total_results': len(productos_formateados),
+            'results': productos_formateados,
+            'search_method': 'clip_multimodal_512d'
+        }
+        
+        # Agregar mensaje si no hay resultados
+        if len(productos_formateados) == 0:
+            response['message'] = 'No se encontraron productos. Posibles razones:'
+            response['suggestions'] = [
+                '1. No hay embeddings CLIP en la base de datos. Ejecuta: py scripts/generate_image_embeddings_clip.py',
+                '2. Intenta con una descripción más general (ej: "smartphone" en vez de "smartphone con cámara de 108MP")',
+                '3. Verifica que los índices vectoriales estén creados en MongoDB Atlas'
+            ]
+        
+        return jsonify(response)
+        
+    except Exception as e:
+        print(f"❌ Error en búsqueda por imagen: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'error': f'Error en búsqueda: {str(e)}',
+            'results': []
+        }), 500
+
+
+@app.route('/api/products')
+def api_products():
+    """API para obtener todos los productos."""
+    try:
+        db = get_database()
+        productos_collection = db[COLLECTIONS['PRODUCTOS']]
+        
+        productos = list(productos_collection.find({}).limit(50))
+        
+        # Convertir ObjectId a string
+        for producto in productos:
+            producto["_id"] = str(producto["_id"])
+        
+        return jsonify({
+            "productos": productos,
+            "total": len(productos),
+            "status": "success"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "error": f"Error al obtener productos: {str(e)}",
+            "status": "error"
+        }), 500
+
+
+@app.route('/api/categories')
+def api_categories():
+    """API para obtener todas las categorías."""
+    try:
+        db = get_database()
+        categorias_collection = db[COLLECTIONS['CATEGORIAS']]
+        
+        categorias = list(categorias_collection.find({}))
+        
+        # Convertir ObjectId a string
+        for categoria in categorias:
+            categoria["_id"] = str(categoria["_id"])
+        
+        return jsonify({
+            "categorias": categorias,
+            "total": len(categorias),
+            "status": "success"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "error": f"Error al obtener categorías: {str(e)}",
+            "status": "error"
+        }), 500
+
+
+@app.route('/api/stats')
+def api_stats():
+    """API para obtener estadísticas del sistema."""
+    try:
+        db = get_database()
+        
+        stats = {}
+        for collection_name in COLLECTIONS.values():
+            stats[collection_name] = db[collection_name].count_documents({})
+        
+        return jsonify({
+            "estadisticas": stats,
+            "status": "success"
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "error": f"Error al obtener estadísticas: {str(e)}",
+            "status": "error"
+        }), 500
+
+
+@app.route('/rag', methods=['GET', 'POST'])
+def rag_query():
+    if request.method == 'GET':
+        return render_template('rag_interface.html')
+    
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        
+        # Manejar tanto max_products (frontend) como max_results
+        max_products = data.get('max_products', data.get('max_results', 5))
+        max_reviews = data.get('max_reviews', 3)
+        include_reviews = data.get('include_reviews', True)
+        include_images = data.get('include_images', True)
+        
+        # Convertir a entero y manejar el caso de "todos"
+        max_products = int(max_products) if max_products else 5
+        max_reviews = int(max_reviews) if max_reviews else 3
+        
+        # Valor 0 para productos significa "todos"
+        # Valor -1 para reseñas significa "todas"
+        productos_label = "TODOS" if max_products <= 0 else str(max_products)
+        resenas_label = "TODAS" if max_reviews < 0 else ("0" if max_reviews == 0 else str(max_reviews))
+        
+        if not query:
+            return jsonify({'error': 'El parámetro query es requerido'}), 400
+        
+        print(f"🤖 RAG SIMPLE: '{query}'")
+        print(f"   📦 Max productos: {productos_label} | 💬 Max reseñas: {resenas_label} | 🖼️ Imágenes: {include_images}")
+        
+        # ============================================================
+        # USAR LA FUNCIÓN QUE YA FUNCIONA
+        # ============================================================
+        
+        # ============================================================
+        # USAR LA FUNCIÓN search_productos QUE SÍ FUNCIONA
+        # ============================================================
+        from search.vector_search import search_productos, search_resenas
+        
+        productos_finales = search_productos(
+            query=query,
+            limit=max_products,
+            min_score=0.3
+        )
+        
+        resenas_encontradas = []
+        if include_reviews:
+            try:
+                resenas_encontradas = search_resenas(
+                    query=query,
+                    limit=max_reviews
+                )
+            except Exception as e:
+                print(f"   ⚠️ Error buscando reseñas: {e}")
+                resenas_encontradas = []
+        
+        print(f"   ✅ Encontrados: {len(productos_finales)} productos, {len(resenas_encontradas)} reseñas")
+        
+        # ============================================================
+        # GENERAR RESPUESTA CON GROQ LLM
+        # ============================================================
+        
+        # Construir contexto para el LLM
+        contexto = f"CONSULTA: {query}\n\nPRODUCTOS ENCONTRADOS:\n\n"
+        
+        for i, producto in enumerate(productos_finales, 1):
+            contexto += f"{i}. {producto['nombre']}\n"
+            contexto += f"   Marca: {producto['marca']['nombre']}\n"
+            contexto += f"   Precio: ${producto['precioUsd']:.2f} USD\n"
+            contexto += f"   Descripción: {producto['descripcion'][:200]}...\n"
+            contexto += f"   Similitud: {producto['search_score']:.3f}\n\n"
+        
+        if resenas_encontradas:
+            contexto += "RESEÑAS RELEVANTES:\n\n"
+            for i, resena_data in enumerate(resenas_encontradas[:3], 1):
+                resena = resena_data['resena']  # Accedemos al objeto resena anidado
+                contexto += f"{i}. {resena['titulo']} ({resena['calificacion']}/5)\n"
+                contexto += f"   {resena['contenido'][:150]}...\n\n"
+        
+        # Generar respuesta con LLM
+        try:
+            print("   🧠 Generando respuesta con Groq LLM...")
+            respuesta = generate_answer_with_llm(contexto, query)
+            print(f"   ✓ Respuesta LLM generada: {len(respuesta)} caracteres")
+        except Exception as e:
+            print(f"   ❌ Error en LLM: {e}")
+            respuesta = f"**Resultados para '{query}':**\n\n"
+            for i, p in enumerate(productos_finales[:3], 1):
+                respuesta += f"{i}. **{p['nombre']}** - ${p['precioUsd']:.2f}\n"
+        
+        print(f"✅ RAG SIMPLE completado exitosamente")
+        
+        return jsonify({
+            'status': 'success',  # ¡Esto es clave para el frontend!
+            'query': query,
+            'rag_response': respuesta,
+            'contexto': contexto,
+            'productos': productos_finales,
+            'metadata': {
+                'total_productos': len(productos_finales),
+                'total_resenas': len(resenas_encontradas),
+                'model_used': 'search_products + Groq LLM',
+                'search_method': 'rag_simple_functional'
+            },
+            'context': {
+                'total_productos': len(productos_finales),
+                'total_resenas': len(resenas_encontradas),
+                'productos': productos_finales,
+                'resenas': resenas_encontradas
+            },
+            'sources': productos_finales  # También agregar sources
+        })
+        
+    except Exception as e:
+        error_msg = f'Error en RAG: {str(e)}'
+        print(f"❌ {error_msg}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': error_msg, 'status': 'error'}), 500
+
+
+@app.route('/api/utils/update-caption', methods=['POST'])
+def api_update_caption():
+    """
+    Actualiza el caption/descripción de una imagen por título.
+    
+    Body JSON:
+    {
+        "title": "nombre_producto",
+        "new_caption": "Nueva descripción"
+    }
+    """
+    try:
+        data = request.get_json()
+        title = data.get('title', '').strip()
+        new_caption = data.get('new_caption', '').strip()
+        
+        if not title or not new_caption:
+            return jsonify({'error': 'Parámetros title y new_caption son requeridos'}), 400
+        
+        db = get_database()
+        success = update_caption_by_title(db, title, new_caption)
+        
+        if success:
+            return jsonify({
+                'status': 'success',
+                'message': f'Caption actualizado para: {title}'
+            })
+        else:
+            return jsonify({
+                'status': 'not_found',
+                'message': f'No se encontró documento con título: {title}'
+            }), 404
+            
+    except Exception as e:
+        print(f"❌ Error al actualizar caption: {e}")
+        return jsonify({'error': f'Error: {str(e)}'}), 500
+
+
+@app.route('/api/utils/delete-image', methods=['DELETE'])
+def api_delete_image():
+    """
+    Elimina una imagen y sus metadatos por título.
+    
+    Body JSON:
+    {
+        "title": "nombre_producto"
+    }
+    """
+    try:
+        data = request.get_json()
+        title = data.get('title', '').strip()
+        
+        if not title:
+            return jsonify({'error': 'Parámetro title es requerido'}), 400
+        
+        db = get_database()
+        fs = gridfs.GridFS(db)
+        
+        success = delete_by_title(db, fs, title)
+        
+        if success:
+            return jsonify({
+                'status': 'success',
+                'message': f'Documento e imagen eliminados: {title}'
+            })
+        else:
+            return jsonify({
+                'status': 'not_found',
+                'message': f'No se encontró documento con título: {title}'
+            }), 404
+            
+    except Exception as e:
+        print(f"❌ Error al eliminar: {e}")
+        return jsonify({'error': f'Error: {str(e)}'}), 500
+
+
+@app.route('/api/utils/show-results', methods=['POST'])
+def api_show_results_util():
+    """
+    Utilidad para visualizar resultados de búsqueda con imágenes.
+    Útil para debugging y análisis.
+    
+    Body JSON:
+    {
+        "query": "texto de búsqueda",
+        "limit": 5
+    }
+    """
+    try:
+        data = request.get_json()
+        query = data.get('query', '').strip()
+        limit = data.get('limit', 5)
+        
+        if not query:
+            return jsonify({'error': 'Parámetro query es requerido'}), 400
+        
+        db = get_database()
+        fs = gridfs.GridFS(db)
+        
+        # Hacer búsqueda simple de productos
+        query_embedding = generate_embedding(query)
+        productos_collection = db[COLLECTIONS['PRODUCTOS']]
+        
+        productos = list(productos_collection.aggregate([
+            {
+                '$vectorSearch': {
+                    'index': 'idx_descripcion_vector',
+                    'path': 'descripcion_embedding',
+                    'queryVector': query_embedding,
+                    'numCandidates': limit * 10,
+                    'limit': limit
+                }
+            },
+            {
+                '$addFields': {
+                    'score': {'$meta': 'vectorSearchScore'}
+                }
+            }
+        ]))
+        
+        # Usar función show_results
+        results = show_results(productos, fs)
+        
+        # Formatear para JSON (sin imágenes binarias)
+        results_json = []
+        for r in results:
+            results_json.append({
+                'title': r['title'],
+                'score': r['score'],
+                'category': r['category'],
+                'tags': r['tags'],
+                'caption': r['caption'],
+                'has_image': r.get('image') is not None
+            })
+        
+        return jsonify({
+            'query': query,
+            'results': results_json,
+            'total': len(results_json)
+        })
+        
+    except Exception as e:
+        print(f"❌ Error en show_results: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': f'Error: {str(e)}'}), 500
+
+
+if __name__ == '__main__':
+    print("\n" + "="*60)
+    print("🚀 INICIANDO SERVIDOR WEB RAG TECH")
+    print("="*60)
+    print("📍 URL Principal: http://localhost:5000")
+    print("🔍 Endpoint RAG: http://localhost:5000/ragtech")
+    print("📊 API Productos: http://localhost:5000/api/products")
+    print("📊 API Categorías: http://localhost:5000/api/categories")
+    print("📊 API Stats: http://localhost:5000/api/stats")
+    print("="*60 + "\n")
+    
+    # Crear directorio de templates si no existe
+    templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+    if not os.path.exists(templates_dir):
+        os.makedirs(templates_dir)
+    
+    # Crear directorio static si no existe
+    static_dir = os.path.join(os.path.dirname(__file__), 'static')
+    if not os.path.exists(static_dir):
+        os.makedirs(static_dir)
+    
+    app.run(debug=True, host='0.0.0.0', port=5000)

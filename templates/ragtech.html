@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Tech - Búsqueda Inteligente</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+    <style>
+        .test-card {
+            border-left: 4px solid #007bff;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+    
+        .test-card.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+    
+        .test-card.warning {
+            border-left-color: #ffc107;
+            background-color: #fff3cd;
+        }
+    
+        .test-card.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+    
+        .result-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    
+        .score-display {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+    
+        .academic-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-robot me-2"></i>RAG Tech
+            </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/ragtech">Búsqueda RAG</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid py-4">
+        <div class="row">
+            <!-- Search Panel -->
+            <div class="col-lg-4 col-xl-3">
+                <div class="card search-panel shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-search me-2"></i>Búsqueda Semántica
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs mb-3" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="text-search-tab" data-bs-toggle="tab" data-bs-target="#text-search"
+                                    type="button" role="tab">
+                                    <i class="fas fa-search me-1"></i>Texto
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="image-search-tab" data-bs-toggle="tab" data-bs-target="#image-search" type="button"
+                                    role="tab">
+                                    <i class="fas fa-image me-1"></i>Imagen
+                                </button>
+                            </li>
+                            <!-- FILTROS DESHABILITADOS -->
+                            <!-- <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="hybrid-search-tab" data-bs-toggle="tab" data-bs-target="#hybrid-search"
+                                    type="button" role="tab">
+                                    <i class="fas fa-filter me-1"></i>Filtros
+                                </button>
+                            </li> -->
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="rag-search-tab" data-bs-toggle="tab" data-bs-target="#rag-search" type="button"
+                                    role="tab">
+                                    <i class="fas fa-robot me-1"></i>RAG
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab content -->
+                        <div class="tab-content">
+                            <!-- Text Search Tab -->
+                            <div class="tab-pane fade show active" id="text-search" role="tabpanel">
+                                <form id="searchForm" aria-describedby="search-form-description">
+                                    <div id="search-form-description" class="visually-hidden">Formulario para realizar búsquedas semánticas de productos
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="queryInput" class="form-label">Consulta en lenguaje natural:</label>
+                                        <textarea class="form-control" id="queryInput" rows="3"
+                                            placeholder="Ej: Smartphone con buena cámara y batería duradera..." required></textarea>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="limitSelect" class="form-label">Número de resultados:</label>
+                                        <select class="form-select" id="limitSelect">
+                                            <option value="5">5 productos</option>
+                                            <option value="10" selected>10 productos</option>
+                                            <option value="20">20 productos</option>
+                                            <option value="50">50 productos</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="includeReviews" checked>
+                                            <label class="form-check-label" for="includeReviews">
+                                                Incluir reseñas relevantes
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary w-100" id="searchBtn" aria-describedby="search-form-description"
+                                        title="Ejecutar búsqueda semántica">
+                                        <i class="fas fa-search me-2"></i>Buscar
+                                    </button>
+                                    </form>
+                            </div>
+                            
+                            <!-- Image Search Tab -->
+                            <div class="tab-pane fade" id="image-search" role="tabpanel">
+                                <form id="imageSearchForm">
+                                    <div class="mb-3">
+                                        <label for="imageUpload" class="form-label">Subir imagen:</label>
+                                        <input type="file" class="form-control" id="imageUpload" accept="image/*">
+                                        <small class="text-muted">Formatos: JPG, PNG, GIF</small>
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="imageDescription" class="form-label">Descripción de lo que buscas (opcional con imagen):</label>
+                                        <textarea class="form-control" id="imageDescription" rows="2"
+                                            placeholder="Ej: teléfono con cámara profesional, laptop para gaming, tablet con stylus"></textarea>
+                                        <small class="text-muted">💡 Puedes buscar solo con imagen, solo con texto, o ambos (CLIP
+                                            multimodal)</small>
+                                    </div>
+                                    <div class="mb-3" id="imagePreview" style="display: none;">
+                                        <label class="form-label">Vista previa:</label>
+                                        <img id="previewImg" src="" alt="Preview" style="max-width: 100%; border-radius: 8px;">
+                                    </div>
+                            
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-camera me-2"></i>Buscar por Imagen
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <!-- FILTROS DESHABILITADOS -->
+                            <!-- <div class="tab-pane fade" id="hybrid-search" role="tabpanel">
+                                <form id="hybridSearchForm">
+                                    <div class="mb-3">
+                                        <label for="hybridQueryInput" class="form-label">Consulta:</label>
+                                        <input type="text" class="form-control" id="hybridQueryInput" placeholder="Ej: smartphones" required>
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="categoryFilter" class="form-label">Categoría:</label>
+                                        <select class="form-select" id="categoryFilter">
+                                            <option value="">Todas las categorías</option>
+                                            <option value="smartphones">Smartphones</option>
+                                            <option value="laptops">Laptops</option>
+                                            <option value="tablets">Tablets</option>
+                                            <option value="auriculares">Auriculares</option>
+                                            <option value="smartwatch">Smartwatch</option>
+                                        </select>
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="priceFilter" class="form-label">Precio máximo (USD):</label>
+                                        <input type="number" class="form-control" id="priceFilter" placeholder="Ej: 800" min="0">
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="brandFilter" class="form-label">Marca:</label>
+                                        <input type="text" class="form-control" id="brandFilter" placeholder="Ej: Apple, Samsung">
+                                    </div>
+                            
+                                    <button type="submit" class="btn btn-warning w-100">
+                                        <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                                    </button>
+                                </form>
+                            </div> -->
+                            
+                            <!-- RAG Search Tab -->
+                            <div class="tab-pane fade" id="rag-search" role="tabpanel">
+                                <form id="ragSearchForm">
+                                    <div class="mb-3">
+                                        <label for="ragQueryInput" class="form-label">Pregunta compleja:</label>
+                                        <textarea class="form-control" id="ragQueryInput" rows="4"
+                                            placeholder="Ej: ¿Cuáles son los mejores smartphones según las reseñas de usuarios y cuáles son sus principales características?"
+                                            required></textarea>
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="ragMaxProducts" class="form-label">Productos a analizar:</label>
+                                        <select class="form-select" id="ragMaxProducts">
+                                            <option value="3">3 productos</option>
+                                            <option value="5" selected>5 productos</option>
+                                            <option value="10">10 productos</option>
+                                            <option value="20">20 productos</option>
+                                            <option value="50">50 productos</option>
+                                            <option value="100">100 productos</option>
+                                            <option value="0">Todos</option>
+                                        </select>
+                                    </div>
+                            
+                                    <div class="mb-3">
+                                        <label for="ragMaxReviews" class="form-label">Reseñas por producto:</label>
+                                        <select class="form-select" id="ragMaxReviews">
+                                            <option value="0">Sin reseñas</option>
+                                            <option value="2">2 reseñas</option>
+                                            <option value="3" selected>3 reseñas</option>
+                                            <option value="5">5 reseñas</option>
+                                            <option value="10">10 reseñas</option>
+                                            <option value="20">20 reseñas</option>
+                                            <option value="50">50 reseñas</option>
+                                            <option value="100">100 reseñas</option>
+                                            <option value="-1">Todas</option>
+                                        </select>
+                                    </div>
+                            
+                                    <button type="submit" class="btn btn-success w-100">
+                                        <i class="fas fa-robot me-2"></i>Consultar RAG
+                                    </button>
+                                </form>
+                            </div>
+                            </div>
+
+                        <hr class="my-4">
+
+                        <!-- Quick Examples -->
+                        <h6 class="fw-bold mb-3">Consultas de ejemplo:</h6>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm quick-example"
+                                data-query="iPhone con buena cámara para fotografía"
+                                title="Buscar: iPhone con buena cámara para fotografía"
+                                aria-label="Ejemplo de búsqueda: iPhone con buena cámara para fotografía">
+                                <i class="fas fa-mobile me-1"></i>iPhone fotografía
+                            </button>
+                            <button class="btn btn-outline-success btn-sm quick-example"
+                                data-query="Laptop gaming con procesador potente"
+                                title="Buscar: Laptop gaming con procesador potente"
+                                aria-label="Ejemplo de búsqueda: Laptop gaming con procesador potente">
+                                <i class="fas fa-laptop me-1"></i>Laptop gaming
+                            </button>
+                            <button class="btn btn-outline-info btn-sm quick-example"
+                                data-query="Auriculares con cancelación de ruido"
+                                title="Buscar: Auriculares con cancelación de ruido"
+                                aria-label="Ejemplo de búsqueda: Auriculares con cancelación de ruido">
+                                <i class="fas fa-headphones me-1"></i>Auriculares premium
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm quick-example"
+                                data-query="Tablet para diseño y productividad"
+                                title="Buscar: Tablet para diseño y productividad"
+                                aria-label="Ejemplo de búsqueda: Tablet para diseño y productividad">
+                                <i class="fas fa-tablet me-1"></i>Tablet profesional
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm quick-example"
+                                data-query="Smartwatch para deportistas" title="Buscar: Smartwatch para deportistas"
+                                aria-label="Ejemplo de búsqueda: Smartwatch para deportistas">
+                                <i class="fas fa-stopwatch me-1"></i>Smartwatch fitness
+                            </button>
+                        </div>
+
+                        <!-- Search Stats -->
+                        <div id="searchStats" class="mt-4 p-3 bg-light rounded d-none">
+                            <small class="text-muted">
+                                <i class="fas fa-clock me-1"></i>
+                                Tiempo de búsqueda: <span id="searchTime">-</span>ms<br>
+                                <i class="fas fa-chart-bar me-1"></i>
+                                Productos analizados: <span id="analyzedProducts">-</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Panel -->
+            <div class="col-lg-8 col-xl-9">
+                <!-- Welcome Message -->
+                <div id="welcomeMessage" class="text-center py-5">
+                    <i class="fas fa-robot fa-5x text-primary mb-4"></i>
+                    <h2 class="text-primary">Bienvenido a RAG Tech</h2>
+                    <p class="lead text-muted">Utiliza el panel de la izquierda para realizar búsquedas inteligentes</p>
+                    <p class="text-muted">Nuestro sistema de IA analizará tu consulta y encontrará los productos más
+                        relevantes</p>
+                </div>
+
+                <!-- Loading Indicator -->
+                <div id="loadingIndicator" class="text-center py-5 d-none">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Buscando...</span>
+                    </div>
+                    <h5 class="text-primary">Analizando consulta con IA...</h5>
+                    <p class="text-muted">Generando embeddings y calculando similitudes semánticas</p>
+                </div>
+
+                <!-- Search Results -->
+                <div id="searchResults" class="d-none">
+                    <!-- Query Info -->
+                    <div class="alert alert-primary border-0 shadow-sm mb-4">
+                        <h5 class="mb-2">
+                            <i class="fas fa-brain me-2"></i>Consulta analizada:
+                        </h5>
+                        <p class="mb-2 fw-bold" id="displayQuery">-</p>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <small><i class="fas fa-mobile me-1"></i>Productos encontrados: <span id="totalProducts"
+                                        class="fw-bold">0</span></small>
+                            </div>
+                            <div class="col-md-6">
+                                <small><i class="fas fa-comments me-1"></i>Reseñas relevantes: <span id="totalReviews"
+                                        class="fw-bold">0</span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Products Results -->
+                    <div id="productsSection">
+                        <h4 class="mb-3">
+                            <i class="fas fa-shopping-cart me-2"></i>Productos Relevantes
+                        </h4>
+                        <div id="productsContainer" class="row g-3">
+                            <!-- Products will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Reviews Results -->
+                    <div id="reviewsSection" class="mt-5 d-none">
+                        <h4 class="mb-3">
+                            <i class="fas fa-star me-2"></i>Reseñas Relacionadas
+                        </h4>
+                        <div id="reviewsContainer">
+                            <!-- Reviews will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="alert alert-danger d-none">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Error en la búsqueda</h5>
+                    <p id="errorText">-</p>
+                </div>
+<!-- System Verification Section - OCULTA
+<div class="mt-5">
+    <div class="card border-info shadow-sm">
+        <div class="card-header bg-info text-white">
+            <h4 class="mb-0"><i class="fas fa-check-circle me-2"></i>Verificación del Sistema</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card test-card h-100" id="test5-card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-database me-2"></i>Arquitectura de Base de Datos</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Verificar estrategias de embedding y referencing en MongoDB</p>
+                            <button class="btn btn-outline-info w-100" onclick="testNoSQLSchema()">
+                                <i class="fas fa-database"></i> Validar Arquitectura
+                            </button>
+                            <div id="schemaResults" class="result-box" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card test-card h-100" id="test6-card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-cloud me-2"></i>Integración de APIs REST</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Probar endpoints: /api/products, /api/categories, /api/stats</p>
+                            <button class="btn btn-outline-dark w-100" onclick="testAPIEndpoints()">
+                                <i class="fas fa-cloud"></i> Probar APIs
+                            </button>
+                            <div id="apiResults" class="result-box" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0"><i class="fas fa-list me-2"></i>Registro de Verificación</h6>
+                </div>
+                <div class="card-body">
+                    <div id="testLog"
+                        style="background: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 200px; overflow-y: auto; font-family: monospace; font-size: 0.85rem;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+FIN de sección oculta -->
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='ragtech.js') }}"></script>
+    <script>
+        function logMessage(message, type) {
+            const log = document.getElementById('testLog');
+            if (!log) return;
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = { success: 'text-success', error: 'text-danger', warning: 'text-warning', info: 'text-info' };
+            log.innerHTML += '<div class="' + (colors[type] || 'text-dark') + '">[' + timestamp + '] ' + message + '</div>';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateTestCard(cardId, status) {
+            const card = document.getElementById(cardId);
+            if (card) card.className = 'card test-card h-100 ' + status;
+        }
+
+        async function testNoSQLSchema() {
+            logMessage('Verificando arquitectura de base de datos...', 'info');
+            try {
+                const response = await fetch('/api/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test5-card', 'success');
+                    document.getElementById('schemaResults').style.display = 'block';
+                    document.getElementById('schemaResults').innerHTML =
+                        '<strong>✓ Arquitectura Verificada</strong><br>' +
+                        '<strong>Estrategia Embedding:</strong> Marcas embebidas en productos<br>' +
+                        '<strong>Estrategia Referencing:</strong> Categorías referenciadas<br>' +
+                        '<pre class="mt-2" style="background:#fff; padding:1rem; border-radius:5px; font-size:0.85rem;">' +
+                        JSON.stringify(data, null, 2) + '</pre>';
+                    logMessage('✓ Arquitectura de BD verificada correctamente', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test5-card', 'warning');
+                logMessage('⚠ Error en verificación: ' + error.message, 'warning');
+            }
+        }
+
+        async function testAPIEndpoints() {
+            logMessage('Probando integración completa de APIs REST...', 'info');
+            const endpoints = [
+                { url: '/api/products', name: 'GET /api/products', method: 'GET' },
+                { url: '/api/categories', name: 'GET /api/categories', method: 'GET' },
+                { url: '/api/stats', name: 'GET /api/stats', method: 'GET' },
+                { url: '/api/products/search?query=laptop', name: 'GET /api/products/search (vectorial)', method: 'GET' },
+                { url: '/api/products/search-by-image?description=smartphone', name: 'GET /api/products/search-by-image', method: 'GET' },
+                { url: '/rag', name: 'POST /rag (Sistema RAG)', method: 'POST', body: { query: 'mejores auriculares', max_products: 3, include_reviews: true } }
+            ];
+            let results = '<strong>Estado de Endpoints REST:</strong><br><ul class="list-unstyled">';
+            let allOk = true;
+            let successCount = 0;
+
+            for (const endpoint of endpoints) {
+                try {
+                    const options = {
+                        method: endpoint.method,
+                        headers: endpoint.method === 'POST' ? { 'Content-Type': 'application/json' } : {}
+                    };
+
+                    if (endpoint.body) {
+                        options.body = JSON.stringify(endpoint.body);
+                    }
+
+                    const response = await fetch(endpoint.url, options);
+                    if (response.ok) {
+                        const data = await response.json();
+                        const resultInfo = data.total_results ? ` (${data.total_results} resultados)` :
+                            data.total ? ` (${data.total} items)` :
+                                data.productos ? ` (${data.productos.length} productos)` : '';
+                        results += '<li class="text-success mb-1"><i class="fas fa-check-circle"></i> ' + endpoint.name + resultInfo + '</li>';
+                        successCount++;
+                    } else {
+                        results += '<li class="text-danger mb-1"><i class="fas fa-times-circle"></i> ' + endpoint.name + ': Error ' + response.status + '</li>';
+                        allOk = false;
+                    }
+                } catch (e) {
+                    results += '<li class="text-danger mb-1"><i class="fas fa-exclamation-triangle"></i> ' + endpoint.name + ': ' + e.message + '</li>';
+                    allOk = false;
+                }
+            }
+            results += '</ul>';
+            results += '<div class="mt-2"><strong>Resumen:</strong> ' + successCount + '/' + endpoints.length + ' endpoints funcionando correctamente</div>';
+
+            if (allOk) {
+                updateTestCard('test6-card', 'success');
+                logMessage('✓ Todas las APIs REST funcionan correctamente (' + successCount + '/' + endpoints.length + ')', 'success');
+            } else {
+                updateTestCard('test6-card', 'warning');
+                logMessage('⚠ Algunas APIs presentan problemas (' + successCount + '/' + endpoints.length + ' funcionando)', 'warning');
+            }
+
+            document.getElementById('apiResults').style.display = 'block';
+            document.getElementById('apiResults').innerHTML = results;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            logMessage('Sistema de verificación inicializado', 'info');
+            logMessage('RAG Tech - Verificación de arquitectura y APIs', 'info');
+
+            // Image upload preview
+            document.getElementById('imageUpload')?.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        document.getElementById('previewImg').src = e.target.result;
+                        document.getElementById('imagePreview').style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Image search form handler - BÚSQUEDA MULTIMODAL CON CLIP
+            document.getElementById('imageSearchForm')?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const imageFile = document.getElementById('imageUpload').files[0];
+                const description = document.getElementById('imageDescription').value.trim();
+
+                // Validar que haya al menos uno
+                if (!imageFile && !description) {
+                    showError('Por favor sube una imagen O escribe una descripción del producto');
+                    return;
+                }
+
+                // Show loading
+                document.getElementById('welcomeMessage').classList.add('d-none');
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+                document.getElementById('searchResults').classList.add('d-none');
+                document.getElementById('errorMessage').classList.add('d-none');
+
+                try {
+                    let response;
+                    let queryDisplay = '';
+
+                    // OPCIÓN 1: Si hay imagen, enviarla como FormData (POST)
+                    if (imageFile) {
+                        const formData = new FormData();
+                        formData.append('image', imageFile);
+                        if (description) {
+                            formData.append('description', description);
+                        }
+
+                        console.log('🖼️ Búsqueda por IMAGEN REAL:', imageFile.name);
+                        queryDisplay = '🖼️ Imagen: ' + imageFile.name;
+
+                        response = await fetch('/api/products/search-by-image', {
+                            method: 'POST',
+                            body: formData
+                        });
+                    }
+                    // OPCIÓN 2: Solo descripción, usar GET con CLIP text embedding
+                    else {
+                        console.log('🔍 Búsqueda por DESCRIPCIÓN (CLIP):', description);
+                        queryDisplay = '🔍 Búsqueda CLIP: ' + description;
+
+                        const url = '/api/products/search-by-image?description=' + encodeURIComponent(description);
+                        response = await fetch(url);
+                    }
+
+                    console.log('Response status:', response.status);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✓ Resultados:', data);
+                        displaySearchResults(data, queryDisplay);
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error HTTP:', response.status, errorData);
+                        showError(errorData.error || 'Error al buscar');
+                    }
+                } catch (error) {
+                    console.error('Error en búsqueda:', error);
+                    showError('Error de conexión: ' + error.message);
+                }
+            });
+
+            // FILTROS DESHABILITADOS - JavaScript comentado
+            /*
+            document.getElementById('hybridSearchForm')?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const query = document.getElementById('hybridQueryInput').value;
+                const category = document.getElementById('categoryFilter').value;
+                const maxPrice = document.getElementById('priceFilter').value;
+                const brand = document.getElementById('brandFilter').value;
+
+                let url = '/api/products/search?query=' + encodeURIComponent(query);
+                if (category) url += '&category=' + category;
+                if (maxPrice) url += '&max_price=' + maxPrice;
+                if (brand) url += '&brand=' + brand;
+
+                // Show loading
+                document.getElementById('welcomeMessage').classList.add('d-none');
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+                document.getElementById('searchResults').classList.add('d-none');
+
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        displaySearchResults(data, query);
+                    } else {
+                        showError('Error en búsqueda híbrida');
+                    }
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+            */
+
+            // RAG search form handler
+            document.getElementById('ragSearchForm')?.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const query = document.getElementById('ragQueryInput').value;
+                const maxProducts = document.getElementById('ragMaxProducts').value;
+                const maxReviews = document.getElementById('ragMaxReviews').value;
+
+                // Show loading
+                document.getElementById('welcomeMessage').classList.add('d-none');
+                document.getElementById('loadingIndicator').classList.remove('d-none');
+                document.getElementById('searchResults').classList.add('d-none');
+
+                try {
+                    const response = await fetch('/rag', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            query: query,
+                            max_products: parseInt(maxProducts),
+                            max_reviews: parseInt(maxReviews),
+                            include_reviews: true
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        displayRAGResults(data, query);
+                    } else {
+                        showError('Error en consulta RAG');
+                    }
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+        });
+
+        function renderProductCard(p) {
+            // Usar p.imagen (del nuevo backend) o p.imagen_principal (del viejo)
+            let imagenNombre = p.imagen || p.imagen_principal || '';
+
+            // Si la imagen ya incluye /images/, no agregarla de nuevo
+            let imagenUrl = '';
+            if (imagenNombre) {
+                if (imagenNombre.startsWith('/images/') || imagenNombre.startsWith('http')) {
+                    imagenUrl = imagenNombre;
+                } else {
+                    imagenUrl = '/images/' + imagenNombre;
+                }
+            }
+
+            const img = imagenUrl ?
+                '<img src="' + imagenUrl + '" class="card-img-top" style="height:200px;object-fit:contain;padding:15px;background:#f8f9fa;" alt="' + (p.nombre || 'Producto') + '" />' :
+                '<div class="card-img-top d-flex align-items-center justify-content-center" style="height:200px;background:#f8f9fa;"><i class="fas fa-image text-muted" style="font-size:2rem;"></i></div>';
+
+            return '<div class="col-md-4 mb-3"><div class="card h-100 shadow-sm product-card" style="cursor:pointer;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform=\'scale(1.02)\';this.style.boxShadow=\'0 4px 15px rgba(0,0,0,0.2)\'" onmouseout="this.style.transform=\'scale(1)\';this.style.boxShadow=\'\'" onclick="showProductDetails(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')">' + img +
+                '<div class="card-body">' +
+                '<h6 class="card-title">' + (p.nombre || 'Sin nombre') + '</h6>' +
+                '<p class="card-text text-muted small">' + (p.descripcion ? p.descripcion.substring(0, 80) + '...' : 'Sin descripción') + '</p>' +
+                '<p class="card-text">' +
+                '<strong>Marca:</strong> ' + (p.marca || 'N/A') + '<br>' +
+                '<strong>Precio:</strong> $' + (p.precio_usd || 0) + '<br>' +
+                (p.similarity ? '<span class="badge bg-primary mt-1">Similitud: ' + p.similarity.toFixed(1) + '%</span>' : '') +
+                '</p>' +
+                '<button class="btn btn-sm btn-outline-primary w-100" onclick="event.stopPropagation();showProductDetails(' + JSON.stringify(p).replace(/"/g, '&quot;') + ')"><i class="fas fa-info-circle me-1"></i>Ver detalles</button>' +
+                '</div></div></div>';
+        }
+
+        function displaySearchResults(data, query) {
+            document.getElementById('loadingIndicator').classList.add('d-none');
+            document.getElementById('searchResults').classList.remove('d-none');
+            document.getElementById('errorMessage').classList.add('d-none');
+            document.getElementById('displayQuery').textContent = query;
+            document.getElementById('totalProducts').textContent = data.results?.length || 0;
+            document.getElementById('totalReviews').textContent = data.total_reviews || 0;
+
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = '';
+
+            if (data.results && data.results.length > 0) {
+                data.results.forEach(product => {
+                    container.innerHTML += renderProductCard(product);
+                });
+            } else {
+                // Mostrar mensaje con sugerencias
+                let errorHTML = '<div class="col-12"><div class="alert alert-warning shadow-sm">';
+                errorHTML += '<h5><i class="fas fa-exclamation-triangle me-2"></i>No se encontraron productos</h5>';
+                
+                if (data.message) {
+                    errorHTML += '<p class="mb-2">' + data.message + '</p>';
+                }
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    errorHTML += '<ul class="mb-0">';
+                    data.suggestions.forEach(suggestion => {
+                        errorHTML += '<li>' + suggestion + '</li>';
+                    });
+                    errorHTML += '</ul>';
+                } else {
+                    errorHTML += '<p class="mb-0">💡 Intenta con una descripción más general o verifica que los embeddings CLIP estén cargados en la base de datos.</p>';
+                }
+                
+                errorHTML += '</div></div>';
+                container.innerHTML = errorHTML;
+            }
+        }
+
+        function displayRAGResults(data, query) {
+            document.getElementById('loadingIndicator').classList.add('d-none');
+            document.getElementById('searchResults').classList.remove('d-none');
+            document.getElementById('errorMessage').classList.add('d-none');
+            document.getElementById('displayQuery').textContent = query;
+            document.getElementById('totalProducts').textContent = data.context?.total_productos || 0;
+            document.getElementById('totalReviews').textContent = data.context?.total_resenas || 0;
+
+            const container = document.getElementById('productsContainer');
+            
+            // Mostrar respuesta RAG primero
+            let ragHTML = '<div class="col-12">' +
+                '<div class="alert alert-info shadow-sm">' +
+                '<h5><i class="fas fa-robot me-2"></i>Respuesta del Sistema RAG:</h5>' +
+                '<div class="mb-0" style="white-space: pre-wrap;">' + (data.rag_response || 'Sin respuesta') + '</div>' +
+                '</div>' +
+                '<div class="card mt-3 mb-4">' +
+                '<div class="card-body">' +
+                '<p class="mb-2"><strong><i class="fas fa-brain me-1"></i> Modelo:</strong> ' + (data.metadata?.model_used || 'N/A') + '</p>' +
+                '<p class="mb-2"><strong><i class="fas fa-box me-1"></i> Productos analizados:</strong> ' + (data.context?.total_productos || 0) + '</p>' +
+                '<p class="mb-0"><strong><i class="fas fa-comments me-1"></i> Reseñas incluidas:</strong> ' + (data.context?.total_resenas || 0) + '</p>' +
+                '</div></div></div>';
+            
+            container.innerHTML = ragHTML;
+            
+            // Agregar productos si existen en el contexto
+            if (data.context && data.context.productos && data.context.productos.length > 0) {
+                container.innerHTML += '<div class="col-12"><h5 class="mt-3 mb-3"><i class="fas fa-boxes me-2"></i>Productos Analizados:</h5></div>';
+                data.context.productos.forEach(product => {
+                    container.innerHTML += renderProductCard(product);
+                });
+            }
+        }
+
+        function showProductDetails(product) {
+            // Construir URL de imagen
+            let imagenUrl = '';
+            const imagenNombre = product.imagen || product.imagenPrincipal;
+            if (imagenNombre) {
+                if (imagenNombre.startsWith('/images/') || imagenNombre.startsWith('http')) {
+                    imagenUrl = imagenNombre;
+                } else {
+                    imagenUrl = '/images/' + imagenNombre;
+                }
+            }
+
+            const modalHTML = `
+                <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title"><i class="fas fa-box me-2"></i>\${product.nombre || 'Producto'}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        \${imagenUrl ? 
+                                            \`<img src="\${imagenUrl}" class="img-fluid rounded shadow" style="width:100%;object-fit:contain;max-height:300px;background:#f8f9fa;padding:20px;" alt="\${product.nombre || 'Producto'}">\` :
+                                            '<div class="d-flex align-items-center justify-content-center" style="height:300px;background:#f8f9fa;border-radius:8px;"><i class="fas fa-image text-muted" style="font-size:4rem;"></i></div>'
+                                        }
+                                        \${product.similarity ? \`<div class="text-center mt-3"><span class="badge bg-primary fs-6">Similitud: \${product.similarity.toFixed(1)}%</span></div>\` : ''}
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h6 class="text-muted mb-3">\${product.descripcion || 'Sin descripción disponible'}</h6>
+                                        
+                                        <div class="mb-3">
+                                            <p class="mb-2"><strong><i class="fas fa-tag me-2 text-primary"></i>Código:</strong> \${product.codigo || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-copyright me-2 text-primary"></i>Marca:</strong> \${product.marca || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-folder me-2 text-primary"></i>Categoría:</strong> \${product.categoria || 'N/A'}</p>
+                                            <p class="mb-2"><strong><i class="fas fa-dollar-sign me-2 text-success"></i>Precio:</strong> <span class="fs-4 text-success fw-bold">$\${product.precio_usd || 0}</span></p>
+                                        </div>
+
+                                        <div class="d-grid gap-2">
+                                            <button class="btn btn-success btn-lg" onclick="alert('Funcionalidad de compra en desarrollo')">
+                                                <i class="fas fa-shopping-cart me-2"></i>Agregar al carrito
+                                            </button>
+                                            <button class="btn btn-outline-primary" onclick="alert('Comparador en desarrollo')">
+                                                <i class="fas fa-balance-scale me-2"></i>Comparar producto
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Eliminar modal anterior si existe
+            const oldModal = document.getElementById('productModal');
+            if (oldModal) {
+                oldModal.remove();
+            }
+
+            // Agregar modal al DOM
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('productModal'));
+            modal.show();
+
+            // Limpiar al cerrar
+            document.getElementById('productModal').addEventListener('hidden.bs.modal', function () {
+                this.remove();
+            });
+        }
+
+        function showError(message) {
+            document.getElementById('welcomeMessage').classList.add('d-none');
+            document.getElementById('loadingIndicator').classList.add('d-none');
+            document.getElementById('searchResults').classList.add('d-none');
+            document.getElementById('errorMessage').classList.remove('d-none');
+            document.getElementById('errorText').textContent = message;
+        }
+    </script>
+</body>
+
+</html>

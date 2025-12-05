@@ -1,0 +1,28 @@
+{
+  "name": "idx_imagen_vector_clip",
+  "type": "vectorSearch",
+  "fields": [
+    {
+      "type": "vector",
+      "path": "imagen_embedding_clip",
+      "numDimensions": 512,
+      "similarity": "cosine"
+    },
+    {
+      "type": "filter",
+      "path": "codigo_producto"
+    },
+    {
+      "type": "filter",
+      "path": "tipo_imagen"
+    },
+    {
+      "type": "filter",
+      "path": "es_principal"
+    },
+    {
+      "type": "filter",
+      "path": "texto_alternativo"
+    }
+  ]
+}

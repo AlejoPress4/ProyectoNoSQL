@@ -1,0 +1,418 @@
+/* Estilos CSS para la aplicación RAG Tech */
+
+:root {
+    --primary-color: #0066cc;
+    --success-color: #28a745;
+    --info-color: #17a2b8;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --dark-color: #343a40;
+    --light-color: #f8f9fa;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+}
+
+/* Navbar */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Hero Section */
+.display-4 {
+    color: var(--primary-color);
+}
+
+/* Cards */
+.card {
+    border-radius: var(--border-radius);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow);
+}
+
+/* Search Panel */
+.search-panel {
+    position: sticky;
+    top: 20px;
+}
+
+.search-panel .card-header {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+/* Product Cards */
+.product-card {
+    transition: all 0.3s ease;
+    border: 1px solid #dee2e6;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.product-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,102,204,0.2);
+}
+
+.product-image {
+    height: 200px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 3rem;
+}
+
+.similarity-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+    font-size: 0.8rem;
+}
+
+.price-tag {
+    background: linear-gradient(45deg, var(--success-color), #20c997);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+}
+
+/* Reviews */
+.review-card {
+    border-left: 4px solid var(--primary-color);
+    background: white;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.review-card:hover {
+    border-left-color: var(--success-color);
+    transform: translateX(5px);
+    box-shadow: var(--box-shadow);
+}
+
+.rating-stars {
+    color: var(--warning-color);
+}
+
+/* Quick examples */
+.quick-example {
+    text-align: left;
+    font-size: 0.85rem;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+}
+
+.quick-example:hover {
+    transform: translateX(5px);
+}
+
+/* Badge examples */
+.badge-example {
+    margin-bottom: 1rem;
+}
+
+.badge-example .badge {
+    font-size: 0.9rem;
+    border-radius: var(--border-radius);
+    padding: 0.7rem 1.2rem;
+    display: block;
+    width: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.badge-example .badge:hover {
+    transform: scale(1.05);
+}
+
+/* Stats */
+.stat-card {
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+/* Loading animation */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    min-height: 44px; /* WCAG AAA touch target size */
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+.btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Form controls */
+.form-control, .form-select {
+    border-radius: var(--border-radius);
+    border: 1px solid #ced4da;
+    transition: all 0.3s ease;
+    min-height: 44px; /* WCAG AAA touch target size */
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0,102,204,0.25);
+    outline: 2px solid transparent;
+}
+
+/* Skip to main content link for screen readers */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: var(--primary-color);
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 9999;
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .card {
+        border: 2px solid #000;
+    }
+    
+    .btn {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Availability status */
+.availability-en_stock {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.availability-agotado {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.availability-pre_orden {
+    background-color: var(--warning-color);
+    color: dark;
+}
+
+.availability-descontinuado {
+    background-color: var(--dark-color);
+    color: white;
+}
+
+/* Brand badges */
+.brand-apple { border-left: 4px solid #007aff; }
+.brand-samsung { border-left: 4px solid #1f7fe8; }
+.brand-xiaomi { border-left: 4px solid #ff6900; }
+.brand-sony { border-left: 4px solid #000000; }
+.brand-google { border-left: 4px solid #4285f4; }
+.brand-microsoft { border-left: 4px solid #00a1f1; }
+
+/* Category badges */
+.category-smartphones { background-color: #e3f2fd; color: #1976d2; }
+.category-laptops { background-color: #f3e5f5; color: #7b1fa2; }
+.category-tablets { background-color: #e8f5e8; color: #388e3c; }
+.category-audio { background-color: #fff3e0; color: #f57c00; }
+.category-wearables { background-color: #fce4ec; color: #c2185b; }
+.category-vaping { background-color: #f1f8e9; color: #689f38; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-panel {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+    
+    .product-card {
+        margin-bottom: 1rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: var(--border-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0052a3;
+}
+
+/* Estilos para product details expandidos */
+.product-specs {
+    background-color: #f8f9fa;
+    padding: 8px;
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+}
+
+.product-specs small {
+    margin-bottom: 4px;
+}
+
+/* Modal mejorado para detalles del producto */
+.modal-lg {
+    max-width: 900px;
+}
+
+.modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Badges mejorados para disponibilidad */
+.availability-en_stock {
+    background-color: var(--success-color) !important;
+    color: white;
+}
+
+.availability-agotado {
+    background-color: var(--danger-color) !important;
+    color: white;
+}
+
+.availability-pre_orden {
+    background-color: var(--warning-color) !important;
+    color: black;
+}
+
+.availability-descontinuado {
+    background-color: var(--dark-color) !important;
+    color: white;
+}
+
+/* Botón Ver Detalles */
+.btn-outline-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,102,204,0.3);
+}
+
+/* Tabla de información del producto */
+.table-striped tbody tr:nth-of-type(odd) td {
+    background-color: rgba(0,0,0,.02);
+}
+
+/* Toast notifications */
+.toast {
+    z-index: 1060;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+}
+
+/* Análisis de coincidencia */
+.bg-primary.bg-opacity-10 {
+    background-color: rgba(0,102,204,0.1) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-lg {
+        margin: 10px;
+        max-width: calc(100% - 20px);
+    }
+    
+    .product-specs {
+        font-size: 0.8rem;
+    }
+}

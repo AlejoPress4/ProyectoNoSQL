@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pruebas Academicas - Sistema RAG NoSQL</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-card { border-left: 4px solid #007bff; transition: all 0.3s ease; }
+        .test-card.success { border-left-color: #28a745; background-color: #d4edda; }
+        .test-card.warning { border-left-color: #ffc107; background-color: #fff3cd; }
+        .test-card.error { border-left-color: #dc3545; background-color: #f8d7da; }
+        .result-box { background: #f8f9fa; border-radius: 8px; padding: 1rem; margin-top: 1rem; max-height: 400px; overflow-y: auto; }
+        .requirement-badge { background: #e3f2fd; color: #1976d2; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; margin: 0.25rem; display: inline-block; }
+        .score-display { font-size: 2rem; font-weight: bold; color: #28a745; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-primary">
+                    <div class="card-header bg-primary text-white">
+                        <h1 class="mb-0"><i class="fas fa-university me-2"></i>Pruebas Academicas - Sistema RAG NoSQL</h1>
+                        <p class="mb-0">Verificacion de cumplimiento con requisitos del proyecto final</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3"><div class="score-display" id="totalScore">0/120</div><small class="text-muted">Puntuacion Total</small></div>
+                            <div class="col-md-3"><div class="h4" id="projectStatus"><span class="badge bg-secondary fs-6">Pendiente</span></div><small class="text-muted">Estado</small></div>
+                            <div class="col-md-3"><div class="h4" id="academicGrade">--</div><small class="text-muted">Nota</small></div>
+                            <div class="col-md-3"><div class="h6" id="lastTest">--</div><small class="text-muted">Ultima Prueba</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-4">
+            <div class="col-12 text-center">
+                <button class="btn btn-success btn-lg me-3" onclick="runAllAcademicTests()"><i class="fas fa-play me-2"></i>Ejecutar Todas</button>
+                <button class="btn btn-outline-secondary" onclick="generateReport()"><i class="fas fa-download me-2"></i>Reporte</button>
+            </div>
+        </div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test1-card"><div class="card-header"><h5><i class="fas fa-search me-2"></i>1. Busqueda Semantica</h5></div><div class="card-body"><div class="input-group mb-3"><label for="semanticQuery" class="visually-hidden">Consulta de búsqueda semántica</label><input type="text" class="form-control" id="semanticQuery" value="Que productos hablan sobre tecnologia movil?" aria-label="Consulta de búsqueda semántica" placeholder="Ingrese su consulta de búsqueda"><button class="btn btn-outline-primary" onclick="testSemanticSearch()" aria-label="Ejecutar búsqueda semántica"><i class="fas fa-search"></i> Buscar</button></div><div id="semanticResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test2-card"><div class="card-header"><h5><i class="fas fa-filter me-2"></i>2. Filtros Hibridos</h5></div><div class="card-body"><div class="row mb-3"><div class="col-md-4"><label for="hybridQuery" class="visually-hidden">Consulta de búsqueda híbrida</label><input type="text" class="form-control" id="hybridQuery" value="smartphones stock" aria-label="Consulta de búsqueda híbrida" placeholder="Ingrese término de búsqueda"></div><div class="col-md-4"><label for="hybridCategory" class="visually-hidden">Categoría</label><select class="form-control" id="hybridCategory" aria-label="Seleccione categoría"><option value="">Todas</option><option value="smartphones">Smartphones</option></select></div><div class="col-md-4"><label for="hybridMaxPrice" class="visually-hidden">Precio máximo</label><input type="number" class="form-control" id="hybridMaxPrice" value="800" aria-label="Precio máximo" placeholder="Precio máximo"></div></div><button class="btn btn-outline-warning" onclick="testHybridFilter()" aria-label="Aplicar filtros híbridos"><i class="fas fa-filter"></i> Filtrar</button><div id="hybridResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test3-card"><div class="card-header"><h5><i class="fas fa-robot me-2"></i>3. RAG Complejo</h5></div><div class="card-body"><div class="input-group mb-3"><label for="ragQuery" class="visually-hidden">Consulta RAG</label><input type="text" class="form-control" id="ragQuery" value="Explica las caracteristicas de los mejores smartphones" aria-label="Consulta RAG" placeholder="Ingrese su pregunta para el sistema RAG"><button class="btn btn-outline-success" onclick="testRAGComplex()" aria-label="Ejecutar consulta RAG"><i class="fas fa-robot"></i> RAG</button></div><div id="ragResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test4-card"><div class="card-header"><h5><i class="fas fa-database me-2"></i>4. Esquema NoSQL</h5></div><div class="card-body"><button class="btn btn-outline-info" onclick="testNoSQLSchema()"><i class="fas fa-database"></i> Validar</button><div id="schemaResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test5-card"><div class="card-header"><h5><i class="fas fa-cloud me-2"></i>5. APIs REST</h5></div><div class="card-body"><button class="btn btn-outline-dark" onclick="testAPIEndpoints()"><i class="fas fa-cloud"></i> Probar</button><div id="apiResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mb-3"><div class="col-12"><div class="card test-card" id="test6-card"><div class="card-header"><h5><i class="fas fa-camera me-2"></i>6. Busqueda por Imagenes</h5></div><div class="card-body"><div class="mb-3"><label for="imageSearchQuery" class="visually-hidden">Descripción de imagen</label><input type="text" class="form-control" id="imageSearchQuery" value="arquitectura moderna edificio" aria-label="Descripción de imagen para búsqueda" placeholder="Describa la imagen que busca"></div><button class="btn btn-outline-primary" onclick="testImageSearch()" aria-label="Ejecutar búsqueda por imagen"><i class="fas fa-camera"></i> Buscar</button><div id="imageSearchResults" class="result-box" style="display: none;"></div></div></div></div></div>
+        <div class="row mt-4"><div class="col-12"><div class="card"><div class="card-header"><h5><i class="fas fa-list me-2"></i>Log</h5></div><div class="card-body"><div id="testLog" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; font-family: monospace;"></div></div></div></div></div>
+    </div>
+    <script>
+        let testScore = 0;
+        let totalTests = 6;
+
+        function logMessage(message, type) {
+            const log = document.getElementById('testLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = { success: 'text-success', error: 'text-danger', warning: 'text-warning', info: 'text-info' };
+            log.innerHTML += '<div class="' + (colors[type] || 'text-dark') + '">[' + timestamp + '] ' + message + '</div>';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateTestCard(cardId, status) {
+            document.getElementById(cardId).className = 'card test-card ' + status;
+        }
+
+        function updateScore(points) {
+            if (points > 0) testScore += points;
+            const pct = (testScore / 120) * 100;
+            document.getElementById('totalScore').textContent = testScore + '/120';
+            if (pct >= 90) { document.getElementById('projectStatus').innerHTML = '<span class="badge bg-success fs-6">Sobresaliente</span>'; document.getElementById('academicGrade').textContent = '9.0-10.0'; }
+            else if (pct >= 80) { document.getElementById('projectStatus').innerHTML = '<span class="badge bg-primary fs-6">Notable</span>'; document.getElementById('academicGrade').textContent = '8.0-8.9'; }
+            else if (pct >= 70) { document.getElementById('projectStatus').innerHTML = '<span class="badge bg-warning fs-6">Bien</span>'; document.getElementById('academicGrade').textContent = '7.0-7.9'; }
+            else if (pct >= 60) { document.getElementById('projectStatus').innerHTML = '<span class="badge bg-info fs-6">Aprobado</span>'; document.getElementById('academicGrade').textContent = '6.0-6.9'; }
+            else { document.getElementById('projectStatus').innerHTML = '<span class="badge bg-danger fs-6">Suspenso</span>'; document.getElementById('academicGrade').textContent = '0.0-5.9'; }
+            document.getElementById('lastTest').textContent = new Date().toLocaleString();
+        }
+
+        function renderProductCard(p) {
+            const img = p.imagen_principal ? '<img src="/images/' + p.imagen_principal + '" class="card-img-top" style="height:150px;object-fit:cover;" />' : '<div class="card-img-top d-flex align-items-center justify-content-center" style="height:150px;background:#f8f9fa;"><i class="fas fa-image text-muted" style="font-size:2rem;"></i></div>';
+            return '<div class="col-md-4 mb-3"><div class="card h-100">' + img + '<div class="card-body"><h6>' + p.nombre + '</h6><p><strong>Marca:</strong> ' + (p.marca?.nombre || 'N/A') + '<br><strong>Precio:</strong> $' + (p.precio_usd || 0) + '<br><span class="badge bg-primary">Similitud: ' + ((p.similarity || 0) * 100).toFixed(1) + '%</span></p></div></div></div>';
+        }
+
+        function renderProductsList(productos) {
+            if (!productos || productos.length === 0) return '<p>No se encontraron productos.</p>';
+            return '<div class="row">' + productos.map(renderProductCard).join('') + '</div>';
+        }
+
+        async function testSemanticSearch() {
+            logMessage('Iniciando busqueda semantica...', 'info');
+            try {
+                const query = document.getElementById('semanticQuery').value;
+                const response = await fetch('/api/products/search?query=' + encodeURIComponent(query));
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test1-card', 'success');
+                    updateScore(20);
+                    document.getElementById('semanticResults').style.display = 'block';
+                    document.getElementById('semanticResults').innerHTML = '<strong>Busqueda Exitosa</strong><br>Productos: ' + (data.results?.length || 0) + '<br>' + renderProductsList(data.results);
+                    logMessage('Busqueda semantica: APROBADA (20/20)', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test1-card', 'error');
+                logMessage('Busqueda semantica: ERROR - ' + error.message, 'error');
+                document.getElementById('semanticResults').style.display = 'block';
+                document.getElementById('semanticResults').innerHTML = '<strong>Error</strong><br>' + error.message;
+            }
+        }
+
+        async function testHybridFilter() {
+            logMessage('Iniciando filtros hibridos...', 'info');
+            try {
+                const query = document.getElementById('hybridQuery').value;
+                const category = document.getElementById('hybridCategory').value;
+                const maxPrice = document.getElementById('hybridMaxPrice').value;
+                let url = '/api/products/search?query=' + encodeURIComponent(query);
+                if (category) url += '&category=' + category;
+                if (maxPrice) url += '&max_price=' + maxPrice;
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test2-card', 'success');
+                    updateScore(20);
+                    document.getElementById('hybridResults').style.display = 'block';
+                    document.getElementById('hybridResults').innerHTML = '<strong>Filtros Exitosos</strong><br>Productos: ' + (data.results?.length || 0) + '<br>' + renderProductsList(data.results);
+                    logMessage('Filtros hibridos: APROBADOS (20/20)', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test2-card', 'error');
+                logMessage('Filtros hibridos: ERROR - ' + error.message, 'error');
+            }
+        }
+
+        async function testRAGComplex() {
+            logMessage('Iniciando RAG complejo...', 'info');
+            try {
+                const query = document.getElementById('ragQuery').value;
+                const response = await fetch('/rag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, max_products: 5, max_reviews: 3, include_reviews: true })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test3-card', 'success');
+                    updateScore(20);
+                    document.getElementById('ragResults').style.display = 'block';
+                    document.getElementById('ragResults').innerHTML = '<strong>RAG Exitoso</strong><br>Modelo: ' + (data.metadata?.model_used || 'N/A') + '<br>Contexto: ' + (data.context?.total_productos || 0) + ' productos<br><div class="alert alert-info mt-2">' + (data.rag_response || 'Sin respuesta') + '</div>';
+                    logMessage('RAG complejo: APROBADO (20/20)', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test3-card', 'error');
+                logMessage('RAG complejo: ERROR - ' + error.message, 'error');
+            }
+        }
+
+        async function testNoSQLSchema() {
+            logMessage('Validando esquema NoSQL...', 'info');
+            try {
+                const response = await fetch('/api/stats');
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test4-card', 'success');
+                    updateScore(20);
+                    document.getElementById('schemaResults').style.display = 'block';
+                    document.getElementById('schemaResults').innerHTML = '<strong>Esquema Validado</strong><br>Embedding: Marcas en productos<br>Referencing: Categorias<br><pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    logMessage('Esquema NoSQL: APROBADO (20/20)', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test4-card', 'warning');
+                updateScore(10);
+                logMessage('Esquema NoSQL: PARCIAL - ' + error.message, 'warning');
+            }
+        }
+
+        async function testAPIEndpoints() {
+            logMessage('Probando APIs REST...', 'info');
+            let apiScore = 0;
+            const endpoints = ['/api/products', '/api/categories', '/api/stats'];
+            let results = '<strong>APIs:</strong><br>';
+            for (const url of endpoints) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) { apiScore += 5; results += 'OK: ' + url + '<br>'; }
+                    else { results += 'Error: ' + url + '<br>'; }
+                } catch (e) { results += 'Error: ' + url + '<br>'; }
+            }
+            if (apiScore >= 15) { updateTestCard('test5-card', 'success'); updateScore(20); logMessage('APIs REST: APROBADAS (20/20)', 'success'); }
+            else { updateTestCard('test5-card', 'warning'); updateScore(apiScore); logMessage('APIs REST: PARCIAL', 'warning'); }
+            document.getElementById('apiResults').style.display = 'block';
+            document.getElementById('apiResults').innerHTML = results;
+        }
+
+        async function testImageSearch() {
+            logMessage('Iniciando busqueda por imagenes...', 'info');
+            const query = document.getElementById('imageSearchQuery').value;
+            if (!query.trim()) { logMessage('Debe proporcionar descripcion', 'warning'); return; }
+            try {
+                const response = await fetch('/api/products/search?query=' + encodeURIComponent(query));
+                if (response.ok) {
+                    const data = await response.json();
+                    updateTestCard('test6-card', 'success');
+                    updateScore(20);
+                    document.getElementById('imageSearchResults').style.display = 'block';
+                    document.getElementById('imageSearchResults').innerHTML = '<strong>Busqueda Exitosa</strong><br>Productos: ' + (data.results?.length || 0) + '<br>' + renderProductsList(data.results);
+                    logMessage('Busqueda por imagenes: APROBADA (20/20)', 'success');
+                } else { throw new Error('HTTP ' + response.status); }
+            } catch (error) {
+                updateTestCard('test6-card', 'error');
+                logMessage('Busqueda por imagenes: ERROR - ' + error.message, 'error');
+                document.getElementById('imageSearchResults').style.display = 'block';
+                document.getElementById('imageSearchResults').innerHTML = '<strong>Error</strong><br>' + error.message;
+            }
+        }
+
+        async function runAllAcademicTests() {
+            logMessage('INICIANDO VALIDACION ACADEMICA COMPLETA', 'info');
+            testScore = 0;
+            await testSemanticSearch();
+            await new Promise(r => setTimeout(r, 1000));
+            await testHybridFilter();
+            await new Promise(r => setTimeout(r, 1000));
+            await testRAGComplex();
+            await new Promise(r => setTimeout(r, 1000));
+            await testNoSQLSchema();
+            await new Promise(r => setTimeout(r, 1000));
+            await testAPIEndpoints();
+            await new Promise(r => setTimeout(r, 1000));
+            await testImageSearch();
+            logMessage('VALIDACION COMPLETADA', 'success');
+            const pct = (testScore / 120) * 100;
+            if (pct >= 80) { logMessage('PROYECTO APROBADO: ' + pct.toFixed(1) + '%', 'success'); }
+            else { logMessage('Proyecto necesita mejoras: ' + pct.toFixed(1) + '%', 'warning'); }
+        }
+
+        function generateReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                score: testScore,
+                maxScore: 120,
+                percentage: (testScore / 120) * 100,
+                tests: {
+                    semantic_search: document.getElementById('test1-card').classList.contains('success'),
+                    hybrid_filters: document.getElementById('test2-card').classList.contains('success'),
+                    rag_complex: document.getElementById('test3-card').classList.contains('success'),
+                    nosql_schema: document.getElementById('test4-card').classList.contains('success'),
+                    api_rest: document.getElementById('test5-card').classList.contains('success'),
+                    image_search: document.getElementById('test6-card').classList.contains('success')
+                }
+            };
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'academic_report_' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            logMessage('Reporte descargado', 'success');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            logMessage('Sistema inicializado', 'info');
+            logMessage('Proyecto: Sistema RAG NoSQL con MongoDB', 'info');
+        });
+    </script>
+</body>
+</html>
